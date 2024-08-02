@@ -178,7 +178,7 @@ const toolTip = computed(() => {
   return props.themes === 'dark' ? 'ndark' : 'dark'
 })
 
-const resourceType = computed(() => (dvInfo.value.type === 'dashboard' ? '仪表板' : '数据大屏'))
+const resourceType = computed(() => (dvInfo.value.type === 'dashboard' ? '数据看板' : '数据大屏'))
 const themeChange = modifyName => {
   if (modifyName === 'themeColor') {
     // 主题变更

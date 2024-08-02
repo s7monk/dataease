@@ -277,7 +277,7 @@ onUnmounted(() => {
       <dv-sidebar
         v-show="!curComponent && !batchOptStatus"
         :theme-info="'light'"
-        title="仪表板配置"
+        title="数据看板配置"
         :width="420"
         aside-position="right"
         class="left-sidebar"

@@ -143,27 +143,6 @@ if (uid.value === '1') {
         >
           <span>{{ link.label }}</span>
         </div>
-
-        <div class="uinfo-main-item de-container de-language">
-          <div class="about-parent" ref="divLanguageRef" v-click-outside="openLanguage">
-            <span>语言</span>
-            <el-icon class="el-icon-animate">
-              <ArrowRight />
-            </el-icon>
-          </div>
-          <el-popover
-            ref="popoverLanguageRef"
-            :virtual-ref="divLanguageRef"
-            trigger="hover"
-            title=""
-            virtual-triggering
-            placement="left"
-            width="224"
-            popper-class="language-popover"
-          >
-            <LangSelector />
-          </el-popover>
-        </div>
       </div>
       <el-divider />
       <div class="uinfo-footer" v-if="!inPlatformClient">
@@ -173,8 +152,6 @@ if (uid.value === '1') {
       </div>
     </div>
   </el-popover>
-
-  <AboutPage />
   <XpackComponent jsname="dWNlbnRlci1oYW5kbGVy" @loaded="xpackLinkLoaded" />
 </template>
 

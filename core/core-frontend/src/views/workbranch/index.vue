@@ -79,7 +79,7 @@ const activeTabChange = value => {
 
 const tabBtnList = [
   {
-    name: '推荐仪表板',
+    name: '推荐数据看板',
     value: 'PANEL'
   },
   {

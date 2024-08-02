@@ -49,7 +49,7 @@ const mounted = ref(false)
 const rootManage = ref(false)
 const anyManage = ref(false)
 const { curCanvasType, showPosition } = toRefs(props)
-const resourceLabel = curCanvasType.value === 'dataV' ? '数据大屏' : '仪表板'
+const resourceLabel = curCanvasType.value === 'dataV' ? '数据大屏' : '数据看板'
 const newResourceLabel = '新建' + resourceLabel
 const selectedNodeKey = ref(null)
 const filterText = ref(null)

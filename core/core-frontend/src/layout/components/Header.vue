@@ -32,10 +32,6 @@ const handleIconClick = () => {
   push('/workbranch/index')
 }
 
-const handleAiClick = () => {
-  useEmitt().emitter.emit('aiComponentChange')
-}
-
 const handleCopilotClick = () => {
   push('/copilot/index')
 }
@@ -147,17 +143,10 @@ onMounted(() => {
     <div class="operate-setting" v-if="!desktop">
       <XpackComponent jsname="c3dpdGNoZXI=" />
       <el-icon style="margin: 0 10px" class="ai-icon copilot-icon" v-if="!showOverlayCopilot">
-        <Icon name="copilot" @click="handleCopilotClick" />
+        <Icon name="dv-ai" @click="handleCopilotClick" />
       </el-icon>
       <Copilot @confirm="copilotConfirm" v-if="showOverlayCopilot" class="copilot-icon-tips" />
 
-      <el-icon
-        style="margin: 0 10px"
-        class="ai-icon"
-        v-if="aiBaseUrl && !showOverlay && appearanceStore.getShowAi"
-      >
-        <Icon name="dv-ai" @click="handleAiClick" />
-      </el-icon>
       <el-tooltip effect="dark" content="数据导出中心" placement="bottom">
         <el-icon
           class="preview-download_icon"
@@ -173,7 +162,6 @@ onMounted(() => {
         class="ai-icon-tips"
       />
       <ToolboxCfg v-if="showToolbox" />
-      <TopDoc v-if="appearanceStore.getShowDoc" />
       <SystemCfg v-if="showSystem" />
       <AccountOperator />
       <ai-component

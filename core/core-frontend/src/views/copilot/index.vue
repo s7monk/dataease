@@ -199,7 +199,7 @@ const queryAnswer = (event?: KeyboardEvent) => {
       <el-icon style="margin-right: 8px; font-size: 24px">
         <Icon name="copilot" />
       </el-icon>
-      Copilot 对话分析
+      ChatBI 对话分析
     </div>
     <div class="copilot-service">
       <div class="dialogue">

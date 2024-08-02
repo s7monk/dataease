@@ -240,7 +240,7 @@ const tips = computed(() => {
     return chart.title
   }
   if (msgStatus === 0) {
-    return '抱歉，根据已知信息无法回答这个问题，请重新描述你的问题或提供更多信息～'
+    return '抱歉，该功能正在开发中～'
   } else if (msgType === 'user') {
     return question
   }
@@ -261,7 +261,7 @@ const tips = computed(() => {
     </el-icon>
     <div ref="content" class="content">
       <div v-if="isWelcome" class="question-or-title" style="font-size: 16px; font-weight: 500">
-        您好，我是 Copilot，很高兴为你服务～
+        您好，我是 ChatBI 助手，很高兴为你服务～
       </div>
       <div v-else-if="isAnswer" class="question-or-title" style="font-size: 16px; font-weight: 500">
         回答中<span class="dot">...</span>
@@ -269,7 +269,9 @@ const tips = computed(() => {
       <div v-else class="question-or-title">
         {{ tips }}
       </div>
-      <div v-if="isWelcome" class="is-welcome">您可以问我: 2020年各个销售部门销售额占比的饼图</div>
+      <div v-if="isWelcome" class="is-welcome">
+        您可以问我: 2024年某个游戏各个道具充值占比的饼图
+      </div>
       <div
         v-else-if="copilotInfo.msgType === 'api' && copilotInfo.msgStatus === 1"
         class="chart-type"

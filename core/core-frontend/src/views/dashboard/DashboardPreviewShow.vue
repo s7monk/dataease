@@ -283,7 +283,7 @@ defineExpose({
         </div>
       </template>
       <template v-else-if="hasTreeData && mounted">
-        <empty-background description="请在左侧选择仪表板" img-type="select" />
+        <empty-background description="请在左侧选择数据看板" img-type="select" />
       </template>
       <template v-else-if="mounted">
         <empty-background description="暂无仪表板" img-type="none">

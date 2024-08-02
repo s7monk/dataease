@@ -194,7 +194,7 @@ const state = reactive({
     },
     {
       value: 'PANEL',
-      label: '仪表板'
+      label: '数据看板'
     },
     {
       value: 'SCREEN',

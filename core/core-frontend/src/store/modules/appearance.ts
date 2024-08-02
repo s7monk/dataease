@@ -121,7 +121,7 @@ export const useAppearanceStore = defineStore('appearanceStore', {
       return isBtnShow(this.showDoc)
     },
     getShowAbout(): boolean {
-      return isBtnShow(this.showAbout)
+      return false
     }
   },
   actions: {

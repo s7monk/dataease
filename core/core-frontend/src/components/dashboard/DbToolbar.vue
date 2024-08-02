@@ -555,9 +555,9 @@ const initOpenHandler = newWindow => {
             />
           </el-tooltip>
 
-          <el-tooltip effect="dark" content="仪表板配置" placement="bottom">
+          <el-tooltip effect="dark" content="数据看板配置" placement="bottom">
             <component-button
-              tips="仪表板配置"
+              tips="数据看板配置"
               @custom-click="openDataBoardSetting"
               icon-name="dv-dashboard"
             />

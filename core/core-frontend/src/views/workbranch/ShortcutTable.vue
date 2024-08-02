@@ -104,8 +104,8 @@ const formatterTime = (_, _column, cellValue) => {
 const typeMap = {
   screen: '数据大屏',
   dataV: '数据大屏',
-  dashboard: '仪表板',
-  panel: '仪表板',
+  dashboard: '数据看板',
+  panel: '数据看板',
   dataset: '数据集',
   datasource: '数据源'
 }

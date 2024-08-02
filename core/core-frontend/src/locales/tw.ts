@@ -98,7 +98,7 @@ export default {
     role: '角色',
     resource: '资源权限',
     menu: '菜单权限',
-    panel: '仪表板',
+    panel: '数据看板',
     screen: '数据大屏',
     dataset: '数据集',
     datasource: '数据源',

@@ -44,7 +44,7 @@ const resourceForm = reactive({
   pName: null,
   name: '新建'
 })
-const sourceLabel = computed(() => (curCanvasType.value === 'dataV' ? '数据大屏' : '仪表板'))
+const sourceLabel = computed(() => (curCanvasType.value === 'dataV' ? '数据大屏' : '数据看板'))
 
 const methodMap = {
   move: moveResource,
@@ -117,7 +117,7 @@ const dfs = (arr: BusiTreeNode[]) => {
 const getDialogTitle = exec => {
   return {
     newFolder: '新建文件夹',
-    newLeaf: props.curCanvasType === 'dataV' ? '新建数据大屏' : '新建仪表板',
+    newLeaf: props.curCanvasType === 'dataV' ? '新建数据大屏' : '新建数据看板',
     move: '移动到',
     copy: '复制' + sourceLabel.value,
     rename: '重命名',

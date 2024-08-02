@@ -1238,7 +1238,7 @@ export const dvMainStore = defineStore('dataVisualization', {
       }
     },
     createInit(dvType, resourceId?, pid?, watermarkInfo?, preName) {
-      const optName = dvType === 'dashboard' ? '新建仪表板' : '新建数据大屏'
+      const optName = dvType === 'dashboard' ? '新建数据看板' : '新建数据大屏'
       const name = preName ? preName : optName
       this.dvInfo = {
         dataState: 'prepare',

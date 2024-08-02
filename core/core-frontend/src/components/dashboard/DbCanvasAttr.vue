@@ -106,7 +106,7 @@ const saveSelfSubject = () => {
   <div class="attr-container">
     <el-row>
       <el-collapse v-model="canvasAttrActiveNames">
-        <el-collapse-item title="仪表板风格" name="style">
+        <el-collapse-item title="数据看板风格" name="style">
           <de-slider ref="slider" />
           <el-button class="button-panel__style" text size="small" @click="saveSelfSubject">
             {{ $t('commons.save') }}
@@ -116,7 +116,7 @@ const saveSelfSubject = () => {
           <overall-setting @onThemeColorChange="themeColorChange" />
         </el-collapse-item>
 
-        <el-collapse-item title="仪表板背景" name="background" class="content-no-padding-bottom">
+        <el-collapse-item title="数据看板背景" name="background" class="content-no-padding-bottom">
           <canvas-background themes="light"></canvas-background>
         </el-collapse-item>
         <el-collapse-item

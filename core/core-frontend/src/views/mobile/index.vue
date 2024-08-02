@@ -48,7 +48,7 @@ onBeforeMount(() => {
               :name="active ? 'mobile-icon_dashboard_filled' : 'mobile-icon_dashboard_outlined'"
             ></Icon>
           </el-icon> </template
-        >仪表板</van-tabbar-item
+        >数据看板</van-tabbar-item
       >
       <van-tabbar-item name="user"
         ><template #icon="{ active }">

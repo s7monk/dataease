@@ -412,7 +412,7 @@ const { t } = useI18n()
 const dialogShow = ref(false)
 const snapshotStore = snapshotStoreWithOut()
 
-const resourceType = computed(() => (dvInfo.value.type === 'dashboard' ? '仪表板' : '数据大屏'))
+const resourceType = computed(() => (dvInfo.value.type === 'dashboard' ? '数据看板' : '数据大屏'))
 
 const state = reactive({
   loading: false,

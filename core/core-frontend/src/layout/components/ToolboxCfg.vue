@@ -88,7 +88,7 @@ onMounted(() => {
   display: none !important;
 }
 .sys-setting {
-  margin: 0 0 0 10px;
+  margin: 0 10px;
   padding: 5px;
   height: 28px;
   width: 28px;
