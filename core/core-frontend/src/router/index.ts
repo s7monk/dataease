@@ -163,7 +163,14 @@ export const routes: AppRouteRecordRaw[] = [
     hidden: true,
     meta: {},
     component: () => import('@/views/chart/ChartView.vue')
-  }
+  },
+  {
+    path: '/system/user',
+    name: 'user',
+    hidden: true,
+    meta: {},
+    component: () => import('@/views/system/user/index.vue')
+  },
 ]
 
 const router = createRouter({

@@ -50,8 +50,8 @@ const downloadClick = params => {
   ExportExcelRef.value.init(params)
 }
 const routers: any[] = formatRoute(permissionStore.getRoutersNotHidden as AppCustomRouteRecordRaw[])
-const showSystem = ref(false)
-const showToolbox = ref(false)
+const showSystem = ref(true)
+const showToolbox = ref(true)
 const showOverlay = ref(false)
 const showOverlayCopilot = ref(true)
 const handleSelect = (index: string) => {
@@ -157,11 +157,11 @@ onMounted(() => {
         </el-icon>
       </el-tooltip>
 
-      <ai-tips
+<!--      <ai-tips
         @confirm="aiTipsConfirm"
         v-if="showOverlay && appearanceStore.getShowAi"
         class="ai-icon-tips"
-      />
+      />-->
       <ToolboxCfg v-if="showToolbox" />
       <SystemCfg v-if="showSystem" />
       <AccountOperator />

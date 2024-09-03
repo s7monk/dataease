@@ -15,7 +15,7 @@ const redirectUser = () => {
 </script>
 
 <template>
-  <el-tooltip class="box-item" effect="dark" content="组织管理中心" placement="top">
+  <el-tooltip class="box-item" effect="dark" content="系统管理中心" placement="top">
     <div
       class="sys-setting"
       :class="{

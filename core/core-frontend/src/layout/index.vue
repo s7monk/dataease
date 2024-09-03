@@ -31,7 +31,7 @@ const setCollapse = () => {
       <template v-if="systemMenu || settingMenu || toolboxMenu">
         <Sidebar v-if="!isCollapse" class="layout-sidebar">
           <div @click="setCollapse" v-if="systemMenu && !isCollapse" class="org-config-center">
-            组织管理中心
+            系统管理中心
           </div>
           <Menu :style="{ height: systemMenu ? 'calc(100% - 48px)' : '100%' }"></Menu>
         </Sidebar>
