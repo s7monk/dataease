@@ -23,7 +23,8 @@ const navigate = computed(() => appearanceStore.getNavigate)
     :class="{ 'header-light': navigateBg && navigateBg === 'light' }"
   >
     <img class="logo" v-if="navigate" :src="navigate" alt="" />
-    <Icon class="de-logo" v-else className="logo" name="logo"></Icon>
+    <span class="logo2">巴别时代</span>
+<!--    <Icon class="de-logo" v-else className="logo" name="logo"></Icon>-->
     <el-divider direction="vertical" />
     <span class="system">{{ props.title || '系统设置' }}</span>
     <div class="operate-setting">
@@ -133,5 +134,23 @@ const navigate = computed(() => appearanceStore.getNavigate)
       color: var(--ed-color-black) !important;
     }
   }
+}
+
+.logo2 {
+  font-size: 24px; /* 设置字体大小 */
+  font-weight: bold; /* 字体加粗 */
+  color: #ffffff; /* 字体颜色设置为白色，以便在黑色背景上突出显示 */
+  cursor: pointer; /* 鼠标悬停时显示指针形状 */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* 增强文字阴影效果，使文字更突出 */
+  padding: 10px 60px 10px 0; /* 调整内边距 */
+  border-radius: 5px; /* 边角圆滑处理 */
+  display: inline-block; /* 使元素像块级元素一样显示，但仍然在行内 */
+  font-style: italic; /* 斜体 */
+  transition: all 0.3s ease; /* 添加过渡动画，使鼠标悬停和其他交互更平滑 */
+}
+
+.logo2:hover {
+  transform: scale(1.05); /* 鼠标悬停时轻微放大 */
+  text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.9); /* 鼠标悬停时增强文字阴影，增加亮度对比 */
 }
 </style>

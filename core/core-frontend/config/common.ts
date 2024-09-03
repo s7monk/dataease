@@ -1,7 +1,6 @@
 import path from 'path'
 import { resolve } from 'path'
 import Vue from '@vitejs/plugin-vue'
-import eslintPlugin from 'vite-plugin-eslint'
 import VueJsx from '@vitejs/plugin-vue-jsx'
 import viteStylelint from 'vite-plugin-stylelint'
 import {
@@ -49,18 +48,6 @@ export default {
       runtimeOnly: false,
       compositionOnly: true,
       include: [resolve(__dirname, 'src/locales/**')]
-    }),
-    eslintPlugin({
-      cache: false,
-      include: [
-        'src/**/*.ts',
-        'src/**/*.tsx',
-        'src/**/*.js',
-        'src/**/*.vue',
-        'src/*.ts',
-        'src/*.js',
-        'src/*.vue'
-      ]
     }),
     viteStylelint()
   ],

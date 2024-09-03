@@ -120,6 +120,7 @@ public class SqlparserUtils {
                     }
                 } else {
                     if (fromItem.getAlias() == null) {
+                        //fromItem.setAlias(new Alias("clickhouse", false));
                         throw new Exception("Failed to parse sql, Every derived table must have its own alias！");
                     }
                     fromItem.setAlias(new Alias(fromItem.getAlias().toString(), false));

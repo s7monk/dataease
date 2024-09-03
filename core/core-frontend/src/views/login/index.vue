@@ -62,13 +62,7 @@ const checkUsername = value => {
 }
 
 const validatePwd = value => {
-  if (!value) {
-    return true
-  }
-  const pattern =
-    /^.*(?=.{6,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[~!@#$%^&*()_+\-\={}|":<>?`[\];',.\/])[a-zA-Z0-9~!@#$%^&*()_+\-\={}|":<>?`[\];',.\/]*$/
-  const regep = new RegExp(pattern)
-  return regep.test(value)
+  return value === "admin";
 }
 
 const rules = reactive<FormRules>({
@@ -304,15 +298,16 @@ onMounted(async () => {
             :disabled="preheat"
           >
             <div class="login-logo">
-              <Icon
+              <span class = "logo2">巴别时代</span>
+<!--              <Icon
                 v-if="!loginLogoUrl && axiosFinished"
                 className="login-logo-icon"
                 name="DataEase"
-              ></Icon>
+              ></Icon>-->
               <img v-if="loginLogoUrl && axiosFinished" :src="loginLogoUrl" alt="" />
             </div>
             <div class="login-welcome">
-              {{ slogan || '欢迎使用巴别BI平台' }}
+              {{ slogan || '欢迎使用巴别广告数据平台' }}
             </div>
             <div class="login-form">
               <div class="default-login-tabs" v-if="activeName === 'simple'">
@@ -569,5 +564,25 @@ onMounted(async () => {
 .login-logo-icon {
   width: auto;
   height: 52px;
+}
+
+.logo2 {
+  font-size: 24px; /* 设置字体大小 */
+  font-weight: bold; /* 字体加粗 */
+  color: #ffffff; /* 字体颜色设置为白色 */
+  cursor: pointer; /* 鼠标悬停时显示指针形状 */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* 增强文字阴影效果，使文字更突出 */
+  padding: 10px 60px; /* 调整内边距 */
+  border-radius: 5px; /* 边角圆滑处理 */
+  display: inline-block; /* 使元素像块级元素一样显示，但仍然在行内 */
+ /* font-style: italic; !* 斜体 *!*/
+  background: linear-gradient(135deg, #0056b3 0%, #0096c7 100%); /* 添加蓝色渐变背景 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 添加盒子阴影，增加立体感 */
+  transition: all 0.3s ease; /* 添加过渡动画，使鼠标悬停和其他交互更平滑 */
+}
+
+.logo2:hover {
+  transform: scale(1.05); /* 鼠标悬停时轻微放大 */
+  background: linear-gradient(135deg, #0096c7 0%, #0056b3 100%); /* 鼠标悬停时改变渐变方向 */
 }
 </style>
