@@ -137,6 +137,9 @@ export default {
   system: {
     user: '用户',
     role: '角色',
+    user_manager: '用户管理',
+    role_manager: '角色管理',
+    auth_manager: '权限管理',
     addUser: '@:common.add@:system.user'
   },
   user: {
