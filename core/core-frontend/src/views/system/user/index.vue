@@ -53,7 +53,9 @@ const { t } = useI18n()
   background: #ffffff;
   height: calc(100vh - 140px);
   box-sizing: border-box;
+  border-radius: 4px;
   margin-top: 16px;
+  padding: 20px;
 }
 .container-header {
   height: 32px;
