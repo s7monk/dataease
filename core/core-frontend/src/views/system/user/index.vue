@@ -1,8 +1,32 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import {reactive, ref} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
+import GridTable from "@/components/grid-table/src/GridTable.vue";
 const { t } = useI18n()
+
+const handleSizeChange = pageSize => {
+  state.paginationConfig.currentPage = 1
+  state.paginationConfig.pageSize = pageSize
+}
+
+const handleCurrentChange = currentPage => {
+  state.paginationConfig.currentPage = currentPage
+}
+
+const state = reactive({
+  paginationConfig: {
+    currentPage: 1,
+    pageSize: 10,
+    total: 0
+  },
+  tableData: [
+    {username: 'admin', nickname:  '超级管理员', phone: 17710766017, email: '17710766017@163.com', state: '启用', createTime: '2024-09-05 17:11:23'},
+    {username: 'common', nickname:  '普通用户', phone: 17710766017, email: '17710766017@163.com', state: '启用', createTime: '2024-09-05 17:11:23'},
+  ],
+  curTypeList: [],
+  tableColumn: []
+})
 </script>
 <template>
   <div class="container-header">
@@ -25,16 +49,75 @@ const { t } = useI18n()
         <el-input
           ref="search"
           v-model="nickName"
-          :placeholder="$t('role.search_by_name_email')"
-          prefix-icon="el-icon-search"
-          class="name-email-search"
-          size="small"
+          :placeholder="t('user.search_placeholder')"
+          class="search-placeholder"
           clearable
-          @blur="initSearch"
-          @clear="initSearch"
-        />
+        >
+          <template #prefix>
+            <el-icon>
+              <Icon name="icon_search-outline_outlined" />
+            </el-icon>
+          </template>
+        </el-input>
       </el-col>
     </el-row>
+    <div class="info-table">
+      <grid-table
+        :show-pagination="true"
+        :pagination="state.paginationConfig"
+        @size-change="handleSizeChange"
+        :table-data="state.tableData"
+      >
+        <el-table-column
+          key="username"
+          prop="username"
+          label="用户名"
+          resizable
+          sortable
+          show-overflow-tooltip
+        />
+        <el-table-column
+          key="nickname"
+          prop="nickname"
+          label="昵称"
+          sortable
+          resizable
+          show-overflow-tooltip
+        />
+        <el-table-column
+          key="phone"
+          prop="phone"
+          label="手机号"
+          resizable
+          show-overflow-tooltip
+        />
+        <el-table-column
+          key="email"
+          prop="email"
+          label="邮箱"
+          resizable
+          show-overflow-tooltip
+        />
+        <el-table-column
+          key="state"
+          prop="state"
+          label="状态"
+        />
+        <el-table-column
+          key="createTime"
+          prop="createTime"
+          label="创建时间"
+          sortable
+          resizable
+          show-overflow-tooltip
+        />
+        <el-table-column
+          key="operate"
+          prop="operate"
+          label="操作"
+        />
+      </grid-table>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>
@@ -55,10 +138,17 @@ const { t } = useI18n()
   box-sizing: border-box;
   border-radius: 4px;
   margin-top: 16px;
-  padding: 20px;
+  padding: 24px;
 }
 .container-header {
   height: 32px;
 }
 
+.search-placeholder {
+  width: 240px
+}
+
+.info-table {
+  height: calc(100% - 49px);
+}
 </style>

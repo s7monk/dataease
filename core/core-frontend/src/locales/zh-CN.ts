@@ -155,7 +155,7 @@ export default {
     edit_title: '编辑用户',
     user_id: '用户',
     user_id_empty: '请输入精准用户ID/账号',
-    search_placeholder: '搜索姓名、账号、邮箱',
+    search_placeholder: '通过用户名或昵称搜索',
     batch_del: '批量删除',
     selection_info: '已选 {0} 项',
     clear_button: '清空',
