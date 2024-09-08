@@ -5,6 +5,7 @@ import {Icon} from "@/components/icon-custom";
 import GridTable from "@/components/grid-table/src/GridTable.vue";
 const { t } = useI18n()
 
+const dialogFormVisible = ref(false)
 const handleSizeChange = pageSize => {
   state.paginationConfig.currentPage = 1
   state.paginationConfig.pageSize = pageSize
@@ -21,11 +22,22 @@ const state = reactive({
     total: 0
   },
   tableData: [
-    {username: 'admin', nickname:  '超级管理员', phone: 17710766017, email: '17710766017@163.com', state: '启用', createTime: '2024-09-05 17:11:23'},
-    {username: 'common', nickname:  '普通用户', phone: 17710766017, email: '17710766017@163.com', state: '启用', createTime: '2024-09-05 17:11:23'},
+    {username: 'admin', nickname:  '超级管理员', phone: 17710766017, email: '17710766017@163.com', enabled: 1, createTime: '2024-09-05 17:11:23'},
+    {username: 'common', nickname:  '普通用户', phone: 17710766017, email: '17710766017@163.com', enabled: 1, createTime: '2024-09-05 17:11:23'},
   ],
   curTypeList: [],
   tableColumn: []
+})
+
+const form = reactive({
+  name: '',
+  region: '',
+  date1: '',
+  date2: '',
+  delivery: false,
+  type: [],
+  resource: '',
+  desc: '',
 })
 </script>
 <template>
@@ -35,7 +47,7 @@ const state = reactive({
   <div class="container-content">
     <el-row class="top-operate-content">
       <el-col :span="12">
-        <el-button type="primary">
+        <el-button type="primary" @click="dialogFormVisible = true">
           <template #icon>
             <Icon name="icon_add_outlined" />
           </template>
@@ -102,7 +114,17 @@ const state = reactive({
           key="state"
           prop="state"
           label="状态"
-        />
+          width="80"
+        >
+          <template #default="scope">
+            <el-switch
+              v-model="scope.row.enabled"
+              :active-value="1"
+              :inactive-value="0"
+              inactive-color="#DCDFE6"
+            />
+          </template>
+        </el-table-column>
         <el-table-column
           key="createTime"
           prop="createTime"
@@ -110,14 +132,55 @@ const state = reactive({
           sortable
           resizable
           show-overflow-tooltip
+          width="200"
         />
         <el-table-column
           key="operate"
           prop="operate"
           label="操作"
-        />
+          fixed="right"
+          width="148"
+        >
+          <template #default="scope">
+            <el-button
+              text
+              v-permission="['dataset']"
+            >
+              <template #icon>
+                <Icon name="icon_edit_outlined"></Icon>
+              </template>
+            </el-button>
+            <el-button
+              text
+              v-permission="['dataset']"
+            >
+              <template #icon>
+                <Icon name="icon_delete-trash_outlined"></Icon>
+              </template>
+            </el-button>
+          </template>
+        </el-table-column>
       </grid-table>
     </div>
+    <el-dialog
+      title="添加用户"
+      v-model="dialogFormVisible"
+      width="600px"
+    >
+      <el-form :model="form">
+        <el-form-item label="用户名">
+          <el-input v-model="form.name" placeholder="请输入用户名" clearable />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="dialogFormVisible = false">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <style lang="less" scoped>
