@@ -24,20 +24,19 @@ const state = reactive({
   tableData: [
     {username: 'admin', nickname:  '超级管理员', phone: 17710766017, email: '17710766017@163.com', enabled: 1, createTime: '2024-09-05 17:11:23'},
     {username: 'common', nickname:  '普通用户', phone: 17710766017, email: '17710766017@163.com', enabled: 1, createTime: '2024-09-05 17:11:23'},
+    {username: 'common', nickname:  '普通用户', phone: 17710766017, email: '17710766017@163.com', enabled: 1, createTime: '2024-09-05 17:11:23'},
   ],
   curTypeList: [],
   tableColumn: []
 })
 
 const form = reactive({
-  name: '',
-  region: '',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  resource: '',
-  desc: '',
+  username: '',
+  nickname: '',
+  phone: '',
+  email: '',
+  enabled: true,
+  roles: [],
 })
 </script>
 <template>
@@ -165,11 +164,37 @@ const form = reactive({
     <el-dialog
       title="添加用户"
       v-model="dialogFormVisible"
-      width="600px"
+      width="560px"
     >
-      <el-form :model="form">
-        <el-form-item label="用户名">
-          <el-input v-model="form.name" placeholder="请输入用户名" clearable />
+      <el-form
+        :model="form"
+        style="max-width: 560px"
+        label-position="left"
+        require-asterisk-position="right"
+        label-width="auto">
+        <el-form-item label="用户名" required>
+          <el-input v-model="form.username" placeholder="请输入用户名" clearable />
+        </el-form-item>
+        <el-form-item label="昵称" required>
+          <el-input v-model="form.nickname" placeholder="请输入昵称" clearable />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="form.nickname" placeholder="请输入密码" clearable />
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input v-model="form.phone" placeholder="请输入手机号" clearable />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
+        </el-form-item>
+        <el-form-item label="是否启用">
+          <el-switch v-model="form.enabled" />
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="form.roles" placeholder="请选择角色" style="width: 100%">
+            <el-option label="Admin" value="1" />
+            <el-option label="Common" value="2" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
