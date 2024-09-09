@@ -66,3 +66,22 @@ knife4j:
   setting:
     language: zh_cn
     enable-swagger-models: false
+
+sa-token:
+  token-name: ${spring.application.name}
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+  is-print: false
+  is-read-cookie: true
+  is-write-header: true
+  is-read-header: true
+  is-read-body: true
+
+interceptor:
+  exclude:
+    path:
+      patterns: /api/login, /ui/**
