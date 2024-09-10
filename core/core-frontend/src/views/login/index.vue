@@ -104,8 +104,16 @@ const handleLogin = () => {
       loginApi(param)
         .then(res => {
           const { tokenValue, tokenTimeout } = res.data.data.saTokenInfo
+          console.log(tokenValue)
           userStore.setToken(tokenValue)
           userStore.setExp(tokenTimeout)
+          const { id, username, nickname, admin } = res.data.data.user
+          userStore.setUid(id)
+          userStore.setName(username)
+          userStore.setNickname(nickname)
+          userStore.setIsAdmin(admin)
+          console.log(username)
+          console.log(nickname)
           if (!xpackLoadFail.value && xpackInvalidPwd.value?.invokeMethod) {
             const param = {
               methodName: 'init',

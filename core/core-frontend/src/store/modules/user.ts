@@ -6,8 +6,9 @@ const { wsCache } = useCache()
 const locale = useLocaleStoreWithOut()
 interface UserState {
   token: string
-  uid: string
+  uid: number
   name: string
+  nickname: string
   oid: string
   language: string
   exp: number
@@ -19,6 +20,7 @@ export const userStore = defineStore('user', {
       token: null,
       uid: null,
       name: null,
+      nickname: null,
       oid: null,
       language: 'zh-CN',
       exp: null
@@ -28,11 +30,14 @@ export const userStore = defineStore('user', {
     getToken(): string {
       return this.token
     },
-    getUid(): string {
+    getUid(): number {
       return this.uid
     },
     getName(): string {
       return this.name
+    },
+    getNickname(): string {
+      return this.nickname
     },
     getOid(): string {
       return this.oid
@@ -57,7 +62,7 @@ export const userStore = defineStore('user', {
       const data = res.data
       data.token = wsCache.get('user.token')
       data.exp = wsCache.get('user.exp')
-      const keys: string[] = ['token', 'uid', 'name', 'oid', 'language', 'exp']
+      const keys: string[] = ['token', 'uid', 'name', 'nickname','oid', 'language', 'exp']
 
       keys.forEach(key => {
         const dkey = key === 'uid' ? 'id' : key
@@ -74,13 +79,21 @@ export const userStore = defineStore('user', {
       wsCache.set('user.exp', exp)
       this.exp = exp
     },
-    setUid(uid: string) {
+    setUid(uid: number) {
       wsCache.set('user.uid', uid)
       this.uid = uid
     },
     setName(name: string) {
       wsCache.set('user.name', name)
       this.name = name
+    },
+    setNickname(nickname: string) {
+      wsCache.set('user.nickname', nickname)
+      this.nickname = nickname
+    },
+    setIsAdmin(isAdmin: boolean) {
+      wsCache.set('user.isAdmin', isAdmin)
+      this.isAdmin = isAdmin
     },
     setOid(oid: string) {
       wsCache.set('user.oid', oid)
@@ -95,7 +108,7 @@ export const userStore = defineStore('user', {
       locale.setLang(language)
     },
     clear() {
-      const keys: string[] = ['token', 'uid', 'name', 'oid', 'language', 'exp']
+      const keys: string[] = ['token', 'uid', 'name',  'nickname','oid', 'language', 'exp']
       keys.forEach(key => wsCache.delete('user.' + key))
     }
   }

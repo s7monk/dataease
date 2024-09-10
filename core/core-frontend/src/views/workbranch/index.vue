@@ -286,7 +286,7 @@ initMarketTemplate()
         </el-icon>
         <div class="info">
           <div class="name-role flex-align-center">
-            <span class="name">{{ userStore.getName }}</span>
+            <span class="name">{{ userStore.getNickname }}</span>
             <span class="role main-btn" />
           </div>
           <span v-if="userStore.getUid" class="id"> {{ `ID: ${userStore.getUid}` }} </span>

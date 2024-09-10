@@ -30,7 +30,7 @@ public class SubstituleLoginServer {
     }
 
 
-    @GetMapping("/logout")
+   /* @GetMapping("/logout")*/
     public void logout() {
         LogUtil.info("substitule logout");
     }

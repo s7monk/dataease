@@ -62,7 +62,7 @@ public class LoginController {
     }
 
     /** logout. */
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public R<Void> logout() {
         StpUtil.logout(StpUtil.getLoginIdAsInt());
         return R.succeed();

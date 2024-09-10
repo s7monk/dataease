@@ -24,7 +24,12 @@ interface LinkItem {
   link?: string
   method?: string
 }
-const linkList = ref([{ id: 5, label: t('common.about'), method: 'toAbout' }] as LinkItem[])
+const linkList = ref(
+  [
+    { id: 5, label: t('common.about'), method: 'toAbout' },
+    { id: 2, link: '/modify-pwd/index', label: t('user.change_password')}
+  ] as LinkItem[]
+)
 if (!appearanceStore.getShowAbout) {
   linkList.value.splice(0, 1)
 }
@@ -77,7 +82,7 @@ const executeMethod = (item: LinkItem) => {
   }
 }
 
-const name = computed(() => userStore.getName)
+const name = computed(() => userStore.getNickname)
 const uid = computed(() => userStore.getUid)
 
 const buttonRef = ref()
@@ -94,12 +99,12 @@ const openPopover = () => {
   unref(popoverRef).popperRef?.delayHide?.()
 }
 
-if (uid.value === '1') {
+if (uid.value === 1) {
   linkLoaded([{ id: 4, link: '/sys-setting/parameter', label: t('commons.system_setting') }])
   const desktop = wsCache.get('app.desktop')
-  if (!desktop) {
+  /*if (!desktop) {
     linkLoaded([{ id: 2, link: '/modify-pwd/index', label: t('user.change_password') }])
-  }
+  }*/
 }
 </script>
 
