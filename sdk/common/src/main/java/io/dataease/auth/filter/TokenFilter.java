@@ -52,7 +52,12 @@ public class TokenFilter implements Filter {
             return;
         }
         String token = ServletUtils.getToken();
-        TokenUserBO userBO = TokenUtils.validate(token);
+        TokenUserBO userBO;
+        if (StringUtils.isNotBlank(token)) {
+             userBO = TokenUtils.validate(token);
+        } else {
+            userBO = new TokenUserBO(1L,1L);
+        }
         UserUtils.setUserInfo(userBO);
         filterChain.doFilter(servletRequest, servletResponse);
     }

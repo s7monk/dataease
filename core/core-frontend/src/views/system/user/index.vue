@@ -3,6 +3,7 @@ import {reactive, ref} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 import GridTable from "@/components/grid-table/src/GridTable.vue";
+import {CustomPassword} from "@/components/custom-password";
 const { t } = useI18n()
 
 const dialogFormVisible = ref(false)
@@ -33,6 +34,7 @@ const state = reactive({
 const form = reactive({
   username: '',
   nickname: '',
+  password: '',
   phone: '',
   email: '',
   enabled: true,
@@ -179,7 +181,15 @@ const form = reactive({
           <el-input v-model="form.nickname" placeholder="请输入昵称" clearable />
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="form.nickname" placeholder="请输入密码" clearable />
+          <CustomPassword
+            v-model="form.password"
+            placeholder="请输入密码"
+            show-password
+            maxlength="30"
+            show-word-limit
+            autocomplete="new-password"
+          />
+<!--          <el-input show-password v-model="form.password" placeholder="请输入密码" clearable />-->
         </el-form-item>
         <el-form-item label="手机号">
           <el-input v-model="form.phone" placeholder="请输入手机号" clearable />

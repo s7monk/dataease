@@ -45,7 +45,7 @@ export const useAppearanceStore = defineStore('appearanceStore', {
       slogan: '',
       web: '',
       name: '',
-      foot: 'false',
+      foot: 'true',
       footContent: '',
       loaded: false,
       showDemoTips: false,

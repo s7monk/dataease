@@ -26,7 +26,7 @@ const { t } = useI18n()
 const contentShow = ref(true)
 const loading = ref(false)
 const axiosFinished = ref(true)
-const showFoot = ref(false)
+const showFoot = ref(true)
 
 const loginLogoUrl = ref(null)
 const msg = ref(null)
@@ -86,24 +86,26 @@ const handleLogin = () => {
   if (!formRef.value) return
   formRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      if (!checkUsername(state.loginForm.username) || !validatePwd(state.loginForm.password)) {
+     /* if (!checkUsername(state.loginForm.username) || !validatePwd(state.loginForm.password)) {
         ElMessage.error('用户名或密码错误')
         return
-      }
+      }*/
       const name = state.loginForm.username.trim()
       const pwd = state.loginForm.password
+      console.log(name)
+      console.log(pwd)
       if (!wsCache.get(appStore.getDekey)) {
         const res = await queryDekey()
         wsCache.set(appStore.getDekey, res.data)
       }
-      const param = { name: rsaEncryp(name), pwd: rsaEncryp(pwd) }
+      const param = { username: name, password: pwd }
       duringLogin.value = true
       cleanPlatformFlag()
       loginApi(param)
         .then(res => {
-          const { token, exp } = res.data
-          userStore.setToken(token)
-          userStore.setExp(exp)
+          const { tokenValue, tokenTimeout } = res.data.data.saTokenInfo
+          userStore.setToken(tokenValue)
+          userStore.setExp(tokenTimeout)
           if (!xpackLoadFail.value && xpackInvalidPwd.value?.invokeMethod) {
             const param = {
               methodName: 'init',
@@ -317,7 +319,7 @@ onMounted(async () => {
                 <el-form-item class="login-form-item" prop="username">
                   <el-input
                     v-model="state.loginForm.username"
-                    :placeholder="t('common.account') + '/' + t('commons.email')"
+                    :placeholder="t('common.account')"
                     autofocus
                   />
                 </el-form-item>
@@ -348,7 +350,7 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <XpackComponent
+<!--              <XpackComponent
                 class="default-login-tabs"
                 :active-name="activeName"
                 :login-form="state.loginForm"
@@ -366,7 +368,7 @@ onMounted(async () => {
                 ref="xpackInvalidPwd"
                 jsname="L2NvbXBvbmVudC9sb2dpbi9JbnZhbGlkUHdk"
                 @load-fail="() => (xpackLoadFail = true)"
-              />
+              />-->
             </div>
 
             <div class="login-msg">

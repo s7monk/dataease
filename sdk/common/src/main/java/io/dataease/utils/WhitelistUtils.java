@@ -22,6 +22,7 @@ public class WhitelistUtils {
 
     public static List<String> WHITE_PATH = List.of(
             "/login/localLogin",
+            "/de2api/login/refresh",
             "/apisix/check",
             "/dekey",
             "/index.html",
@@ -53,9 +54,9 @@ public class WhitelistUtils {
         if (StringUtils.startsWith(requestURI, getContextPath())) {
             requestURI = requestURI.replaceFirst(getContextPath(), "");
         }
-        if (StringUtils.startsWith(requestURI, AuthConstant.DE_API_PREFIX)) {
+       /* if (StringUtils.startsWith(requestURI, AuthConstant.DE_API_PREFIX)) {
             requestURI = requestURI.replaceFirst(AuthConstant.DE_API_PREFIX, "");
-        }
+        }*/
         return WHITE_PATH.contains(requestURI)
                 || StringUtils.endsWithAny(requestURI, ".ico", "js", ".css", "svg", "png", "jpg", "js.map", ".otf", ".ttf", ".woff2")
                 || StringUtils.startsWithAny(requestURI, "data:image")

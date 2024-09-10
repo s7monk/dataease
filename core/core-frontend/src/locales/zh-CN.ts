@@ -2,7 +2,7 @@ export default {
   common: {
     inputText: '请输入',
     add: '添加',
-    account: '账号',
+    account: '用户名',
     email: '邮箱',
     phone: '手机',
     pwd: '密码',

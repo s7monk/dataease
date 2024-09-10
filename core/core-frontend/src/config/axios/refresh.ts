@@ -59,8 +59,8 @@ export const configHandler = config => {
         setRefreshStatus(true)
         refreshApi()
           .then(res => {
-            userStore.setToken(res.data.token)
-            userStore.setExp(res.data.exp)
+            userStore.setToken(res.data.data.tokenValue)
+            userStore.setExp(res.data.data.tokenTimeout)
             config.headers['X-DE-TOKEN'] = res.data.token
             delayExecute(res.data.token)
           })

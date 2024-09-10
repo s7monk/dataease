@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class SubstituleLoginServer {
 
-    @PostMapping("/login/localLogin")
+  /*  @PostMapping("/login/localLogin")*/
     public TokenVO localLogin(PwdLoginDTO dto) {
         TokenUserBO tokenUserBO = new TokenUserBO();
         tokenUserBO.setUserId(1L);

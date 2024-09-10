@@ -272,7 +272,7 @@ const toTemplateMarketAdd = () => {
     resourceCreateOpt.value.optInit(params)
   }
 }
-
+console.log(userStore.getName)
 fillCardInfo()
 initMarketTemplate()
 </script>
