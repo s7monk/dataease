@@ -18,13 +18,15 @@ export const userSelectedForRoleApi = (page: number, limit: number, data) =>
 export const userPageApi = (page: number, limit: number, data) =>
   request.post({ url: `/user/pager/${page}/${limit}`, data })
 
-export const userCreateApi = data => request.post({ url: '/user/create', data })
+export const userCreateApi = data => request.post({ url: '/user', data })
 
 export const userEditApi = data => request.post({ url: '/user/edit', data })
 
 export const personEditApi = data => request.post({ url: '/user/personEdit', data })
 
 export const roleOptionForUserApi = data => request.post({ url: '/role/user/option', data })
+
+export const userListApi= params => request.get({ url: '/user/list', params })
 
 export const userDelApi = uid => request.post({ url: `/user/delete/${uid}` })
 

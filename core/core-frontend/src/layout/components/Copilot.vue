@@ -20,9 +20,9 @@ onMounted(() => {
     show-arrow
   >
     <div class="copilot-popper-tips-content">
-      <p class="title">Copilot 对话分析</p>
+      <p class="title">ChatBI 对话分析</p>
       <p class="constant">
-        你好，我是 Copilot 对话分析
+        你好，我是 ChatBI 对话分析
         <br />点击一下，开启可视化图表解答模式～<br />&nbsp;
       </p>
       <div class="bottom">

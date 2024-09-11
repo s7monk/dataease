@@ -317,7 +317,7 @@ onMounted(async () => {
               <img v-if="loginLogoUrl && axiosFinished" :src="loginLogoUrl" alt="" />
             </div>
             <div class="login-welcome">
-              {{ slogan || '欢迎使用巴别广告数据平台' }}
+              {{ slogan || '欢迎使用巴别数据平台' }}
             </div>
             <div class="login-form">
               <div class="default-login-tabs" v-if="activeName === 'simple'">
