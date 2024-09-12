@@ -39,10 +39,10 @@ public interface UserRoleMapper extends BaseMapper<UserRole> {
     /**
      * Batch delete user and role associations by user IDs.
      *
-     * @param ids user IDs
+     * @param id user IDs
      * @return result
      */
-    int deleteUserRole(Integer[] ids);
+    int deleteUserRole(Integer id);
 
     /**
      * Query the number of roles used by role ID.

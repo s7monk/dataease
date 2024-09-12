@@ -4,10 +4,10 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 import GridTable from "@/components/grid-table/src/GridTable.vue";
 import {CustomPassword} from "@/components/custom-password";
-import { userListApi, userCreateApi, roleListApi } from "@/api/user";
+import { userListApi, userCreateApi, roleListApi, userUpdateApi, userStatusUpdateApi, userDelApi } from "@/api/user";
 import dayjs from 'dayjs'
 import { debounce } from 'lodash';
-import { FormRules, ElMessage } from 'element-plus-secondary'
+import { FormRules, ElMessage, ElMessageBox, ElPopconfirm } from 'element-plus-secondary'
 const { t } = useI18n()
 
 const dialogFormVisible = ref(false)
@@ -57,6 +57,7 @@ const pagingTable = computed(() => {
 })
 
 interface UserDTO {
+  id?: number;
   username: string
   nickname: string
   password: string
@@ -67,6 +68,7 @@ interface UserDTO {
 }
 
 const form = reactive<UserDTO>({
+  id: undefined,
   username: '',
   nickname: '',
   password: '',
@@ -95,13 +97,25 @@ const rules = reactive<FormRules>({
   ],
 })
 
-const resetForm = () => {
+const resetCreateForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
   }
 }
 
+const resetForm = () => {
+  form.username = '';
+  form.nickname = '';
+  form.password = '';
+  form.mobile = '';
+  form.email = '';
+  form.enabled = true;
+  form.roleIds = [];
+};
+
 const openDialog = () => {
+  isEditMode.value = false;
+  resetCreateForm()
   resetForm()
   dialogFormVisible.value = true
 }
@@ -116,7 +130,7 @@ const getTableData = () => {
 
   userListApi(params).then(res => {
     state.tableData = res.data.data.map(item => {
-      const {id, username, nickname, mobile, email, enabled, createTime} = item
+      const {id, username, nickname, mobile, email, enabled, createTime, roles} = item
       return {
         id,
         username,
@@ -124,7 +138,8 @@ const getTableData = () => {
         mobile,
         email,
         enabled,
-        createTime: dayjs(createTime).format('YYYY-MM-DD HH:mm:ss')
+        createTime: dayjs(createTime).format('YYYY-MM-DD HH:mm:ss'),
+        roleIds: roles.map(role => role.id)
       }
     })
     state.paginationConfig.total = res.data.total
@@ -138,18 +153,25 @@ watch(uname, () => {
 });
 
 
-const handleCreate = () => {
+const handleCreateOrUpdate = () => {
   formRef.value.validate((valid) => {
     if (valid) {
-      userCreateApi(form).then(res => {
-       if (res.data.code === 200) {
-         ElMessage.success('用户添加成功');
-         dialogFormVisible.value = false;
-         resetForm();
-         getTableData();
-       }
+      let apiData = { ...form };
+      if (isEditMode.value) {
+        delete apiData.password;
+      }
+
+      const apiCall = isEditMode.value ? userUpdateApi : userCreateApi;
+      apiCall(apiData).then(res => {
+        if (res.data.code === 200) {
+          ElMessage.success(isEditMode.value ? '用户更新成功' : '用户添加成功');
+          dialogFormVisible.value = false;
+          editUserVisible.value = false;
+          resetForm();
+          getTableData();
+        }
       }).catch(err => {
-        ElMessage.error('用户添加失败，请重试');
+        ElMessage.error(isEditMode.value ? '用户更新失败，请重试' : '用户添加失败，请重试');
       });
     } else {
       ElMessage.error('请填写正确的用户信息');
@@ -157,8 +179,9 @@ const handleCreate = () => {
     }
   });
 };
-
 const openEditDialog = (user) => {
+  isEditMode.value = true;
+  form.id = user.id;
   form.username = user.username;
   form.nickname = user.nickname;
   form.mobile = user.mobile;
@@ -175,10 +198,83 @@ const cancel = () => {
 }
 
 const cancelEdit = () => {
-  form.username = ''
-
-  editUserVisible.value = false
+  resetForm();
+  editUserVisible.value = false;
 }
+
+
+const confirmUpdateUserStatus = (userId: number, enabled: boolean) => {
+  const message = enabled ? '你确定要启用此用户吗?' : '你确定要封禁此用户吗?';
+
+  ElMessageBox.confirm(
+    message,
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      showClose: false
+    },
+  ).then(() => {
+    updateUserStatus(userId, enabled);
+  }).catch(() => {
+    const user = state.tableData.find(u => u.id === userId);
+    if (user) {
+      user.enabled = !enabled;
+    }
+  });
+};
+
+const updateUserStatus = (userId: number, enabled: boolean) => {
+  const data = { id: userId, enabled };
+  userStatusUpdateApi(data)
+    .then(response => {
+      if (response.data.code === 200) {
+        ElMessage.success('用户状态更新成功');
+        getTableData();
+      } else {
+        throw new Error('Failed to update status');
+      }
+    })
+    .catch(error => {
+      console.error('Error updating user status:', error);
+      ElMessage.error('用户状态更新失败，请重试');
+      const user = state.tableData.find(u => u.id === userId);
+      if (user) {
+        user.enabled = !enabled;
+      }
+    });
+};
+
+const confirmDeleteUser = (userId) => {
+  ElMessageBox.confirm(
+    '您确定要删除该用户吗？',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      draggable: true,
+      showClose: false,
+      confirmButtonType: 'danger',
+    }
+  ).then(() => {
+    deleteUser(userId);
+  }).catch(() => {
+  });
+};
+
+const deleteUser = (userId) => {
+  userDelApi(userId).then(response => {
+    if (response.data.code === 200) {
+      ElMessage.success('用户删除成功');
+      getTableData();
+    } else {
+      throw new Error('Failed to delete user');
+    }
+  }).catch(error => {
+    console.error('Error deleting user:', error);
+    ElMessage.error('用户删除失败，请重试');
+  });
+};
 
 onMounted(() => {
   getTableData();
@@ -269,6 +365,7 @@ onMounted(() => {
               :active-value="true"
               :inactive-value="false"
               inactive-color="#DCDFE6"
+              @change="confirmUpdateUserStatus(scope.row.id, scope.row.enabled)"
             />
           </template>
         </el-table-column>
@@ -301,6 +398,7 @@ onMounted(() => {
             <el-button
               text
               v-permission="['dataset']"
+              @click="confirmDeleteUser(scope.row.id)"
             >
               <template #icon>
                 <Icon name="icon_delete-trash_outlined"></Icon>
@@ -357,7 +455,7 @@ onMounted(() => {
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="cancel">取消</el-button>
-          <el-button type="primary" @click="handleCreate">
+          <el-button type="primary" @click="handleCreateOrUpdate">
             确定
           </el-button>
         </div>
@@ -400,7 +498,7 @@ onMounted(() => {
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="cancelEdit">取消</el-button>
-          <el-button type="primary" @click="handleCreate">
+          <el-button type="primary" @click="handleCreateOrUpdate">
             确定
           </el-button>
         </div>

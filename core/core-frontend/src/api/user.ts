@@ -20,6 +20,10 @@ export const userPageApi = (page: number, limit: number, data) =>
 
 export const userCreateApi = data => request.post({ url: '/user', data })
 
+export const userUpdateApi = data => request.put({ url: '/user', data })
+
+export const userStatusUpdateApi = data => request.put({ url: '/user/changeStatus', data })
+
 export const userEditApi = data => request.post({ url: '/user/edit', data })
 
 export const personEditApi = data => request.post({ url: '/user/personEdit', data })
@@ -30,7 +34,7 @@ export const userListApi= params => request.get({ url: '/user/list', params })
 
 export const roleListApi= params => request.get({ url: '/role/list', params })
 
-export const userDelApi = uid => request.post({ url: `/user/delete/${uid}` })
+export const userDelApi = userId => request.delete({ url: `/user/${userId}` })
 
 export const queryFormApi = uid => request.get({ url: `/user/queryById/${uid}` })
 

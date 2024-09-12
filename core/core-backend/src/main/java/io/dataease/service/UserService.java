@@ -102,10 +102,10 @@ public interface UserService extends IService<User> {
     /**
      * Delete users by user ID.
      *
-     * @param userIds the ids of the users to delete
+     * @param userId the ids of the users to delete
      * @return the number of rows affected
      */
-    int deleteUserByIds(Integer[] userIds);
+    int deleteUserByIds(Integer userId);
 
     /**
      * Changes the user's password.

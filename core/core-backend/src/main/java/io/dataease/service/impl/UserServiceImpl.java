@@ -224,9 +224,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteUserByIds(Integer[] userIds) {
-        userRoleMapper.deleteUserRole(userIds);
-        return userMapper.deleteBatchIds(Arrays.asList(userIds));
+    public int deleteUserByIds(Integer userId) {
+        userRoleMapper.deleteUserRole(userId);
+        return userMapper.deleteById(userId);
     }
 
     @Override

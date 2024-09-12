@@ -63,7 +63,7 @@ public class UserController {
         return R.succeed(user);
     }
 
-   /* @SaCheckPermission("system:user:list")*/
+    @SaCheckPermission("system:user:list")
     @GetMapping("/list")
     public PageR<UserVO> listUsers(User user) {
         IPage<User> page = PageSupport.startPage();
@@ -92,9 +92,9 @@ public class UserController {
     }
 
     @SaCheckPermission("system:user:delete")
-    @DeleteMapping("/{userIds}")
-    public R<Void> delete(@PathVariable Integer[] userIds) {
-        return userService.deleteUserByIds(userIds) > 0 ? R.succeed() : R.failed();
+    @DeleteMapping("/{userId}")
+    public R<Void> delete(@PathVariable Integer userId) {
+        return userService.deleteUserByIds(userId) > 0 ? R.succeed() : R.failed();
     }
 
     @SaCheckPermission("system:user:change:password")

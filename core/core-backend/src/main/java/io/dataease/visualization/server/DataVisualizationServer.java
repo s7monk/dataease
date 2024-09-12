@@ -39,6 +39,7 @@ import io.dataease.log.DeLog;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
 import io.dataease.operation.manage.CoreOptRecentManage;
+import io.dataease.service.UserService;
 import io.dataease.template.dao.auto.entity.VisualizationTemplate;
 import io.dataease.template.dao.auto.entity.VisualizationTemplateExtendData;
 import io.dataease.template.dao.auto.mapper.VisualizationTemplateExtendDataMapper;
@@ -128,6 +129,9 @@ public class DataVisualizationServer implements DataVisualizationApi {
     @Autowired
     private CoreDatasourceMapper coreDatasourceMapper;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public DataVisualizationVO findCopyResource(Long dvId, String busiFlag) {
         DataVisualizationVO result = findById(new DataVisualizationBaseRequest(dvId, busiFlag));
@@ -146,6 +150,8 @@ public class DataVisualizationServer implements DataVisualizationApi {
         String busiFlag = request.getBusiFlag();
         DataVisualizationVO result = extDataVisualizationMapper.findDvInfo(dvId, busiFlag);
         if (result != null) {
+            String nickname = userService.getUserById(Integer.valueOf(result.getCreateBy())).getNickname();
+            result.setCreatorName(nickname);
             //获取图表信息
             List<ChartViewDTO> chartViewDTOS = chartViewManege.listBySceneId(dvId);
             if (!CollectionUtils.isEmpty(chartViewDTOS)) {

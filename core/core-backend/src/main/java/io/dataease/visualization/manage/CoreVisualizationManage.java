@@ -1,5 +1,6 @@
 package io.dataease.visualization.manage;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -59,6 +60,9 @@ public class CoreVisualizationManage {
         queryWrapper.ne("pid", -1);
         queryWrapper.eq(ObjectUtils.isNotEmpty(request.getLeaf()), "node_type", ObjectUtils.isNotEmpty(request.getLeaf()) && request.getLeaf() ? "leaf" : "folder");
         queryWrapper.eq("type", request.getBusiFlag());
+        if (StpUtil.isLogin() && !Objects.equals(StpUtil.getLoginIdAsString(), "1")) {
+            queryWrapper.eq("create_by", StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1");
+        }
         queryWrapper.orderByDesc("create_time");
         List<VisualizationNodePO> pos = extMapper.queryNodes(queryWrapper);
         if (CollectionUtils.isNotEmpty(pos)) {
@@ -118,9 +122,10 @@ public class CoreVisualizationManage {
             Long id = IDUtils.snowID();
             visualizationInfo.setId(id);
         }
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         visualizationInfo.setDeleteFlag(DataVisualizationConstants.DELETE_FLAG.AVAILABLE);
-        visualizationInfo.setCreateBy(AuthUtils.getUser().getUserId().toString());
-        visualizationInfo.setUpdateBy(AuthUtils.getUser().getUserId().toString());
+        visualizationInfo.setCreateBy(userId);
+        visualizationInfo.setUpdateBy(userId);
         visualizationInfo.setCreateTime(System.currentTimeMillis());
         visualizationInfo.setUpdateTime(System.currentTimeMillis());
         visualizationInfo.setOrgId(AuthUtils.getUser().getDefaultOid());

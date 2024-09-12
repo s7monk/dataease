@@ -78,7 +78,8 @@ export const dvMainStore = defineStore('dataVisualization', {
         selfWatermarkStatus: null,
         watermarkInfo: {},
         type: null,
-        mobileLayout: false
+        mobileLayout: false,
+        creatorName: null
       },
       // 图表信息
       canvasViewInfo: {},
@@ -1186,7 +1187,8 @@ export const dvMainStore = defineStore('dataVisualization', {
         selfWatermarkStatus: null,
         watermarkInfo: {},
         type: null,
-        mobileLayout: false
+        mobileLayout: false,
+        creatorName: null
       }
     },
     setViewDataDetails(viewId, dataInfo) {
@@ -1237,7 +1239,7 @@ export const dvMainStore = defineStore('dataVisualization', {
         this.canvasState[key] = value
       }
     },
-    createInit(dvType, resourceId?, pid?, watermarkInfo?, preName) {
+    createInit(dvType, resourceId?, pid?, watermarkInfo?, preName, creatorName) {
       const optName = dvType === 'dashboard' ? '新建数据看板' : '新建数据大屏'
       const name = preName ? preName : optName
       this.dvInfo = {
@@ -1250,7 +1252,8 @@ export const dvMainStore = defineStore('dataVisualization', {
         status: 1,
         selfWatermarkStatus: true,
         watermarkInfo: watermarkInfo,
-        mobileLayout: false
+        mobileLayout: false,
+        creatorName: creatorName
       }
       const canvasStyleDataNew =
         dvType === 'dashboard'
@@ -1292,7 +1295,8 @@ export const dvMainStore = defineStore('dataVisualization', {
         selfWatermarkStatus: null,
         watermarkInfo: {},
         type: null,
-        mobileLayout: false
+        mobileLayout: false,
+        creatorName: null
       }
       this.canvasStyleData = { ...deepCopy(DEFAULT_CANVAS_STYLE_DATA_DARK), backgroundColor: null }
     },

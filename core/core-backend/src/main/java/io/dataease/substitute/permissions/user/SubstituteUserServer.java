@@ -28,13 +28,15 @@ public class SubstituteUserServer {
     @GetMapping("/info")
     public Map<String, Object> info() {
         Map<String, Object> result = new HashMap<>();
-        int loginIdAsInt = StpUtil.getLoginIdAsInt();
-        UserVO user = userService.getUserById(loginIdAsInt);
-        result.put("id", loginIdAsInt);
-        result.put("name", user.getUsername());
-        result.put("nickname", user.getNickname());
-        result.put("oid", "1");
-        result.put("language", "zh-CN");
+        if (StpUtil.isLogin()) {
+            int loginIdAsInt = StpUtil.getLoginIdAsInt();
+            UserVO user = userService.getUserById(loginIdAsInt);
+            result.put("id", loginIdAsInt);
+            result.put("name", user.getUsername());
+            result.put("nickname", user.getNickname());
+            result.put("oid", "1");
+            result.put("language", "zh-CN");
+        }
         return result;
     }
     @GetMapping("/personInfo")

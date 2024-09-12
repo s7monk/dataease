@@ -37,10 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<delete id="deleteUserRole" parameterType="Integer">
- 		delete from user_role where user_id in
- 		<foreach collection="array" item="userId" open="(" separator="," close=")">
- 			#{userId}
-        </foreach> 
+ 		delete from user_role where user_id = #{id}
  	</delete>
 	
 	<insert id="batchUserRole">
