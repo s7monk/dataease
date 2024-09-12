@@ -4,14 +4,35 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 import GridTable from "@/components/grid-table/src/GridTable.vue";
 import {CustomPassword} from "@/components/custom-password";
-import {userListApi} from "@/api/user";
+import { userListApi, userCreateApi, roleListApi } from "@/api/user";
 import dayjs from 'dayjs'
 import { debounce } from 'lodash';
-import { FormRules } from 'element-plus-secondary'
+import { FormRules, ElMessage } from 'element-plus-secondary'
 const { t } = useI18n()
 
 const dialogFormVisible = ref(false)
+const editUserVisible = ref(false)
 const uname = ref("")
+const formRef = ref(null)
+const roleOptions = ref([]);
+const isEditMode = ref(false);
+
+const fetchRoles = () => {
+  const params = {
+    pageNum: 1,
+    pageSize: 100000000
+  }
+
+  roleListApi(params).then(response => {
+    roleOptions.value = response.data.data.map(role => ({
+      label: role.roleName,
+      value: role.id
+    }));
+  }).catch(error => {
+    console.error('Failed to fetch roles:', error);
+  });
+};
+
 const handleSizeChange = pageSize => {
   state.paginationConfig.currentPage = 1
   state.paginationConfig.pageSize = pageSize
@@ -42,7 +63,7 @@ interface UserDTO {
   mobile?: string
   email: string
   enabled: true
-  roleIds?: []
+  roleIds: number[]
 }
 
 const form = reactive<UserDTO>({
@@ -68,31 +89,22 @@ const rules = reactive<FormRules>({
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-  ]
+  ],
+  roleIds: [
+    { required: true, message: '请输选择角色', trigger: 'blur' }
+  ],
 })
 
+const resetForm = () => {
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
+}
 
-/*const handleSubmit = () => {
-  const formEl = ref(null);
-
-  formEl.value.validate((valid) => {
-    if (valid) {
-      userCreateApi(form).then(response => {
-        if (response.success) {
-          ElMessage.success('用户添加成功');
-          // 重置表单或执行其他操作
-        } else {
-          ElMessage.error('添加失败: ' + response.message);
-        }
-      }).catch(error => {
-        ElMessage.error('请求错误: ' + error.message);
-      });
-    } else {
-      ElMessage.error('请检查输入');
-      return false;
-    }
-  });
-};*/
+const openDialog = () => {
+  resetForm()
+  dialogFormVisible.value = true
+}
 
 const getTableData = () => {
   const params = {
@@ -104,18 +116,18 @@ const getTableData = () => {
 
   userListApi(params).then(res => {
     state.tableData = res.data.data.map(item => {
-      const {username, nickname, mobile, email, enabled, createTime} = item
+      const {id, username, nickname, mobile, email, enabled, createTime} = item
       return {
-        username: username,
-        nickname: nickname,
-        mobile: mobile,
-        email: email,
-        enabled: enabled,
+        id,
+        username,
+        nickname,
+        mobile,
+        email,
+        enabled,
         createTime: dayjs(createTime).format('YYYY-MM-DD HH:mm:ss')
       }
     })
     state.paginationConfig.total = res.data.total
-    console.log(res.data)
   })
 }
 
@@ -125,7 +137,53 @@ watch(uname, () => {
   debouncedGetTableData();
 });
 
-onMounted(getTableData)
+
+const handleCreate = () => {
+  formRef.value.validate((valid) => {
+    if (valid) {
+      userCreateApi(form).then(res => {
+       if (res.data.code === 200) {
+         ElMessage.success('用户添加成功');
+         dialogFormVisible.value = false;
+         resetForm();
+         getTableData();
+       }
+      }).catch(err => {
+        ElMessage.error('用户添加失败，请重试');
+      });
+    } else {
+      ElMessage.error('请填写正确的用户信息');
+      return false;
+    }
+  });
+};
+
+const openEditDialog = (user) => {
+  form.username = user.username;
+  form.nickname = user.nickname;
+  form.mobile = user.mobile;
+  form.email = user.email;
+  form.enabled = user.enabled;
+  form.roleIds = user.roleIds;
+
+  editUserVisible.value = true;
+};
+
+const cancel = () => {
+  resetForm()
+  dialogFormVisible.value = false
+}
+
+const cancelEdit = () => {
+  form.username = ''
+
+  editUserVisible.value = false
+}
+
+onMounted(() => {
+  getTableData();
+  fetchRoles();
+});
 </script>
 <template>
   <div class="container-header">
@@ -135,7 +193,7 @@ onMounted(getTableData)
     <el-row class="top-operate-content">
       <el-col :span="12">
 <!--        <el-button type="primary" @click="dialogFormVisible = true">-->
-        <el-button type="primary" @click="dialogFormVisible = true">
+        <el-button type="primary" @click="openDialog">
           <template #icon>
             <Icon name="icon_add_outlined" />
           </template>
@@ -234,6 +292,7 @@ onMounted(getTableData)
             <el-button
               text
               v-permission="['dataset']"
+              @click="openEditDialog(scope.row)"
             >
               <template #icon>
                 <Icon name="icon_edit_outlined"></Icon>
@@ -257,20 +316,20 @@ onMounted(getTableData)
       width="560px"
     >
       <el-form
+        ref="formRef"
         :model="form"
         :rules="rules"
-        ref="formRef"
         style="max-width: 560px"
         label-position="left"
         require-asterisk-position="right"
         label-width="auto">
-        <el-form-item label="用户名" required>
+        <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名" clearable />
         </el-form-item>
-        <el-form-item label="昵称" required>
+        <el-form-item label="昵称" prop="nickname">
           <el-input v-model="form.nickname" placeholder="请输入昵称" clearable />
         </el-form-item>
-        <el-form-item label="密码">
+        <el-form-item label="密码"  prop="password">
           <CustomPassword
             v-model="form.password"
             placeholder="请输入密码"
@@ -279,28 +338,69 @@ onMounted(getTableData)
             show-word-limit
             autocomplete="new-password"
           />
-<!--          <el-input show-password v-model="form.password" placeholder="请输入密码" clearable />-->
         </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="form.phone" placeholder="请输入手机号" clearable />
+        <el-form-item label="手机号"  prop="mobile">
+          <el-input v-model="form.mobile" placeholder="请输入手机号" clearable />
         </el-form-item>
-        <el-form-item label="邮箱">
+        <el-form-item label="邮箱"  prop="email">
           <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
         </el-form-item>
-        <el-form-item label="是否启用">
+        <el-form-item label="是否启用" prop="enabled">
           <el-switch v-model="form.enabled" />
         </el-form-item>
-        <el-form-item label="角色">
-          <el-select v-model="form.roles" placeholder="请选择角色" style="width: 100%">
-            <el-option label="Admin" value="1" />
-            <el-option label="Common" value="2" />
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" placeholder="请选择角色" multiple style="width: 100%">
+            <el-option v-for="role in roleOptions" :key="role.value" :label="role.label" :value="role.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">
+          <el-button @click="cancel">取消</el-button>
+          <el-button type="primary" @click="handleCreate">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <el-dialog
+      title="编辑用户"
+      v-model="editUserVisible"
+      width="560px"
+    >
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        style="max-width: 560px"
+        label-position="left"
+        require-asterisk-position="right"
+        label-width="auto">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="form.username" placeholder="请输入用户名" clearable />
+        </el-form-item>
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="form.nickname" placeholder="请输入昵称" clearable />
+        </el-form-item>
+        <el-form-item label="手机号"  prop="mobile">
+          <el-input v-model="form.mobile" placeholder="请输入手机号" clearable />
+        </el-form-item>
+        <el-form-item label="邮箱"  prop="email">
+          <el-input v-model="form.email" placeholder="请输入邮箱" clearable />
+        </el-form-item>
+        <el-form-item label="是否启用" prop="enabled">
+          <el-switch v-model="form.enabled" />
+        </el-form-item>
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="form.roleIds" placeholder="请选择角色" multiple style="width: 100%">
+            <el-option v-for="role in roleOptions" :key="role.value" :label="role.label" :value="role.value" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="cancelEdit">取消</el-button>
+          <el-button type="primary" @click="handleCreate">
             确定
           </el-button>
         </div>

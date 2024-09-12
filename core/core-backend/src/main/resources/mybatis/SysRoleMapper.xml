@@ -43,24 +43,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectRoleList" parameterType="io.dataease.data.model.SysRole" resultMap="SysRoleResult">
 		<include refid="selectRoleVo"/>
-		where r.is_delete = '0'
 		<if test="role.id != null and role.id != 0">
-			AND r.id = #{role.id}
+			OR r.id = #{role.id}
 		</if>
 		<if test="role.roleName != null and role.roleName != ''">
-			AND r.role_name like concat('%', #{role.roleName}, '%')
+			OR r.role_name like concat('%', #{role.roleName}, '%')
 		</if>
 		<if test="role.enabled != null and role.enabled != ''">
-			AND r.enabled = #{role.enabled}
-		</if>
+			OR		</if>
 		<if test="role.roleKey != null and role.roleKey != ''">
-			AND r.role_key like concat('%', #{role.roleKey}, '%')
+			OR r.role_key like concat('%', #{role.roleKey}, '%')
 		</if>
 		<if test="role.params.beginTime != null and role.params.beginTime != ''"><!-- 开始时间检索 -->
-			and date_format(r.create_time,'%y%m%d') &gt;= date_format(#{role.params.beginTime},'%y%m%d')
+			OR date_format(r.create_time,'%y%m%d') &gt;= date_format(#{role.params.beginTime},'%y%m%d')
 		</if>
 		<if test="role.params.endTime != null and role.params.endTime != ''"><!-- 结束时间检索 -->
-			and date_format(r.create_time,'%y%m%d') &lt;= date_format(#{role.params.endTime},'%y%m%d')
+			OR date_format(r.create_time,'%y%m%d') &lt;= date_format(#{role.params.endTime},'%y%m%d')
 		</if>
 		order by r.sort
 	</select>

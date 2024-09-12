@@ -28,6 +28,8 @@ export const roleOptionForUserApi = data => request.post({ url: '/role/user/opti
 
 export const userListApi= params => request.get({ url: '/user/list', params })
 
+export const roleListApi= params => request.get({ url: '/role/list', params })
+
 export const userDelApi = uid => request.post({ url: `/user/delete/${uid}` })
 
 export const queryFormApi = uid => request.get({ url: `/user/queryById/${uid}` })
