@@ -234,7 +234,7 @@ const saveExcelDs = (params, successCb, finallyCb) => {
   if (props.param.editType === 0 && props.param.id && (effectExtField || changeFiled)) {
     ElMessageBox.confirm(t('deDataset.replace_the_data'), {
       confirmButtonText: t('dataset.confirm'),
-      tip: '替换可能会影响自定义数据集、关联数据集、仪表板等，是否替换？',
+      tip: '替换可能会影响自定义数据集、关联数据集、数据看板等，是否替换？',
       cancelButtonText: 'Cancel',
       confirmButtonType: 'primary',
       type: 'warning',

@@ -24,6 +24,8 @@ public class XpackSharePO implements Serializable {
 
     private Long creator;
 
+    private String creatorName;
+
     private Long time;
 
     private Long exp;

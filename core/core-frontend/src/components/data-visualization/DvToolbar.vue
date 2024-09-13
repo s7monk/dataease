@@ -239,7 +239,7 @@ eventBus.on('clearCanvas', clearCanvas)
 
 const openOuterParamsSet = () => {
   if (componentData.value.length === 0) {
-    ElMessage.warning('当前仪表板为空，请先添加组件')
+    ElMessage.warning('当前数据看板为空，请先添加组件')
     return
   }
   if (!dvInfo.value.id) {

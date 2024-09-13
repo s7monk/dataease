@@ -1,5 +1,6 @@
 package io.dataease.datasource.server;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,6 +17,7 @@ import io.dataease.commons.constants.TaskStatus;
 import io.dataease.commons.utils.CommonThreadPool;
 import io.dataease.constant.LogOT;
 import io.dataease.constant.LogST;
+import io.dataease.data.vo.UserVO;
 import io.dataease.dataset.manage.DatasetDataManage;
 import io.dataease.dataset.utils.TableUtils;
 import io.dataease.datasource.dao.auto.entity.*;
@@ -46,6 +48,7 @@ import io.dataease.license.utils.LicenseUtil;
 import io.dataease.log.DeLog;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
+import io.dataease.service.UserService;
 import io.dataease.system.dao.auto.entity.CoreSysSetting;
 import io.dataease.system.manage.CoreUserManage;
 import io.dataease.utils.*;
@@ -122,6 +125,9 @@ public class DatasourceServer implements DatasourceApi {
     private CommonThreadPool commonThreadPool;
 
     private boolean isUpdatingStatus = false;
+
+    @Autowired
+    private UserService userService;
 
     private void getParents(Long pid, List<Long> ids) {
         CoreDatasource parent = datasourceMapper.selectById(pid);// 查找父级folder
@@ -235,11 +241,14 @@ public class DatasourceServer implements DatasourceApi {
     @DeLog(id = "#p0.id", pid = "#p0.pid", ot = LogOT.CREATE, st = LogST.DATASOURCE)
     @Transactional
     public DatasourceDTO createFolder(DatasourceDTO dataSourceDTO) {
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         dataSourceDTO.setCreateTime(System.currentTimeMillis());
         dataSourceDTO.setUpdateTime(System.currentTimeMillis());
         dataSourceDTO.setType(dataSourceDTO.getNodeType());
         dataSourceDTO.setId(IDUtils.snowID());
         dataSourceDTO.setConfiguration("");
+        dataSourceDTO.setCreateBy(userId);
+        dataSourceDTO.setUpdateBy(Long.valueOf(userId));
         dataSourceManage.innerSave(dataSourceDTO);
         return dataSourceDTO;
     }
@@ -248,6 +257,7 @@ public class DatasourceServer implements DatasourceApi {
     @Transactional
     @Override
     public DatasourceDTO save(DatasourceDTO dataSourceDTO) throws DEException {
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         if (dataSourceDTO.getId() != null && dataSourceDTO.getId() > 0) {
             return update(dataSourceDTO);
         }
@@ -264,8 +274,8 @@ public class DatasourceServer implements DatasourceApi {
             dataSourceDTO.setStatus("Error");
         }
         dataSourceDTO.setTaskStatus(TaskStatus.WaitingForExecution.name());
-        dataSourceDTO.setCreateBy(AuthUtils.getUser().getUserId().toString());
-        dataSourceDTO.setUpdateBy(AuthUtils.getUser().getUserId());
+        dataSourceDTO.setCreateBy(userId);
+        dataSourceDTO.setUpdateBy(Long.valueOf(userId));
 
         CoreDatasource coreDatasource = new CoreDatasource();
         BeanUtils.copyBean(coreDatasource, dataSourceDTO);
@@ -329,6 +339,7 @@ public class DatasourceServer implements DatasourceApi {
     @Transactional
     @Override
     public DatasourceDTO update(DatasourceDTO dataSourceDTO) throws DEException {
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         Long pk = null;
         if (ObjectUtils.isEmpty(pk = dataSourceDTO.getId())) {
             return save(dataSourceDTO);
@@ -339,7 +350,7 @@ public class DatasourceServer implements DatasourceApi {
         preCheckDs(dataSourceDTO);
 
         dataSourceDTO.setUpdateTime(System.currentTimeMillis());
-        dataSourceDTO.setUpdateBy(AuthUtils.getUser().getUserId());
+        dataSourceDTO.setUpdateBy(Long.valueOf(userId));
         try {
             checkDatasourceStatus(dataSourceDTO);
         } catch (Exception e) {
@@ -591,7 +602,11 @@ public class DatasourceServer implements DatasourceApi {
             datasourceDTO.setSize(ExcelUtils.getSize(datasource));
         }
         datasourceDTO.setConfiguration(new String(Base64.getEncoder().encode(datasourceDTO.getConfiguration().getBytes())));
-        datasourceDTO.setCreator(coreUserManage.getUserName(Long.valueOf(datasourceDTO.getCreateBy())));
+        String createBy = datasourceDTO.getCreateBy();
+        UserVO user = userService.getUserById(Integer.valueOf(createBy));
+        if (user != null) {
+            datasourceDTO.setCreator(user.getNickname());
+        }
         return datasourceDTO;
     }
 
@@ -910,9 +925,10 @@ public class DatasourceServer implements DatasourceApi {
 
     @Override
     public List<String> latestUse() {
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         List<String> types = new ArrayList<>();
         QueryWrapper<CoreDatasource> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("create_by", AuthUtils.getUser().getUserId());
+        queryWrapper.eq("create_by", userId);
         queryWrapper.orderByDesc("create_time");
         queryWrapper.last(" limit 5");
         List<CoreDatasource> coreDatasources = datasourceMapper.selectList(queryWrapper);

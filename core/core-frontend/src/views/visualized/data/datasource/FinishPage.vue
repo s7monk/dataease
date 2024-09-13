@@ -54,7 +54,7 @@ const handleChange = (val: boolean) => {
           </el-icon>
           <div class="info">
             <p class="name">{{ $t('auth.dataset') }}</p>
-            <p class="size">为下一步的仪表板或大屏做准备</p>
+            <p class="size">为下一步的数据看板或大屏做准备</p>
           </div>
           <el-button class="create" secondary :disabled="disabled" @click="createDataset">
             去创建

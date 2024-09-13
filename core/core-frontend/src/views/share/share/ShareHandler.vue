@@ -184,7 +184,7 @@ const state = reactive({
 const emits = defineEmits(['loaded'])
 const shareTips = computed(
   () =>
-    `开启后，用户可以通过该链接访问${props.resourceType === 'dashboard' ? '仪表板' : '数据大屏'}`
+    `开启后，用户可以通过该链接访问${props.resourceType === 'dashboard' ? '数据看板' : '数据大屏'}`
 )
 const editUuid = () => {
   linkCustom.value = true

@@ -134,7 +134,7 @@ const optInit = (type, data: BusiTreeNode, exec, parentSelect = false) => {
     data.leaf || type === 'leaf'
       ? props.curCanvasType === 'dataV'
         ? '请输入数据大屏名称'
-        : '请输入仪表板名称'
+        : '请输入数据看板名称'
       : '请输入文件夹名称'
   filterText.value = ''
   dialogTitle.value = getDialogTitle(exec) + ('rename' === exec ? optSource : '')
@@ -152,7 +152,7 @@ const optInit = (type, data: BusiTreeNode, exec, parentSelect = false) => {
     dfs(resultTree as unknown as BusiTreeNode[])
     state.tData = (resultTree as unknown as BusiTreeNode[]) || []
     if (state.tData.length && state.tData[0].name === 'root' && state.tData[0].id === '0') {
-      state.tData[0].name = curCanvasType.value === 'dataV' ? '数据大屏' : '仪表板'
+      state.tData[0].name = curCanvasType.value === 'dataV' ? '数据大屏' : '数据看板'
     }
     tData = [...state.tData]
     if ('move' === exec) {

@@ -1,5 +1,6 @@
 package io.dataease.share.manage;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,9 +14,11 @@ import io.dataease.api.xpack.share.vo.XpackShareProxyVO;
 import io.dataease.auth.bo.TokenUserBO;
 import io.dataease.constant.AuthConstant;
 import io.dataease.constant.BusiResourceEnum;
+import io.dataease.data.vo.UserVO;
 import io.dataease.exception.DEException;
 import io.dataease.license.config.XpackInteract;
 import io.dataease.license.utils.LicenseUtil;
+import io.dataease.service.UserService;
 import io.dataease.share.dao.auto.entity.XpackShare;
 import io.dataease.share.dao.auto.mapper.XpackShareMapper;
 import io.dataease.share.dao.ext.mapper.XpackShareExtMapper;
@@ -28,6 +31,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,8 +55,11 @@ public class XpackShareManage {
     @Resource
     private ShareTicketManage shareTicketManage;
 
+    @Autowired
+    private UserService userService;
+
     public XpackShare queryByResource(Long resourceId) {
-        Long userId = AuthUtils.getUser().getUserId();
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         QueryWrapper<XpackShare> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("creator", userId);
         queryWrapper.eq("resource_id", resourceId);
@@ -67,15 +74,14 @@ public class XpackShareManage {
             shareTicketManage.deleteByShare(originData.getUuid());
             return;
         }
-        TokenUserBO user = AuthUtils.getUser();
-        Long userId = user.getUserId();
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
         XpackShare xpackShare = new XpackShare();
         xpackShare.setId(IDUtils.snowID());
-        xpackShare.setCreator(userId);
+        xpackShare.setCreator((long) userId);
         xpackShare.setTime(System.currentTimeMillis());
         xpackShare.setResourceId(resourceId);
         xpackShare.setUuid(RandomStringUtils.randomAlphanumeric(8));
-        xpackShare.setOid(user.getDefaultOid());
+        xpackShare.setOid(1L);
         String dType = xpackShareExtMapper.visualizationType(resourceId);
         xpackShare.setType(StringUtils.equalsIgnoreCase("dataV", dType) ? 2 : 1);
         xpackShareMapper.insert(xpackShare);
@@ -136,7 +142,7 @@ public class XpackShareManage {
 
 
     public IPage<XpackSharePO> querySharePage(int goPage, int pageSize, VisualizationWorkbranchQueryRequest request) {
-        Long uid = AuthUtils.getUser().getUserId();
+        Long uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.creator", uid);
         if (StringUtils.isNotBlank(request.getType())) {
@@ -168,7 +174,16 @@ public class XpackShareManage {
     @XpackInteract(value = "perFilterShareManage", recursion = true)
     public IPage<XpackShareGridVO> query(int pageNum, int pageSize, VisualizationWorkbranchQueryRequest request) {
         IPage<XpackSharePO> poiPage = proxy().querySharePage(pageNum, pageSize, request);
-        List<XpackShareGridVO> vos = proxy().formatResult(poiPage.getRecords());
+        List<XpackSharePO> resList = new ArrayList<>();
+        List<XpackSharePO> records = poiPage.getRecords();
+        for (XpackSharePO record : records) {
+            UserVO user = userService.getUserById(Math.toIntExact(record.getCreator()));
+            if (user != null) {
+                record.setCreatorName(user.getNickname());
+            }
+            resList.add(record);
+        }
+        List<XpackShareGridVO> vos = proxy().formatResult(resList);
         IPage<XpackShareGridVO> ipage = new Page<>();
         ipage.setSize(poiPage.getSize());
         ipage.setCurrent(poiPage.getCurrent());
@@ -182,7 +197,7 @@ public class XpackShareManage {
         if (CollectionUtils.isEmpty(pos)) return new ArrayList<>();
         return pos.stream().map(po ->
                 new XpackShareGridVO(
-                        po.getShareId(), po.getResourceId(), po.getName(), po.getCreator().toString(),
+                        po.getShareId(), po.getResourceId(), po.getName(), po.getCreator().toString(),po.getCreatorName(),
                         po.getTime(), po.getExp(), 9, po.getExtFlag(), po.getType())).toList();
     }
 

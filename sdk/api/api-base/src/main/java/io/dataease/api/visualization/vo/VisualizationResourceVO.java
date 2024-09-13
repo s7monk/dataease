@@ -28,7 +28,11 @@ public class VisualizationResourceVO implements Serializable {
 
     private String creator;
 
+    private String creatorName;
+
     private String lastEditor;
+
+    private String lastEditorName;
 
     private Long lastEditTime;
 

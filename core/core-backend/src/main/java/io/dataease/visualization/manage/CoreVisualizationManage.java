@@ -10,11 +10,13 @@ import io.dataease.api.visualization.vo.VisualizationResourceVO;
 import io.dataease.commons.constants.DataVisualizationConstants;
 import io.dataease.commons.constants.OptConstants;
 import io.dataease.constant.BusiResourceEnum;
+import io.dataease.data.vo.UserVO;
 import io.dataease.exception.DEException;
 import io.dataease.license.config.XpackInteract;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
 import io.dataease.operation.manage.CoreOptRecentManage;
+import io.dataease.service.UserService;
 import io.dataease.utils.*;
 import io.dataease.visualization.dao.auto.entity.DataVisualizationInfo;
 import io.dataease.visualization.dao.auto.mapper.DataVisualizationInfoMapper;
@@ -27,6 +29,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +51,9 @@ public class CoreVisualizationManage {
 
     @Resource
     private CoreOptRecentManage coreOptRecentManage;
+
+    @Autowired
+    private UserService userService;
 
     @XpackInteract(value = "visualizationResourceTree", replace = true)
     public List<BusiNodeVO> tree(BusiNodeRequest request) {
@@ -73,6 +79,7 @@ public class CoreVisualizationManage {
 
     @XpackInteract(value = "visualizationResourceTree", before = false)
     public void delete(Long id) {
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         DataVisualizationInfo info = mapper.selectById(id);
         if (ObjectUtils.isEmpty(info)) {
             DEException.throwException("resource not exist");
@@ -93,7 +100,7 @@ public class CoreVisualizationManage {
                 });
             }
         }
-        extMapper.batchDel(delIds, System.currentTimeMillis(), AuthUtils.getUser().getUserId());
+        extMapper.batchDel(delIds, System.currentTimeMillis(), userId);
         coreOptRecentManage.saveOpt(id, OptConstants.OPT_RESOURCE_TYPE.VISUALIZATION, OptConstants.OPT_TYPE.DELETE);
     }
 
@@ -136,8 +143,9 @@ public class CoreVisualizationManage {
 
     @XpackInteract(value = "visualizationResourceTree", before = false)
     public void innerEdit(DataVisualizationInfo visualizationInfo) {
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         visualizationInfo.setUpdateTime(System.currentTimeMillis());
-        visualizationInfo.setUpdateBy(AuthUtils.getUser().getUserId().toString());
+        visualizationInfo.setUpdateBy(userId);
         visualizationInfo.setVersion(3);
         mapper.updateById(visualizationInfo);
         coreOptRecentManage.saveOpt(visualizationInfo.getId(), OptConstants.OPT_RESOURCE_TYPE.VISUALIZATION, OptConstants.OPT_TYPE.UPDATE);
@@ -165,7 +173,20 @@ public class CoreVisualizationManage {
         if (ObjectUtils.isEmpty(visualizationResourcePOPageIPage)) {
             return null;
         }
-        List<VisualizationResourceVO> vos = proxy().formatResult(visualizationResourcePOPageIPage.getRecords());
+        List<VisualizationResourcePO> resList = new ArrayList<>();
+        List<VisualizationResourcePO> records = visualizationResourcePOPageIPage.getRecords();
+        for (VisualizationResourcePO record : records) {
+            UserVO creator = userService.getUserById(Math.toIntExact(record.getCreator()));
+            if (creator != null) {
+                record.setCreatorName(creator.getNickname());
+            }
+            UserVO lastEditor = userService.getUserById(Math.toIntExact(record.getLastEditor()));
+            if (lastEditor != null) {
+                record.setLastEditorName(lastEditor.getNickname());
+            }
+            resList.add(record);
+        }
+        List<VisualizationResourceVO> vos = proxy().formatResult(resList);
         IPage<VisualizationResourceVO> iPage = new Page<>();
         iPage.setCurrent(visualizationResourcePOPageIPage.getCurrent());
         iPage.setPages(visualizationResourcePOPageIPage.getPages());
@@ -182,12 +203,12 @@ public class CoreVisualizationManage {
         return pos.stream().map(po ->
                 new VisualizationResourceVO(
                         po.getId(), po.getResourceId(), po.getName(),
-                        po.getType(), String.valueOf(po.getCreator()), String.valueOf(po.getLastEditor()), po.getLastEditTime(),
+                        po.getType(), String.valueOf(po.getCreator()),po.getCreatorName(), String.valueOf(po.getLastEditor()),po.getLastEditorName(), po.getLastEditTime(),
                         po.getFavorite(), 9,po.getExtFlag())).toList();
     }
 
     public IPage<VisualizationResourcePO> queryVisualizationPage(int goPage, int pageSize, VisualizationWorkbranchQueryRequest request) {
-        Long uid = AuthUtils.getUser().getUserId();
+        Long uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(request.getType())) {
             BusiResourceEnum busiResourceEnum = BusiResourceEnum.valueOf(request.getType().toUpperCase());

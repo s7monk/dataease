@@ -260,7 +260,7 @@ const getEmptyDesc = (): string => {
         </template>
       </el-tab-pane>
     </el-tabs>
-    <!-- <XpackComponent jsname="c2hhcmUtcGFuZWw=" @loaded="panelLoad" /> -->
+<!--     <XpackComponent jsname="c2hhcmUtcGFuZWw=" @loaded="panelLoad" /> -->
     <!-- <XpackComponent :active-name="activeName" jsname="c2hhcmU=" @set-loading="setLoading" /> -->
     <share-grid :active-name="activeName" @set-loading="setLoading" />
     <el-row v-if="activeName === 'recent' || activeName === 'store'">

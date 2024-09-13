@@ -1,11 +1,13 @@
 package io.dataease.dataset.manage;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.dataease.api.dataset.union.DatasetGroupInfoDTO;
 import io.dataease.api.dataset.union.UnionDTO;
 import io.dataease.api.dataset.vo.DataSetBarVO;
 import io.dataease.commons.constants.OptConstants;
+import io.dataease.data.vo.UserVO;
 import io.dataease.dataset.dao.auto.entity.CoreDatasetGroup;
 import io.dataease.dataset.dao.auto.entity.CoreDatasetTable;
 import io.dataease.dataset.dao.auto.mapper.CoreDatasetGroupMapper;
@@ -29,12 +31,14 @@ import io.dataease.license.utils.LicenseUtil;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
 import io.dataease.operation.manage.CoreOptRecentManage;
+import io.dataease.service.UserService;
 import io.dataease.system.manage.CoreUserManage;
 import io.dataease.utils.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,18 +83,22 @@ public class DatasetGroupManage {
 
     private Lock lock = new ReentrantLock();
 
+    @Autowired
+    private UserService userService;
+
 
     @Transactional
     public DatasetGroupInfoDTO save(DatasetGroupInfoDTO datasetGroupInfoDTO, boolean rename) throws Exception {
         lock.lock();
         try {
+            String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
             boolean isCreate;
             // 用于重命名获取pid
             if (ObjectUtils.isEmpty(datasetGroupInfoDTO.getPid()) && ObjectUtils.isNotEmpty(datasetGroupInfoDTO.getId())) {
                 CoreDatasetGroup coreDatasetGroup = coreDatasetGroupMapper.selectById(datasetGroupInfoDTO.getId());
                 datasetGroupInfoDTO.setPid(coreDatasetGroup.getPid());
             }
-            datasetGroupInfoDTO.setUpdateBy(AuthUtils.getUser().getUserId() + "");
+            datasetGroupInfoDTO.setUpdateBy(userId);
             datasetGroupInfoDTO.setLastUpdateTime(System.currentTimeMillis());
             if (StringUtils.equalsIgnoreCase(datasetGroupInfoDTO.getNodeType(), leafType)) {
                 if (!rename && ObjectUtils.isEmpty(datasetGroupInfoDTO.getAllFields())) {
@@ -109,8 +117,8 @@ public class DatasetGroupManage {
             if (ObjectUtils.isEmpty(datasetGroupInfoDTO.getId())) {
                 isCreate = true;
                 datasetGroupInfoDTO.setId(IDUtils.snowID());
-                datasetGroupInfoDTO.setCreateBy(AuthUtils.getUser().getUserId() + "");
-                datasetGroupInfoDTO.setUpdateBy(AuthUtils.getUser().getUserId() + "");
+                datasetGroupInfoDTO.setCreateBy(userId);
+                datasetGroupInfoDTO.setUpdateBy(userId);
                 datasetGroupInfoDTO.setCreateTime(time);
                 datasetGroupInfoDTO.setLastUpdateTime(time);
                 datasetGroupInfoDTO.setPid(datasetGroupInfoDTO.getPid() == null ? 0L : datasetGroupInfoDTO.getPid());
@@ -161,6 +169,7 @@ public class DatasetGroupManage {
 
     @XpackInteract(value = "authResourceTree", before = false)
     public DatasetGroupInfoDTO move(DatasetGroupInfoDTO datasetGroupInfoDTO) {
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         checkName(datasetGroupInfoDTO);
         if (datasetGroupInfoDTO.getPid() != 0) {
             checkMove(datasetGroupInfoDTO);
@@ -169,7 +178,7 @@ public class DatasetGroupManage {
         long time = System.currentTimeMillis();
         CoreDatasetGroup coreDatasetGroup = new CoreDatasetGroup();
         BeanUtils.copyBean(coreDatasetGroup, datasetGroupInfoDTO);
-        datasetGroupInfoDTO.setUpdateBy(AuthUtils.getUser().getUserId() + "");
+        datasetGroupInfoDTO.setUpdateBy(userId);
         coreDatasetGroup.setLastUpdateTime(time);
         coreDatasetGroupMapper.updateById(coreDatasetGroup);
         coreOptRecentManage.saveOpt(coreDatasetGroup.getId(), OptConstants.OPT_RESOURCE_TYPE.DATASET, OptConstants.OPT_TYPE.UPDATE);
@@ -204,12 +213,16 @@ public class DatasetGroupManage {
 
     @XpackInteract(value = "authResourceTree", replace = true)
     public List<BusiNodeVO> tree(BusiNodeRequest request) {
-
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
         if (ObjectUtils.isNotEmpty(request.getLeaf())) {
             queryWrapper.eq("node_type", request.getLeaf() ? "dataset" : "folder");
         }
 
+        queryWrapper.orderByDesc("create_time");
+        if (!Objects.equals(userId, "1")) {
+            queryWrapper.eq("create_by", userId);
+        }
         queryWrapper.orderByDesc("create_time");
         List<DataSetNodePO> pos = coreDataSetExtMapper.query(queryWrapper);
         List<DataSetNodeBO> nodes = new ArrayList<>();
@@ -224,11 +237,13 @@ public class DatasetGroupManage {
     public DataSetBarVO queryBarInfo(Long id) {
         DataSetBarVO dataSetBarVO = coreDataSetExtMapper.queryBarInfo(id);
         // get creator
-        String userName = coreUserManage.getUserName(Long.valueOf(dataSetBarVO.getCreateBy()));
+        UserVO user = userService.getUserById(Integer.valueOf(dataSetBarVO.getCreateBy()));
+        String userName = user != null ? user.getNickname() : "未知";
         if (StringUtils.isNotBlank(userName)) {
             dataSetBarVO.setCreator(userName);
         }
-        String updateUserName = coreUserManage.getUserName(Long.valueOf(dataSetBarVO.getUpdateBy()));
+        UserVO userUpdate = userService.getUserById(Integer.valueOf(dataSetBarVO.getUpdateBy()));
+        String updateUserName = userUpdate != null ? userUpdate.getNickname() : "未知";
         if (StringUtils.isNotBlank(updateUserName)) {
             dataSetBarVO.setUpdater(updateUserName);
         }
@@ -387,11 +402,13 @@ public class DatasetGroupManage {
         DatasetGroupInfoDTO dto = new DatasetGroupInfoDTO();
         BeanUtils.copyBean(dto, coreDatasetGroup);
         // get creator
-        String userName = coreUserManage.getUserName(Long.valueOf(dto.getCreateBy()));
+        UserVO user = userService.getUserById(Integer.valueOf(dto.getCreateBy()));
+        String userName = user != null ? user.getNickname() : "未知";
         if (StringUtils.isNotBlank(userName)) {
             dto.setCreator(userName);
         }
-        String updateUserName = coreUserManage.getUserName(Long.valueOf(dto.getUpdateBy()));
+        UserVO userUpdate = userService.getUserById(Integer.valueOf(dto.getUpdateBy()));
+        String updateUserName = userUpdate != null ? userUpdate.getNickname() : "未知";
         if (StringUtils.isNotBlank(updateUserName)) {
             dto.setUpdater(updateUserName);
         }
@@ -423,11 +440,13 @@ public class DatasetGroupManage {
         DatasetGroupInfoDTO dto = new DatasetGroupInfoDTO();
         BeanUtils.copyBean(dto, coreDatasetGroup);
         // get creator
-        String userName = coreUserManage.getUserName(Long.valueOf(dto.getCreateBy()));
+        UserVO user = userService.getUserById(Integer.valueOf(dto.getCreateBy()));
+        String userName = user != null ? user.getNickname() : "未知";
         if (StringUtils.isNotBlank(userName)) {
             dto.setCreator(userName);
         }
-        String updateUserName = coreUserManage.getUserName(Long.valueOf(dto.getUpdateBy()));
+        UserVO userUpdate = userService.getUserById(Integer.valueOf(dto.getUpdateBy()));
+        String updateUserName = userUpdate != null ? userUpdate.getNickname() : "未知";
         if (StringUtils.isNotBlank(updateUserName)) {
             dto.setUpdater(updateUserName);
         }

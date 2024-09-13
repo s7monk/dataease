@@ -441,7 +441,7 @@ const jumpClick = param => {
           windowsJump(url, jumpInfo.jumpType)
         }
       } else {
-        ElMessage.warning('未指定跳转仪表板')
+        ElMessage.warning('未指定跳转数据看板')
       }
     } else {
       const colList = [...param.dimensionList, ...param.quotaList]

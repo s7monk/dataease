@@ -28,7 +28,11 @@ public class VisualizationResourcePO implements Serializable {
 
     private Long creator;
 
+    private String creatorName;
+
     private Long lastEditor;
+
+    private String lastEditorName;
 
     private Long lastEditTime;
 

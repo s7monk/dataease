@@ -1,5 +1,6 @@
 package io.dataease.operation.manage;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.dataease.commons.constants.OptConstants;
 import io.dataease.operation.dao.auto.entity.CoreOptRecent;
@@ -32,7 +33,7 @@ public class CoreOptRecentManage {
     }
 
     public void saveOpt(Long resourceId, String resourceName, int resourceType, int optType) {
-        Long uid = AuthUtils.getUser().getUserId();
+        Long uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         QueryWrapper<CoreOptRecent> updateWrapper = new QueryWrapper<>();
         if (resourceId != null) {
             updateWrapper.eq("resource_id", resourceId);
@@ -53,13 +54,13 @@ public class CoreOptRecentManage {
             optRecent.setResourceType(resourceType);
             optRecent.setOptType(optType);
             optRecent.setTime(System.currentTimeMillis());
-            optRecent.setUid(AuthUtils.getUser().getUserId());
+            optRecent.setUid(uid);
             coreStoreMapper.insert(optRecent);
         }
     }
 
     public Map<String, Long> findTemplateRecentUseTime() {
-        Long uid = AuthUtils.getUser().getUserId();
+        Long uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         QueryWrapper<CoreOptRecent> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_type", OptConstants.OPT_RESOURCE_TYPE.TEMPLATE);
         queryWrapper.eq("uid", uid);

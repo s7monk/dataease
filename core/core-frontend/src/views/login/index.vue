@@ -4,6 +4,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { FormRules, FormInstance } from 'element-plus-secondary'
 import { Icon } from '@/components/icon-custom'
 import { loginApi, queryDekey, loginCategoryApi } from '@/api/login'
+import { userListApi } from '@/api/user'
 import { useCache } from '@/hooks/web/useCache'
 import { useAppStoreWithOut } from '@/store/modules/app'
 import { CustomPassword } from '@/components/custom-password'
@@ -18,6 +19,7 @@ import DeImage from '@/assets/login-desc-de.png'
 import elementResizeDetectorMaker from 'element-resize-detector'
 import { checkPlatform, cleanPlatformFlag } from '@/utils/utils'
 import xss from 'xss'
+import CryptoJS from 'crypto-js/crypto-js'
 const { wsCache } = useCache()
 const appStore = useAppStoreWithOut()
 const userStore = useUserStoreWithOut()
@@ -86,25 +88,46 @@ const handleLogin = () => {
   if (!formRef.value) return
   formRef.value.validate(async (valid: boolean) => {
     if (valid) {
-     /* if (!checkUsername(state.loginForm.username) || !validatePwd(state.loginForm.password)) {
-        ElMessage.error('用户名或密码错误')
-        return
-      }*/
       const name = state.loginForm.username.trim()
       const pwd = state.loginForm.password
-      console.log(name)
-      console.log(pwd)
       if (!wsCache.get(appStore.getDekey)) {
         const res = await queryDekey()
         wsCache.set(appStore.getDekey, res.data)
       }
+      const params = {
+        username: name,
+        pageNum: 1,
+        pageSize: 100
+      }
+      userListApi(params).then(res => {
+        const user = res.data.data.data[0];
+        console.log('user', user)
+        if (user) {
+          const encryptedPassword = user.password;
+          const encryptedInputPassword = CryptoJS.MD5(pwd).toString(CryptoJS.enc.Hex);
+          console.log(CryptoJS.MD5(pwd))
+          if (encryptedPassword !== encryptedInputPassword) {
+            ElMessage.error('用户名或密码错误');
+            console.log('1')
+            return;
+          }
+        } else {
+          ElMessage.error('用户名或密码错误');
+          console.log('2')
+          return
+        }
+      }).catch((error) => {
+        console.log('3')
+        duringLogin.value = false;
+        ElMessage.error('用户名或密码错误');
+        return;
+      })
       const param = { username: name, password: pwd }
       duringLogin.value = true
       cleanPlatformFlag()
       loginApi(param)
         .then(res => {
           const { tokenValue, tokenTimeout } = res.data.data.saTokenInfo
-          console.log(tokenValue)
           userStore.setToken(tokenValue)
           userStore.setExp(tokenTimeout)
           const { id, username, nickname, admin } = res.data.data.user
@@ -112,27 +135,12 @@ const handleLogin = () => {
           userStore.setName(username)
           userStore.setNickname(nickname)
           userStore.setIsAdmin(admin)
-          console.log(username)
-          console.log(nickname)
-          if (!xpackLoadFail.value && xpackInvalidPwd.value?.invokeMethod) {
-            const param = {
-              methodName: 'init',
-              args: r => {
-                duringLogin.value = !!r
-                if (r) {
-                  const queryRedirectPath = getCurLocation()
-                  router.push({ path: queryRedirectPath })
-                }
-              }
-            }
-            xpackInvalidPwd?.value.invokeMethod(param)
-            return
-          }
           const queryRedirectPath = getCurLocation()
           router.push({ path: queryRedirectPath })
         })
-        .catch(() => {
-          duringLogin.value = false
+        .catch((error) => {
+          duringLogin.value = false;
+          ElMessage.error('用户名或密码错误');
         })
     }
   })
@@ -357,26 +365,6 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-
-<!--              <XpackComponent
-                class="default-login-tabs"
-                :active-name="activeName"
-                :login-form="state.loginForm"
-                @validate="ldapValidate"
-                @feedback="ldapFeedback"
-                jsname="L2NvbXBvbmVudC9sb2dpbi9MZGFw"
-              />
-
-              <XpackComponent
-                ref="xpackLoginHandler"
-                jsname="L2NvbXBvbmVudC9sb2dpbi9IYW5kbGVy"
-                @switch-tab="switchTab"
-              />
-              <XpackComponent
-                ref="xpackInvalidPwd"
-                jsname="L2NvbXBvbmVudC9sb2dpbi9JbnZhbGlkUHdk"
-                @load-fail="() => (xpackLoadFail = true)"
-              />-->
             </div>
 
             <div class="login-msg">

@@ -123,7 +123,7 @@ const downloadAsAppTemplate = downloadType => {
 const downLoadToAppPre = () => {
   const result = checkTemplate()
   if (result && result.length > 0) {
-    ElMessage.warning(`当前仪表板中[${result}]属于模版视图，无法导出，请先设置数据集！`)
+    ElMessage.warning(`当前数据看板中[${result}]属于模版视图，无法导出，请先设置数据集！`)
   } else {
     appExportFormRef.value.init({
       appName: state.dvInfo.name,
@@ -286,7 +286,7 @@ defineExpose({
         <empty-background description="请在左侧选择数据看板" img-type="select" />
       </template>
       <template v-else-if="mounted">
-        <empty-background description="暂无仪表板" img-type="none">
+        <empty-background description="暂无数据看板" img-type="none">
           <el-button v-if="rootManage && !isDataEaseBi" @click="createNew" type="primary">
             <template #icon>
               <Icon name="icon_add_outlined" />

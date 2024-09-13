@@ -1,5 +1,6 @@
 package io.dataease.datasource.manage;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import io.dataease.commons.constants.OptConstants;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class DataSourceManage {
@@ -58,12 +60,15 @@ public class DataSourceManage {
 
     @XpackInteract(value = "datasourceResourceTree", replace = true)
     public List<BusiNodeVO> tree(BusiNodeRequest request) {
-
+        String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         QueryWrapper<DataSourceNodePO> queryWrapper = new QueryWrapper<>();
         if (ObjectUtils.isNotEmpty(request.getLeaf()) && !request.getLeaf()) {
             queryWrapper.eq("type", "folder");
         }
         queryWrapper.orderByDesc("create_time");
+        if (!Objects.equals(userId, "1")) {
+            queryWrapper.eq("create_by", userId);
+        }
         List<DatasourceNodeBO> nodes = new ArrayList<>();
         List<DataSourceNodePO> pos = dataSourceExtMapper.selectList(queryWrapper);
         if (ObjectUtils.isEmpty(request.getLeaf()) || !request.getLeaf()) nodes.add(rootNode());
@@ -112,10 +117,11 @@ public class DataSourceManage {
 
     @XpackInteract(value = "datasourceResourceTree", before = false)
     public void innerEdit(CoreDatasource coreDatasource) {
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         UpdateWrapper<CoreDatasource> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", coreDatasource.getId());
         coreDatasource.setUpdateTime(System.currentTimeMillis());
-        coreDatasource.setUpdateBy(AuthUtils.getUser().getUserId());
+        coreDatasource.setUpdateBy(userId);
         coreDatasource.setTaskStatus(TaskStatus.WaitingForExecution.name());
         coreDatasourceMapper.update(coreDatasource, updateWrapper);
         coreOptRecentManage.saveOpt(coreDatasource.getId(), OptConstants.OPT_RESOURCE_TYPE.DATASOURCE, OptConstants.OPT_TYPE.UPDATE);
@@ -133,6 +139,7 @@ public class DataSourceManage {
 
     @XpackInteract(value = "datasourceResourceTree", before = false)
     public void move(DatasourceDTO dataSourceDTO) {
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         Long id = dataSourceDTO.getId();
         CoreDatasource sourceData = null;
         if (ObjectUtils.isEmpty(id) || ObjectUtils.isEmpty(sourceData = coreDatasourceMapper.selectById(id))) {
@@ -145,7 +152,7 @@ public class DataSourceManage {
         updateWrapper.set("update_time", System.currentTimeMillis());
         updateWrapper.set("pid", dataSourceDTO.getPid());
         updateWrapper.set("name", dataSourceDTO.getName());
-        updateWrapper.set("update_by", AuthUtils.getUser().getUserId());
+        updateWrapper.set("update_by", userId);
         coreDatasourceMapper.update(null, updateWrapper);
 
         coreOptRecentManage.saveOpt(sourceData.getId(), OptConstants.OPT_RESOURCE_TYPE.DATASOURCE, OptConstants.OPT_TYPE.UPDATE);

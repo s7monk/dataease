@@ -138,7 +138,7 @@ const handleCheckedFieldsChange = (value: string[]) => {
             <span class="label">跳转类型</span>
             <el-radio-group v-model="jumpType">
               <el-radio label="1">外部链接</el-radio>
-              <el-radio label="2">系统仪表板</el-radio>
+              <el-radio label="2">系统数据看板</el-radio>
             </el-radio-group>
           </div>
           <div class="type">
@@ -157,7 +157,7 @@ const handleCheckedFieldsChange = (value: string[]) => {
               :model="formInline"
               class="panel-form-field"
             >
-              <el-form-item label="当前仪表板">
+              <el-form-item label="当前数据看板">
                 <el-select v-model="formInline.region" placeholder="Activity zone" clearable>
                   <el-option label="Zone one" value="shanghai" />
                   <el-option label="Zone two" value="beijing" />
@@ -166,7 +166,7 @@ const handleCheckedFieldsChange = (value: string[]) => {
               <el-icon class="join">
                 <Icon name="join-join"></Icon>
               </el-icon>
-              <el-form-item label="目标仪表板">
+              <el-form-item label="目标数据看板">
                 <el-select v-model="formInline.region" placeholder="Activity zone" clearable>
                   <el-option label="Zone one" value="shanghai" />
                   <el-option label="Zone two" value="beijing" />

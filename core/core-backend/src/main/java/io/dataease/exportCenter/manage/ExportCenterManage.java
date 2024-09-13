@@ -1,6 +1,7 @@
 package io.dataease.exportCenter.manage;
 
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.dataease.api.chart.dto.ViewDetailField;
 import io.dataease.api.chart.request.ChartExcelRequest;
@@ -174,11 +175,12 @@ public class ExportCenterManage {
     }
 
     public List<ExportTaskDTO> exportTasks(String status) {
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         if (!STATUS.contains(status)) {
             DEException.throwException("Invalid status: " + status);
         }
         QueryWrapper<CoreExportTask> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", AuthUtils.getUser().getUserId());
+        queryWrapper.eq("user_id", userId);
         queryWrapper.orderByDesc("export_time");
         List<CoreExportTask> exportTasks = exportTaskMapper.selectList(queryWrapper);
         List<ExportTaskDTO> result = new ArrayList<>();
@@ -228,9 +230,10 @@ public class ExportCenterManage {
     }
 
     public void addTask(String exportFrom, String exportFromType, ChartExcelRequest request) {
+        Long userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         CoreExportTask exportTask = new CoreExportTask();
         exportTask.setId(UUID.randomUUID().toString());
-        exportTask.setUserId(AuthUtils.getUser().getUserId());
+        exportTask.setUserId(userId);
         exportTask.setExportFrom(exportFrom);
         exportTask.setExportFromType(exportFromType);
         exportTask.setExportStatus("PENDING");

@@ -23,7 +23,7 @@ class ShortcutOption {
   busiRecordMap: {
     recent: BusiRecord
     store: BusiRecord
-    // share: BusiRecord
+    //share: BusiRecord
   }
 
   constructor() {
@@ -35,8 +35,8 @@ class ShortcutOption {
         dataCache: [],
         columnList: [
           { field: 'type', label: t('datasource.type') },
-          { field: 'creator', label: t('visualization.create_by') },
-          { field: 'lastEditor', label: '最近编辑人' },
+          { field: 'creatorName', label: t('visualization.create_by') },
+          { field: 'lastEditorName', label: '最近编辑人' },
           { field: 'lastEditTime', label: '最近编辑时间', type: 'time' }
         ]
       },
@@ -46,8 +46,8 @@ class ShortcutOption {
         dataCache: [],
         columnList: [
           { field: 'type', label: t('datasource.type') },
-          { field: 'creator', label: t('visualization.create_by') },
-          { field: 'lastEditor', label: '最近编辑人' },
+          { field: 'creatorName', label: t('visualization.create_by') },
+          { field: 'lastEditorName', label: '最近编辑人' },
           { field: 'lastEditTime', label: '最近编辑时间', type: 'time' }
         ]
       }

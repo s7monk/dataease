@@ -29,6 +29,8 @@ public class XpackShareGridVO implements Serializable {
     private String name;
     @Schema(description = "创建人")
     private String creator;
+    @Schema(description = "创建人姓名")
+    private String creatorName;
     @Schema(description = "创建时间")
     private Long time;
     @Schema(description = "有效期")

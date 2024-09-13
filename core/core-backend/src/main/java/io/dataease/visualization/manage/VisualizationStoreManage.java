@@ -1,5 +1,6 @@
 package io.dataease.visualization.manage;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -7,8 +8,10 @@ import io.dataease.api.visualization.request.VisualizationStoreRequest;
 import io.dataease.api.visualization.request.VisualizationWorkbranchQueryRequest;
 import io.dataease.api.visualization.vo.VisualizationStoreVO;
 import io.dataease.constant.BusiResourceEnum;
+import io.dataease.data.vo.UserVO;
 import io.dataease.exception.DEException;
 import io.dataease.license.config.XpackInteract;
+import io.dataease.service.UserService;
 import io.dataease.utils.AuthUtils;
 import io.dataease.utils.CommonBeanFactory;
 import io.dataease.utils.IDUtils;
@@ -20,6 +23,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,9 +38,12 @@ public class VisualizationStoreManage {
     @Resource
     private CoreStoreExtMapper coreStoreExtMapper;
 
+    @Autowired
+    private UserService userService;
+
     public void execute(VisualizationStoreRequest request) {
         Long resourceId = request.getId();
-        Long uid = AuthUtils.getUser().getUserId();
+        Long uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsLong() : 1L;
         if (favorited(resourceId)) {
             QueryWrapper<CoreStore> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("resource_id", resourceId);
@@ -59,9 +66,10 @@ public class VisualizationStoreManage {
     }
 
     public Boolean favorited(Long resourceId) {
+        Integer uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
         QueryWrapper<CoreStore> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);
-        queryWrapper.eq("uid", AuthUtils.getUser().getUserId());
+        queryWrapper.eq("uid", uid);
         return coreStoreMapper.exists(queryWrapper);
     }
 
@@ -69,6 +77,19 @@ public class VisualizationStoreManage {
     public IPage<VisualizationStoreVO> query(int pageNum, int pageSize, VisualizationWorkbranchQueryRequest request) {
         IPage<StorePO> storePOIPage = proxy().queryStorePage(pageNum, pageSize, request);
         if (ObjectUtils.isEmpty(storePOIPage)) return null;
+        List<StorePO> resList = new ArrayList<>();
+        List<StorePO> records = storePOIPage.getRecords();
+        for (StorePO record : records) {
+            UserVO creator = userService.getUserById(Math.toIntExact(record.getCreator()));
+            if (creator != null) {
+                record.setCreatorName(creator.getNickname());
+            }
+            UserVO lastEditor = userService.getUserById(Math.toIntExact(record.getEditor()));
+            if (lastEditor != null) {
+                record.setEditorName(lastEditor.getNickname());
+            }
+            resList.add(record);
+        }
         List<VisualizationStoreVO> vos = proxy().formatResult(storePOIPage.getRecords());
         IPage<VisualizationStoreVO> ipage = new Page<>();
         ipage.setCurrent(storePOIPage.getCurrent());
@@ -88,12 +109,12 @@ public class VisualizationStoreManage {
         return pos.stream().map(po ->
                 new VisualizationStoreVO(
                         po.getStoreId(), po.getResourceId(), po.getName(),
-                        po.getType(), String.valueOf(po.getCreator()), ObjectUtils.isEmpty(po.getEditor()) ? null : String.valueOf(po.getEditor()),
-                        po.getEditTime(), 9,po.getExtFlag())).toList();
+                        po.getType(), String.valueOf(po.getCreator()), po.getCreatorName(), ObjectUtils.isEmpty(po.getEditor()) ? null : String.valueOf(po.getEditor()),
+                        po.getEditorName(),po.getEditTime(), 9,po.getExtFlag())).toList();
     }
 
     public IPage<StorePO> queryStorePage(int goPage, int pageSize, VisualizationWorkbranchQueryRequest request) {
-        Long uid = AuthUtils.getUser().getUserId();
+        Integer uid = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
         QueryWrapper<Object> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.uid", uid);
         if (StringUtils.isNotBlank(request.getType())) {

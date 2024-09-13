@@ -21,7 +21,7 @@ const state = reactive({
   tableData: [],
   curTypeList: ['all_types', 'panel', 'screen'],
   tableColumn: [
-    { field: 'creator', label: '分享人' },
+    { field: 'creatorName', label: '分享人' },
     { field: 'time', label: '分享时间', type: 'time' },
     { field: 'exp', label: '有效期', type: 'time' }
   ]
@@ -62,6 +62,7 @@ const loadTableData = () => {
       data: { type: queryType, keyword: panelKeyword.value, asc: !orderDesc.value }
     })
     .then(res => {
+      console.log(res.data)
       state.tableData = res.data
     })
     .finally(() => {
