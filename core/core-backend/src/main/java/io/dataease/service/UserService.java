@@ -63,7 +63,7 @@ public interface UserService extends IService<User> {
      * @param loginDTO login params
      * @return {@link String}
      */
-    UserInfoVO login(LoginDTO loginDTO) throws BaseException;
+    UserInfoVO login(LoginDTO loginDTO) throws Exception;
 
     /**
      * Query the list of assigned user roles.

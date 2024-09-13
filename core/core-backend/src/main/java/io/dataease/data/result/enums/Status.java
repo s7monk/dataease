@@ -42,7 +42,7 @@ public enum Status {
 
     /** ------------user-----------------. */
     USER_NOT_EXIST(10001, "user.not.exist"),
-    USER_PASSWORD_ERROR(10002, "user.password.error"),
+    USER_PASSWORD_ERROR(10002, "i18n_user.password.error"),
     USER_DISABLED_ERROR(10003, "user.is.disabled"),
     USER_NOT_BING_TENANT(10004, "user.not.bing.tenant"),
     USER_NAME_ALREADY_EXISTS(10005, "user.name.exist"),

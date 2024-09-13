@@ -2,24 +2,19 @@
 import { ref, reactive, onMounted, computed, nextTick } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { FormRules, FormInstance } from 'element-plus-secondary'
-import { Icon } from '@/components/icon-custom'
 import { loginApi, queryDekey, loginCategoryApi } from '@/api/login'
-import { userListApi } from '@/api/user'
 import { useCache } from '@/hooks/web/useCache'
 import { useAppStoreWithOut } from '@/store/modules/app'
 import { CustomPassword } from '@/components/custom-password'
 import { useUserStoreWithOut } from '@/store/modules/user'
 import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
-import { rsaEncryp } from '@/utils/encryption'
 import router from '@/router'
 import { ElMessage } from 'element-plus-secondary'
-import { XpackComponent } from '@/components/plugin'
 import { logoutHandler } from '@/utils/logout'
 import DeImage from '@/assets/login-desc-de.png'
 import elementResizeDetectorMaker from 'element-resize-detector'
 import { checkPlatform, cleanPlatformFlag } from '@/utils/utils'
 import xss from 'xss'
-import CryptoJS from 'crypto-js/crypto-js'
 const { wsCache } = useCache()
 const appStore = useAppStoreWithOut()
 const userStore = useUserStoreWithOut()
@@ -38,14 +33,10 @@ const footContent = ref(null)
 const loginErrorMsg = ref('')
 const xpackLoginHandler = ref()
 const showDempTips = ref(false)
-const xpackInvalidPwd = ref()
 const demoTips = computed(() => {
   if (!showDempTips.value) {
     return ''
   }
-  return (
-    appearanceStore.getDemoTipsContent || '账号：admin 密码：DataEase@123456 每晚 00:00 重置数据'
-  )
 })
 const state = reactive({
   loginForm: {
@@ -54,18 +45,6 @@ const state = reactive({
   },
   footContent: ''
 })
-const checkUsername = value => {
-  if (!value) {
-    return true
-  }
-  const pattern = /^[a-zA-Z0-9][a-zA-Z0-9\@._-]*$/
-  const reg = new RegExp(pattern)
-  return reg.test(value)
-}
-
-const validatePwd = value => {
-  return value === "admin";
-}
 
 const rules = reactive<FormRules>({
   username: [{ required: true, message: t('common.required'), trigger: 'blur' }],
@@ -94,34 +73,6 @@ const handleLogin = () => {
         const res = await queryDekey()
         wsCache.set(appStore.getDekey, res.data)
       }
-      const params = {
-        username: name,
-        pageNum: 1,
-        pageSize: 100
-      }
-      userListApi(params).then(res => {
-        const user = res.data.data.data[0];
-        console.log('user', user)
-        if (user) {
-          const encryptedPassword = user.password;
-          const encryptedInputPassword = CryptoJS.MD5(pwd).toString(CryptoJS.enc.Hex);
-          console.log(CryptoJS.MD5(pwd))
-          if (encryptedPassword !== encryptedInputPassword) {
-            ElMessage.error('用户名或密码错误');
-            console.log('1')
-            return;
-          }
-        } else {
-          ElMessage.error('用户名或密码错误');
-          console.log('2')
-          return
-        }
-      }).catch((error) => {
-        console.log('3')
-        duringLogin.value = false;
-        ElMessage.error('用户名或密码错误');
-        return;
-      })
       const param = { username: name, password: pwd }
       duringLogin.value = true
       cleanPlatformFlag()
@@ -138,26 +89,13 @@ const handleLogin = () => {
           const queryRedirectPath = getCurLocation()
           router.push({ path: queryRedirectPath })
         })
-        .catch((error) => {
+        .catch(() => {
           duringLogin.value = false;
-          ElMessage.error('用户名或密码错误');
         })
     }
   })
 }
-const ldapValidate = callback => {
-  if (!formRef.value) return
-  formRef.value.validate((valid: boolean) => {
-    if (valid && callback) {
-      duringLogin.value = true
-      callback()
-    }
-  })
-}
-const ldapFeedback = () => {
-  duringLogin.value = false
-}
-const xpackLoadFail = ref(false)
+
 const loadingText = ref('登录中...')
 const loginContainer = ref()
 const loginContainerWidth = ref(0)
@@ -193,50 +131,7 @@ const showLoginErrorMsg = () => {
   ElMessage.error(loginErrorMsg.value)
 }
 
-const loadArrearance = () => {
-  showDempTips.value = appearanceStore.getShowDemoTips
-  if (appearanceStore.getBg) {
-    loginImageUrl.value = appearanceStore.getBg
-  }
-  if (appearanceStore.getLogin) {
-    loginLogoUrl.value = appearanceStore.getLogin
-  }
-  if (appearanceStore.getSlogan) {
-    slogan.value = appearanceStore.getSlogan
-  }
-  if (appearanceStore.getFoot) {
-    showFoot.value = appearanceStore.getFoot === 'true'
-    if (showFoot.value) {
-      const content = appearanceStore.getFootContent
-      const myXss = new xss.FilterXSS({
-        css: {
-          whiteList: {
-            'background-color': true,
-            'text-align': true,
-            color: true,
-            'margin-top': true,
-            'margin-bottom': true,
-            'line-height': true,
-            'box-sizing': true,
-            'padding-top': true,
-            'padding-bottom': true
-          }
-        },
-        whiteList: {
-          ...xss.whiteList,
-          p: ['style'],
-          span: ['style']
-        }
-      })
-      footContent.value = myXss.process(content)
-    }
-  }
-}
-const switchTab = (name: string) => {
-  activeName.value = name || 'simple'
-}
 onMounted(async () => {
-  loadArrearance()
   if (!checkPlatform()) {
     const res = await loginCategoryApi()
     const adminLogin = router.currentRoute?.value?.name === 'admin-login'

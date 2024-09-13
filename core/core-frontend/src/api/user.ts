@@ -21,6 +21,7 @@ export const userPageApi = (page: number, limit: number, data) =>
 export const userCreateApi = data => request.post({ url: '/user', data })
 
 export const userUpdateApi = data => request.put({ url: '/user', data })
+export const userResetPasswordApi = data => request.post({ url: '/user/change/password', data })
 
 export const userStatusUpdateApi = data => request.put({ url: '/user/changeStatus', data })
 

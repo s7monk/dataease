@@ -46,6 +46,12 @@ const activeIndex = computed(() => {
 
 const permissionStore = usePermissionStore()
 const ExportExcelRef = ref()
+const selectedProject = ref('MG项目')
+const projectNames = ref(['MG项目', 'DBZ项目', 'MTD项目', 'CS项目', 'SG3项目', 'HMTSG3项目']);
+const handleSelectGn = (projectName) => {
+  selectedProject.value = projectName;
+};
+
 const downloadClick = params => {
   ExportExcelRef.value.init(params)
 }
@@ -142,7 +148,27 @@ onMounted(() => {
       <HeaderMenuItem v-for="menu in routers" :key="menu.path" :menu="menu"></HeaderMenuItem>
     </el-menu>
     <div class="operate-setting" v-if="!desktop">
-      <XpackComponent jsname="c3dpdGNoZXI=" />
+      <el-dropdown class="gn-container" trigger="click">
+        <div style="cursor: pointer;">
+          <span class="gn-span">{{ selectedProject }}</span>
+          <el-icon class="el-icon-animate-h">
+            <Icon name="icon_expand-down_filled" />
+          </el-icon>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu >
+            <el-dropdown-item
+              v-for="project in projectNames"
+              :key="project"
+              @click="handleSelectGn(project)"
+              :style="{ backgroundColor: selectedProject === project ? '#EAF0FF' : '', cursor: 'pointer' }"
+            >
+              {{ project }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
       <el-icon style="margin: 0 10px" class="ai-icon copilot-icon" v-if="!showOverlayCopilot">
         <Icon name="dv-ai" @click="handleCopilotClick" />
       </el-icon>
@@ -177,6 +203,22 @@ onMounted(() => {
 </template>
 
 <style lang="less" scoped>
+.gn-container {
+  margin-right: 4px;
+  .el-icon-animate-h {
+    width: 12px;
+    height: 12px;
+    font-size: 14px !important;
+  }
+  .gn-span {
+    font-family: '阿里巴巴普惠体 3.0 55 Regular L3';
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .ed-icon {
+    margin: 0 5px;
+  }
+}
 .preview-download_icon {
   padding: 5px;
   height: 28px;

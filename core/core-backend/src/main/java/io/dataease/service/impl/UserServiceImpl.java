@@ -40,8 +40,11 @@ import io.dataease.data.result.exception.user.UserNotExistsException;
 import io.dataease.data.result.exception.user.UserPasswordNotMatchException;
 import io.dataease.data.vo.UserInfoVO;
 import io.dataease.data.vo.UserVO;
+import io.dataease.exception.DEException;
+import io.dataease.i18n.Translator;
 import io.dataease.mapper.UserMapper;
 import io.dataease.mapper.UserRoleMapper;
+import io.dataease.result.ResultCode;
 import io.dataease.service.RoleMenuService;
 import io.dataease.service.SysMenuService;
 import io.dataease.service.SysRoleService;
@@ -102,13 +105,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return {@link String}
      */
     @Override
-    public UserInfoVO login(LoginDTO loginDTO) throws BaseException {
+    public UserInfoVO login(LoginDTO loginDTO) throws Exception {
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
 
         User user = localLogin(username, password);
         if (!user.getEnabled()) {
-            throw new UserDisabledException();
+            DEException.throwException(ResultCode.USER_ACCOUNT_FORBIDDEN.code(), Translator.get("i18n_user.is.disabled"));
         }
         // query user info
         UserInfoVO userInfoVo = getUserInfoVo(user);
@@ -164,20 +167,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userInfoVo;
     }
 
-    private User localLogin(String username, String password) throws BaseException {
+    private User localLogin(String username, String password) throws Exception {
         User user =
                 this.lambdaQuery()
                         .eq(User::getUsername, username)
                         .one();
         if (user == null) {
-            throw new UserNotExistsException();
+            DEException.throwException(ResultCode.USER_NOT_EXIST.code(), Translator.get("i18n_user.not.exist"));
         }
 
-        if (SaSecureUtil.md5(password).equals(user.getPassword())) {
-            return user;
-        } else {
-            throw new UserPasswordNotMatchException();
+        if (!SaSecureUtil.md5(password).equals(user.getPassword())) {
+            DEException.throwException(ResultCode.USER_LOGIN_ERROR.code(), Translator.get("i18n_user.password.error"));
         }
+
+        return user;
     }
 
     /**

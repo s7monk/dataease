@@ -47,7 +47,7 @@ public class LoginController {
      * @return token string
      */
     @PostMapping("/login/localLogin")
-    public R<UserInfoVO> login(@RequestBody LoginDTO loginDTO) {
+    public R<UserInfoVO> login(@RequestBody LoginDTO loginDTO) throws Exception {
         return R.succeed(userService.login(loginDTO));
     }
 

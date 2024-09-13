@@ -2,11 +2,13 @@
 import { ref, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { cloneDeep } from 'lodash-es'
-import request from '@/config/axios'
-import { rsaEncryp } from '@/utils/encryption'
+import { logoutApi } from '@/api/login'
+const userStore = useUserStoreWithOut()
 import { ElMessage } from 'element-plus-secondary'
 import { logoutHandler } from '@/utils/logout'
 import { CustomPassword } from '@/components/custom-password'
+import {useUserStoreWithOut} from "@/store/modules/user";
+import { userResetPasswordApi } from "@/api/user";
 
 const { t } = useI18n()
 
@@ -21,7 +23,8 @@ const validatePwd = (_: any, value: any, callback: any) => {
   if (value === pwdForm.pwd) {
     callback(new Error('新旧密码不能相同'))
   }
-  const pattern =
+  callback();
+  /*const pattern =
     /^.*(?=.{6,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[~!@#$%^&*()_+\-\={}|":<>?`[\];',.\/])[a-zA-Z0-9~!@#$%^&*()_+\-\={}|":<>?`[\];',.\/]*$/
   const regep = new RegExp(pattern)
   if (!regep.test(value)) {
@@ -29,7 +32,7 @@ const validatePwd = (_: any, value: any, callback: any) => {
     callback(new Error(msg))
   } else {
     callback()
-  }
+  }*/
 }
 
 const validateConfirmPwd = (_: any, value: any, callback: any) => {
@@ -48,9 +51,9 @@ const rule = {
       trigger: 'blur'
     },
     {
-      min: 6,
-      max: 20,
-      message: t('commons.input_limit', [6, 20]),
+      min: 1,
+      max: 30,
+      message: t('commons.input_limit', [1, 30]),
       trigger: 'blur'
     }
   ],
@@ -69,9 +72,9 @@ const rule = {
       trigger: 'blur'
     },
     {
-      min: 6,
-      max: 20,
-      message: t('commons.input_limit', [6, 20]),
+      min: 1,
+      max: 30,
+      message: t('commons.input_limit', [1, 30]),
       trigger: 'blur'
     },
     { validator: validateConfirmPwd, trigger: 'blur' }
@@ -82,12 +85,19 @@ const updatePwdForm = ref()
 const save = () => {
   updatePwdForm.value.validate(val => {
     if (val) {
-      const pwd = rsaEncryp(pwdForm.pwd)
-      const newPwd = rsaEncryp(pwdForm.newPwd)
-      request.post({ url: '/user/modifyPwd', data: { pwd, newPwd } }).then(() => {
-        ElMessage.success('修改成功，请重新登录')
-        logoutHandler()
-      })
+      const newPwd = pwdForm.newPwd
+      const data = { id: userStore.getUid, password: newPwd };
+      userResetPasswordApi(data).then(res => {
+        if (res.data.code === 200) {
+          ElMessage.success('修改成功，请重新登录')
+          logoutApi()
+          logoutHandler()
+        } else {
+          throw new Error('Failed to update password');
+        }
+      }).catch(error => {
+        console.error('修改密码失败:', error);
+      });
     }
   })
 }

@@ -92,6 +92,21 @@ const initOpenHandler = newWindow => {
     openHandler.value.invokeMethod(pm)
   }
 }
+
+const selectedTimeZone = ref('UTC+8')
+const handleSelectTimeZone = (timezone) => {
+  selectedTimeZone.value = timezone;
+};
+
+const timeZones = ref([
+  { label: 'UTC+8', value: 'UTC+8' },
+  { label: 'UTC-12', value: 'UTC-12' },
+  { label: 'UTC-11', value: 'UTC-11' },
+  { label: 'UTC-9', value: 'UTC-9' },
+  { label: 'UTC-7', value: 'UTC-7' },
+  { label: 'UTC-3', value: 'UTC-3' },
+  { label: 'UTC±0', value: 'UTC±0' }
+]);
 </script>
 
 <template>
@@ -123,6 +138,22 @@ const initOpenHandler = newWindow => {
     </div>
     <div class="canvas-opt-button">
       <de-fullscreen ref="fullScreeRef"></de-fullscreen>
+      <el-dropdown placement="bottom-start" trigger="click" class = "timezone-d">
+        <el-button secondary> {{ selectedTimeZone }} </el-button>
+        <template #dropdown>
+          <el-dropdown-menu style="width: 160px;">
+            <el-dropdown-item
+              v-for="zone in timeZones"
+              :key="zone.value"
+              @click="handleSelectTimeZone(zone.value)"
+              :style="{ backgroundColor: selectedTimeZone === zone.value ? '#EAF0FF' : '' }"
+            >
+              {{ zone.label }}
+              <span v-if="zone.value === 'UTC+8'" style="color: #3370ff; margin-left: 54px;">默认</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
       <el-button v-if="!isIframe" secondary @click="() => fullScreeRef.toggleFullscreen()">
         <template #icon>
           <icon name="icon_pc_fullscreen"></icon>
@@ -234,6 +265,10 @@ const initOpenHandler = newWindow => {
           background: #1f23291a;
         }
       }
+    }
+    .timezone-d {
+      margin-left: 12px;
+      margin-right: 12px;
     }
   }
 }
