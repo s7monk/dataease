@@ -25,6 +25,8 @@ export const userResetPasswordApi = data => request.post({ url: '/user/change/pa
 
 export const userStatusUpdateApi = data => request.put({ url: '/user/changeStatus', data })
 
+export const roleStatusUpdateApi = data => request.put({ url: '/role/changeStatus', data })
+
 export const userEditApi = data => request.post({ url: '/user/edit', data })
 
 export const personEditApi = data => request.post({ url: '/user/personEdit', data })

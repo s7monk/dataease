@@ -43,23 +43,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectRoleList" parameterType="io.dataease.data.model.SysRole" resultMap="SysRoleResult">
 		<include refid="selectRoleVo"/>
-		<if test="role.id != null and role.id != 0">
-			OR r.id = #{role.id}
-		</if>
-		<if test="role.roleName != null and role.roleName != ''">
-			OR r.role_name like concat('%', #{role.roleName}, '%')
-		</if>
-		<if test="role.enabled != null and role.enabled != ''">
-			OR		</if>
-		<if test="role.roleKey != null and role.roleKey != ''">
-			OR r.role_key like concat('%', #{role.roleKey}, '%')
-		</if>
-		<if test="role.params.beginTime != null and role.params.beginTime != ''"><!-- 开始时间检索 -->
-			OR date_format(r.create_time,'%y%m%d') &gt;= date_format(#{role.params.beginTime},'%y%m%d')
-		</if>
-		<if test="role.params.endTime != null and role.params.endTime != ''"><!-- 结束时间检索 -->
-			OR date_format(r.create_time,'%y%m%d') &lt;= date_format(#{role.params.endTime},'%y%m%d')
-		</if>
+		<where>
+			<if test="role.id != null and role.id != 0">
+				OR r.id = #{role.id}
+			</if>
+			<if test="role.roleName != null and role.roleName != ''">
+				OR r.role_name like concat('%', #{role.roleName}, '%')
+			</if>
+			<if test="role.enabled != null and role.enabled != ''">
+				OR		</if>
+			<if test="role.roleKey != null and role.roleKey != ''">
+				OR r.role_key like concat('%', #{role.roleKey}, '%')
+			</if>
+			<if test="role.params.beginTime != null and role.params.beginTime != ''"><!-- 开始时间检索 -->
+				OR date_format(r.create_time,'%y%m%d') &gt;= date_format(#{role.params.beginTime},'%y%m%d')
+			</if>
+			<if test="role.params.endTime != null and role.params.endTime != ''"><!-- 结束时间检索 -->
+				OR date_format(r.create_time,'%y%m%d') &lt;= date_format(#{role.params.endTime},'%y%m%d')
+			</if>
+		</where>
 		order by r.sort
 	</select>
     

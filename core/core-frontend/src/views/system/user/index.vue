@@ -288,7 +288,6 @@ onMounted(() => {
   <div class="container-content">
     <el-row class="top-operate-content">
       <el-col :span="12">
-<!--        <el-button type="primary" @click="dialogFormVisible = true">-->
         <el-button type="primary" @click="openDialog">
           <template #icon>
             <Icon name="icon_add_outlined" />

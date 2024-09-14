@@ -156,6 +156,7 @@ export default {
     user_id: '用户',
     user_id_empty: '请输入精准用户ID/账号',
     search_placeholder: '通过用户名或昵称搜索',
+    search_role_placeholder: '通过角色名称搜索',
     batch_del: '批量删除',
     selection_info: '已选 {0} 项',
     clear_button: '清空',

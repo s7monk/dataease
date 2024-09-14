@@ -149,7 +149,7 @@ const timeZones = ref([
               :style="{ backgroundColor: selectedTimeZone === zone.value ? '#EAF0FF' : '' }"
             >
               {{ zone.label }}
-              <span v-if="zone.value === 'UTC+8'" style="color: #3370ff; margin-left: 54px;">默认</span>
+              <span class="timezone-default-span" v-if="zone.value === 'UTC+8'">默认</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -277,7 +277,10 @@ const timeZones = ref([
   font-size: 16px;
   color: #646a73;
 }
-
+.timezone-default-span {
+  color: #3370ff;
+  margin-left: 54px;
+}
 .custom-button {
   margin-left: 12px;
 }
