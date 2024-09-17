@@ -30,7 +30,7 @@ public class TreeSelect implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** node ID. */
-    private Integer id;
+    private Long id;
 
     /** node name. */
     private String label;
@@ -43,16 +43,16 @@ public class TreeSelect implements Serializable {
 
     public TreeSelect(SysMenu menu) {
         this.id = menu.getId();
-        this.label = menu.getMenuName();
+        this.label = menu.getName();
         this.children =
                 menu.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

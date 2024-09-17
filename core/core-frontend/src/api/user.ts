@@ -37,13 +37,15 @@ export const userListApi= params => request.get({ url: '/user/list', params })
 
 export const roleListApi= params => request.get({ url: '/role/list', params })
 
+export const roleMenuApi= params => request.get({ url: '/menu/treeselect', params })
+
 export const userDelApi = userId => request.delete({ url: `/user/${userId}` })
 
 export const queryFormApi = uid => request.get({ url: `/user/queryById/${uid}` })
 
 export const personInfoApi = () => request.get({ url: `/user/personInfo` })
 
-export const roleCreateApi = data => request.post({ url: '/role/create', data })
+export const roleCreateApi = data => request.post({ url: '/role', data })
 
 export const roleEditApi = data => request.post({ url: '/role/edit', data })
 

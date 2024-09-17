@@ -28,92 +28,28 @@ import java.util.List;
 /** Menu mapper. */
 @Mapper
 public interface SysMenuMapper extends BaseMapper<SysMenu> {
-    /**
-     * Query system menu list.
-     *
-     * @param menu query params
-     * @return result
-     */
+
     List<SysMenu> selectMenuList(@Param("menu") SysMenu menu);
 
-    /**
-     * Query all menu perms.
-     *
-     * @return permission List
-     */
     List<String> selectMenuPerms();
 
-    /**
-     * Query system menu list by user.
-     *
-     * @param menu query params
-     * @return menu list
-     */
     List<SysMenu> selectMenuListByUserId(
             @Param("menu") SysMenu menu, @Param("userId") Integer userId);
 
-    /**
-     * Query permissions based on role ID.
-     *
-     * @param roleId role ID
-     * @return permission List
-     */
     List<String> selectMenuPermsByRoleId(Integer roleId);
 
-    /**
-     * Query permissions by user ID.
-     *
-     * @param userId user ID
-     * @return permission List
-     */
     List<String> selectMenuPermsByUserId(Integer userId);
 
-    /**
-     * Query all menu list.
-     *
-     * @return menu list
-     */
     List<SysMenu> selectMenuTreeAll();
 
-    /**
-     * Query menu list by user ID.
-     *
-     * @param userId user ID
-     * @return menu list
-     */
     List<SysMenu> selectMenuTreeByUserId(Integer userId);
 
-    /**
-     * Query menu tree information based on role ID.
-     *
-     * @param roleId role ID
-     * @return selected menu list
-     */
-    List<Integer> selectMenuListByRoleId(Integer roleId);
+    List<Long> selectMenuListByRoleId(Integer roleId);
 
-    /**
-     * Query information by menu ID.
-     *
-     * @param menuId menu ID
-     * @return menu info
-     */
-    SysMenu selectMenuById(Integer menuId);
+    SysMenu selectMenuById(Long menuId);
 
-    /**
-     * Is there a menu sub node present.
-     *
-     * @param menuId menu ID
-     * @return result
-     */
-    int hasChildByMenuId(Integer menuId);
+    Long hasChildByMenuId(Long menuId);
 
-    /**
-     * Verify if the menu name is unique.
-     *
-     * @param menuName menu name
-     * @param parentId parent ID
-     * @return result
-     */
     SysMenu checkMenuNameUnique(
-            @Param("menuName") String menuName, @Param("parentId") Integer parentId);
+            @Param("name") String name, @Param("pid") Long pid);
 }

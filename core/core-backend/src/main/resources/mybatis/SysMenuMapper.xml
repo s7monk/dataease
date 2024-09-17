@@ -24,87 +24,70 @@ under the License.
 
 	<resultMap type="io.dataease.data.model.SysMenu" id="SysMenuResult">
 		<id     property="id"         column="id"        />
-		<result property="menuName"       column="menu_name"      />
-		<result property="parentId"       column="parent_id"      />
-		<result property="sort"       column="sort"      />
-		<result property="path"           column="path"           />
-		<result property="component"      column="component"      />
-		<result property="query"          column="query"          />
-		<result property="isFrame"        column="is_frame"       />
-		<result property="isCache"        column="is_cache"       />
+		<result property="pid"       column="pid"      />
 		<result property="type"       column="type"      />
-		<result property="visible"        column="visible"        />
-		<result property="enabled"         column="enabled"         />
+		<result property="name"       column="name"      />
+		<result property="component"           column="component"           />
+		<result property="menuSort"      column="menu_sort"      />
+		<result property="icon"          column="icon"          />
+		<result property="path"        column="path"       />
+		<result property="hidden"        column="hidden"       />
+		<result property="inLayout"       column="in_layout"      />
+		<result property="auth"        column="auth"        />
 		<result property="perms"          column="perms"          />
-		<result property="icon"           column="icon"           />
-		<result property="createTime"     column="create_time"    />
-		<result property="updateTime"     column="update_time"    />
-		<result property="remark"         column="remark"         />
 	</resultMap>
 
 	<sql id="selectMenuVo">
-        select id, menu_name, parent_id, sort, path, component, `query`, is_frame, is_cache, type, visible, enabled, ifnull(perms,'') as perms, icon, create_time
+        select id, pid, type, name, component, menu_sort, icon, path, hidden, in_layout, auth, ifnull(perms,'') as perms
 		from sys_menu
     </sql>
     
     <select id="selectMenuList" parameterType="io.dataease.data.model.SysMenu" resultMap="SysMenuResult">
 		<include refid="selectMenuVo"/>
 		<where>
-			<if test="menu.menuName != null and menu.menuName != ''">
-				AND menu_name like concat('%', #{menu.menuName}, '%')
-			</if>
-			<if test="menu.visible != null and menu.visible != ''">
-				AND visible = #{menu.visible}
-			</if>
-			<if test="menu.enabled != null and menu.enabled != ''">
-				AND enabled = #{menu.enabled}
+			<if test="menu.name != null and menu.name != ''">
+				AND name like concat('%', #{menu.name}, '%')
 			</if>
 		</where>
-		order by parent_id, sort
+		order by pid, menu_sort
 	</select>
 	
 	<select id="selectMenuTreeAll" resultMap="SysMenuResult">
-		select distinct m.id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.visible, m.enabled, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.type, m.icon, m.sort, m.create_time
-		from sys_menu m where m.type in ('M', 'C') and m.enabled = 1
-		order by m.parent_id, m.sort
+		select distinct m.id, m.pid, m.type, m.name, m.component, m.menu_sort, m.icon, m.path, m.hidden, m.in_layout, m.auth, ifnull(m.perms,'') as perms
+		from sys_menu m where m.type in (1, 2)
+		order by m.pid, m.menu_sort
 	</select>
 	
 	<select id="selectMenuListByUserId" resultMap="SysMenuResult">
-		select distinct m.id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.visible, m.enabled, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.type, m.icon, m.sort, m.create_time
+		select distinct m.id, m.pid, m.type, m.name, m.component, m.menu_sort, m.icon, m.path, m.hidden, m.in_layout, m.auth, ifnull(m.perms,'') as perms
 		from sys_menu m
 		left join role_menu rm on m.id = rm.menu_id
 		left join user_role urole on rm.role_id = urole.role_id
 		left join sys_role ro on urole.role_id = ro.id
 		where urole.user_id = #{userId}
-		<if test="menu.menuName != null and menu.menuName != ''">
-            AND m.menu_name like concat('%', #{menu.menuName}, '%')
+		<if test="menu.name != null and menu.name != ''">
+            AND m.name like concat('%', #{menu.name}, '%')
 		</if>
-		<if test="menu.visible != null and menu.visible != ''">
-            AND m.visible = #{visible}
-		</if>
-		<if test="menu.enabled != null and menu.enabled != ''">
-            AND m.enabled = #{enabled}
-		</if>
-		order by m.parent_id, m.sort
+		order by m.pid, m.menu_sort
 	</select>
     
     <select id="selectMenuTreeByUserId" parameterType="Integer" resultMap="SysMenuResult">
-		select distinct m.id, m.parent_id, m.menu_name, m.path, m.component, m.`query`, m.visible, m.enabled, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.type, m.icon, m.sort, m.create_time
+		select distinct m.id, m.pid, m.type, m.name, m.component, m.menu_sort, m.icon, m.path, m.hidden, m.in_layout, m.auth, ifnull(m.perms,'') as perms
 		from sys_menu m
 			 left join role_menu rm on m.id = rm.menu_id
 			 left join user_role urole on rm.role_id = urole.role_id
 			 left join sys_role ro on urole.role_id = ro.id
 			 left join user u on urole.user_id = u.id
-		where u.id = #{userId} and m.type in ('M', 'C') and m.enabled = 1  AND ro.enabled = 1
-		order by m.parent_id, m.sort
+		where u.id = #{userId} and m.type in (1, 2) AND ro.enabled = 1
+		order by m.pid, m.menu_sort
 	</select>
 	
-	<select id="selectMenuListByRoleId" resultType="Integer">
+	<select id="selectMenuListByRoleId" resultType="Long">
 		select m.id
 		from sys_menu m
             left join role_menu rm on m.id = rm.menu_id
         where rm.role_id = #{roleId}
-		order by m.parent_id, m.sort
+		order by m.pid, m.menu_sort
 	</select>
 	
 	<select id="selectMenuPerms" resultType="String">
@@ -120,28 +103,28 @@ under the License.
 			 left join role_menu rm on m.id = rm.menu_id
 			 left join user_role urole on rm.role_id = urole.role_id
 			 left join sys_role r on r.id = urole.role_id
-		where m.enabled = 1 and r.enabled = 1 and urole.user_id = #{userId}
+		where r.enabled = 1 and urole.user_id = #{userId}
 	</select>
 	
 	<select id="selectMenuPermsByRoleId" parameterType="Integer" resultType="String">
 		select distinct m.perms
 		from sys_menu m
 			 left join role_menu rm on m.id = rm.menu_id
-		where m.enabled = 1 and rm.role_id = #{roleId}
+		where rm.role_id = #{roleId}
 	</select>
 	
-	<select id="selectMenuById" parameterType="Integer" resultMap="SysMenuResult">
+	<select id="selectMenuById" parameterType="Long" resultMap="SysMenuResult">
 		<include refid="selectMenuVo"/>
 		where id = #{menuId}
 	</select>
 	
-	<select id="hasChildByMenuId" resultType="Integer">
-	    select count(1) from sys_menu where parent_id = #{menuId} limit 1
+	<select id="hasChildByMenuId" resultType="long">
+	    select count(1) from sys_menu where pid = #{menuId} limit 1
 	</select>
 	
 	<select id="checkMenuNameUnique" parameterType="io.dataease.data.model.SysMenu" resultMap="SysMenuResult">
 		<include refid="selectMenuVo"/>
-		where menu_name=#{menuName} and parent_id = #{parentId} limit 1
+		where name=#{name} and pid = #{pid} limit 1
 	</select>
 
 </mapper> 

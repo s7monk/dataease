@@ -4,16 +4,20 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 import GridTable from "@/components/grid-table/src/GridTable.vue";
 import {ElMessage, ElMessageBox, FormRules} from "element-plus-secondary";
-import {roleListApi, roleStatusUpdateApi} from "@/api/user";
+import {roleListApi, roleStatusUpdateApi, roleMenuApi, roleCreateApi} from "@/api/user";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
-import {CustomPassword} from "@/components/custom-password";
 
 const { t } = useI18n()
 const uname = ref("")
 const dialogFormVisible = ref(false)
 const isEditMode = ref(false);
 const formRef = ref(null)
+const menuOptions = ref([])
+const menuTreeRef = ref(null);
+const menuExpand = ref(false)
+const menuNodeAll = ref(false)
+const menuCheckStrictly = ref(true)
 
 const state = reactive({
   paginationConfig: {
@@ -143,6 +147,13 @@ const resetForm = () => {
   form.remark = '';
   form.enabled = true;
   form.menuIds = [];
+  menuExpand.value = false;
+  menuNodeAll.value = false;
+  menuCheckStrictly.value = true;
+  if (menuTreeRef.value) {
+    menuTreeRef.value.setCheckedKeys([]);
+  }
+  handleCheckedTreeExpand(menuExpand.value);
 };
 
 const openDialog = () => {
@@ -159,9 +170,6 @@ const rules = reactive<FormRules>({
   roleKey: [
     { required: true, message: '请输入角色编码', trigger: 'blur' }
   ],
-  roleIds: [
-    { required: true, message: '请输选择角色', trigger: 'blur' }
-  ],
 })
 
 const cancel = () => {
@@ -169,8 +177,89 @@ const cancel = () => {
   dialogFormVisible.value = false
 }
 
+const getMenuTreeselect = () => {
+  const params = {
+    pageNum: 1,
+    pageSize: 10000000000
+  }
+
+  roleMenuApi(params).then(response => {
+    const filteredMenuOptions = response.data.data.filter(item => {
+      return !['dataset-form', 'datasource-form', 'sys-setting'].includes(item.label);
+    });
+    menuOptions.value = filteredMenuOptions;
+  });
+}
+
+const renderContent = (h, { node, data }) => {
+  return h('span', t(`roleKey.${data.label}`));
+};
+
+const handleCheckedTreeExpand = (value) => {
+  if (!menuTreeRef.value) return;
+
+  const nodesMap = menuTreeRef.value.store.nodesMap;
+  menuOptions.value.forEach(item => {
+    if (nodesMap[item.id]) {
+      nodesMap[item.id].expanded = value;
+    }
+  });
+};
+
+const handleCheckedTreeNodeAll = (value) => {
+  menuTreeRef.value.setCheckedNodes(value ? menuOptions.value : []);
+};
+
+const handleCheckedTreeConnect = (value) => {
+  menuCheckStrictly.value = value;
+};
+
+const getMenuAllCheckedKeys = () => {
+  if (!menuTreeRef.value) {
+    return [];
+  }
+  let checkedKeys = menuTreeRef.value.getCheckedKeys()
+  let halfCheckedKeys = menuTreeRef.value.getHalfCheckedKeys();
+  return [...checkedKeys, ...halfCheckedKeys];
+}
+
+const handleSubmit = async () => {
+  if (!formRef.value) {
+    ElMessage.error('表单引用不存在');
+    return;
+  }
+
+  try {
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        const checkedKeys = getMenuAllCheckedKeys();
+
+        form.menuIds = checkedKeys;
+
+        const response = await roleCreateApi(form);
+        if (response.data.code === 200) {
+          ElMessage.success('角色创建成功');
+          dialogFormVisible.value = false;
+          getTableData();
+        } else {
+          ElMessage.error('角色创建失败: ' + response.data.message);
+        }
+      } else {
+        ElMessage.error('请填写正确的角色信息');
+        return false;
+      }
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('表单校验失败:', error);
+      ElMessage.error('表单校验失败: ' + error.message);
+    }
+  }
+};
+
 onMounted(() => {
   getTableData();
+  getMenuTreeselect()
 });
 </script>
 <template>
@@ -306,17 +395,27 @@ onMounted(() => {
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" clearable type="textarea" :rows="3"/>
         </el-form-item>
-        <el-form-item label="权限配置" prop="menuIds">
+        <el-form-item label="菜单权限" prop="menuIds">
+          <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event)">展开/折叠</el-checkbox>
+          <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event)">全选/全不选</el-checkbox>
+          <el-checkbox v-model="menuCheckStrictly" @change="handleCheckedTreeConnect($event)">父子联动</el-checkbox>
           <el-tree
             empty-text=""
+            ref="menuTreeRef"
+            class="tree-border"
             style="max-width: 600px"
+            show-checkbox
+            node-key="id"
+            :check-strictly="!menuCheckStrictly"
+            :data="menuOptions"
+            :render-content="renderContent"
           />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="cancel">取消</el-button>
-          <el-button type="primary" @click="handleCreateOrUpdate">
+          <el-button type="primary" @click="handleSubmit">
             确定
           </el-button>
         </div>
@@ -349,5 +448,13 @@ onMounted(() => {
 }
 .info-table {
   height: calc(100% - 49px);
+}
+
+.tree-border {
+  margin-top: 5px;
+  border: 1px solid #e5e6e7;
+  background: #FFFFFF none;
+  border-radius: 4px;
+  width: 100%;
 }
 </style>

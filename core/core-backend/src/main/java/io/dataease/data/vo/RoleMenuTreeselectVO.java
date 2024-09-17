@@ -16,25 +16,24 @@
  * limitations under the License.
  */
 
-package io.dataease.mapper;
+package io.dataease.data.vo;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import io.dataease.data.model.RoleMenu;
-import org.apache.ibatis.annotations.Mapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dataease.data.tree.TreeSelect;
+import lombok.Getter;
 
 import java.util.List;
 
-/** role-menu mapper. */
-@Mapper
-public interface RoleMenuMapper extends BaseMapper<RoleMenu> {
+/** Role Menu List Tree Vo. */
+@Getter
+public class RoleMenuTreeselectVO {
+    private final List<Long> checkedKeys;
+    private final List<TreeSelect> menus;
 
-    int checkMenuExistRole(Long menuId);
-
-    int deleteRoleMenuByRoleId(Integer roleId);
-
-    int deleteRoleMenu(Integer[] roleIds);
-
-    int batchRoleMenu(List<RoleMenu> roleMenuList);
-
-    List<RoleMenu> queryRoleMenuByUser(Integer userId);
+    public RoleMenuTreeselectVO(
+            @JsonProperty("checkedKeys") List<Long> checkedKeys,
+            @JsonProperty("menus") List<TreeSelect> menus) {
+        this.checkedKeys = checkedKeys;
+        this.menus = menus;
+    }
 }

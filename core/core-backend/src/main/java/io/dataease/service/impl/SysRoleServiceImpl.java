@@ -51,23 +51,11 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
 
     @Autowired private UserRoleMapper userRoleMapper;
 
-    /**
-     * Query role list.
-     *
-     * @param role query params
-     * @return role list
-     */
     @Override
     public List<SysRole> listRoles(IPage<SysRole> page, SysRole role) {
         return roleMapper.selectRoleList(page, role);
     }
 
-    /**
-     * Query role list by user ID.
-     *
-     * @param userId user ID
-     * @return role list
-     */
     @Override
     public List<SysRole> selectRolesByUserId(Integer userId) {
         List<SysRole> userRoles = roleMapper.selectRolePermissionByUserId(userId);
@@ -83,12 +71,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return roles;
     }
 
-    /**
-     * Query role permission by user ID.
-     *
-     * @param userId user ID
-     * @return permission list
-     */
     @Override
     public Set<String> selectRolePermissionByUserId(Integer userId) {
         List<SysRole> perms = roleMapper.selectRolePermissionByUserId(userId);
@@ -101,34 +83,16 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return permsSet;
     }
 
-    /**
-     * Query role list by user ID.
-     *
-     * @param userId user ID
-     * @return role IDs
-     */
     @Override
     public List<Integer> selectRoleListByUserId(Integer userId) {
         return roleMapper.selectRoleListByUserId(userId);
     }
 
-    /**
-     * Query role info by role ID.
-     *
-     * @param roleId role ID
-     * @return role info
-     */
     @Override
     public SysRole getRoleById(Integer roleId) {
         return this.getById(roleId);
     }
 
-    /**
-     * Verify if the role name is unique.
-     *
-     * @param role role info
-     * @return result
-     */
     @Override
     public boolean checkRoleNameUnique(SysRole role) {
         int roleId = role.getId() == null ? -1 : role.getId();
@@ -136,12 +100,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return info == null || info.getId() == roleId;
     }
 
-    /**
-     * Verify whether role permissions are unique.
-     *
-     * @param role role info
-     * @return result
-     */
     @Override
     public boolean checkRoleKeyUnique(SysRole role) {
         int roleId = role.getId() == null ? -1 : role.getId();
@@ -149,22 +107,11 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return info == null || info.getId() == roleId;
     }
 
-    /**
-     * Verify whether the role allows operations.
-     *
-     * @param role role info
-     */
     @Override
     public boolean checkRoleAllowed(SysRole role) {
         return role.getId() != null && role.getId() == 1;
     }
 
-    /**
-     * Add role.
-     *
-     * @param role role info
-     * @return result
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertRole(SysRole role) {
@@ -174,12 +121,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return insertRoleMenu(role);
     }
 
-    /**
-     * Update role.
-     *
-     * @param role role info
-     * @return result
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateRole(SysRole role) {
@@ -188,17 +129,12 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return insertRoleMenu(role);
     }
 
-    /**
-     * Add role-menu association information.
-     *
-     * @param role role info
-     */
     public int insertRoleMenu(SysRole role) {
-        Integer[] mergedMenuIds = mergeMenuIds(role.getMenuIds(), role.getIndeterminateKeys());
+        Long[] mergedMenuIds = mergeMenuIds(role.getMenuIds(), role.getIndeterminateKeys());
         int rows = 1;
         if (mergedMenuIds.length > 0) {
             List<RoleMenu> list = new ArrayList<RoleMenu>();
-            for (Integer menuId : mergedMenuIds) {
+            for (Long menuId : mergedMenuIds) {
                 RoleMenu rm = new RoleMenu();
                 rm.setRoleId(role.getId());
                 rm.setMenuId(menuId);
@@ -209,23 +145,17 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return rows;
     }
 
-    private Integer[] mergeMenuIds(Integer[] menuIds, Integer[] indeterminateKeys) {
-        Set<Integer> mergedSet = new HashSet<>();
+    private Long[] mergeMenuIds(Long[] menuIds, Long[] indeterminateKeys) {
+        Set<Long> mergedSet = new HashSet<>();
         if (menuIds != null) {
             mergedSet.addAll(Arrays.asList(menuIds));
         }
         if (indeterminateKeys != null) {
             mergedSet.addAll(Arrays.asList(indeterminateKeys));
         }
-        return mergedSet.toArray(new Integer[0]);
+        return mergedSet.toArray(new Long[0]);
     }
 
-    /**
-     * Delete role.
-     *
-     * @param roleId role ID
-     * @return result
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int deleteRoleById(Integer roleId) {
@@ -233,12 +163,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return roleMapper.deleteById(roleId);
     }
 
-    /**
-     * Batch delete role.
-     *
-     * @param roleIds role IDs
-     * @return result
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int deleteRoleByIds(Integer[] roleIds) {
@@ -255,36 +179,16 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return roleMapper.deleteBatchIds(Arrays.asList(roleIds));
     }
 
-    /**
-     * Unauthorize user role.
-     *
-     * @param userRole user-role association
-     * @return result
-     */
     @Override
     public int deleteAuthUser(UserRole userRole) {
         return userRoleMapper.deleteById(userRole);
     }
 
-    /**
-     * Batch unauthorize user role.
-     *
-     * @param roleId role ID
-     * @param userIds user IDs
-     * @return result
-     */
     @Override
     public int deleteAuthUsers(Integer roleId, Integer[] userIds) {
         return userRoleMapper.deleteUserRoleInfos(roleId, userIds);
     }
 
-    /**
-     * Batch add role-menu association information.
-     *
-     * @param roleId role ID
-     * @param userIds user IDs
-     * @return result
-     */
     @Override
     public int insertAuthUsers(Integer roleId, Integer[] userIds) {
         List<UserRole> list = new ArrayList<UserRole>();
@@ -297,12 +201,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return userRoleMapper.batchUserRole(list);
     }
 
-    /**
-     * Query the number of roles used by role ID.
-     *
-     * @param roleId role ID
-     * @return result
-     */
     @Override
     public int countUserRoleByRoleId(Integer roleId) {
         return userRoleMapper

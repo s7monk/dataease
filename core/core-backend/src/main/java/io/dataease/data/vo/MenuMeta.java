@@ -16,50 +16,24 @@
  * limitations under the License.
  */
 
-package io.dataease.data.model;
+package io.dataease.data.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-/** sys_menu table. */
 @Data
-@EqualsAndHashCode()
-public class SysMenu implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+public class MenuMeta implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1173571493163976261L;
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
-
-    private Long pid;
-
-    private Integer type;
-
-    private String name;
-
-    private String component;
-
-    private Integer menuSort;
+    private String title;
 
     private String icon;
-
-    private String path;
-
-    private Boolean hidden;
-
-    private Boolean inLayout;
-
-    private Boolean auth;
-
-    private String perms;
-
-    @TableField(exist = false)
-    private List<SysMenu> children = new ArrayList<SysMenu>();
 }

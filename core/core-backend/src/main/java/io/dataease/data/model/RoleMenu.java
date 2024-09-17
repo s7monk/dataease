@@ -29,7 +29,7 @@ public class RoleMenu extends BaseModel {
     private Integer roleId;
 
     /** menu id. */
-    private Integer menuId;
+    private Long menuId;
 
     private static final long serialVersionUID = 1L;
 }

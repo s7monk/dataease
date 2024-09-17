@@ -56,7 +56,7 @@ public class RouterVO {
     private Boolean alwaysShow;
 
     /** other meta info. */
-    private MetaVO meta;
+    private MenuMeta meta;
 
     /** children route. */
     private List<RouterVO> children;
@@ -117,11 +117,11 @@ public class RouterVO {
         this.alwaysShow = alwaysShow;
     }
 
-    public MetaVO getMeta() {
+    public MenuMeta getMeta() {
         return meta;
     }
 
-    public void setMeta(MetaVO meta) {
+    public void setMeta(MenuMeta meta) {
         this.meta = meta;
     }
 

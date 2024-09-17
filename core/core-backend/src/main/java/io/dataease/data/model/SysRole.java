@@ -50,11 +50,11 @@ public class SysRole extends BaseModel {
 
     /** menu ids. */
     @TableField(exist = false)
-    private Integer[] menuIds;
+    private Long[] menuIds;
 
     /** indeterminate keys. */
     @TableField(exist = false)
-    private Integer[] indeterminateKeys;
+    private Long[] indeterminateKeys;
 
     /** Role menu permissions. */
     @TableField(exist = false)

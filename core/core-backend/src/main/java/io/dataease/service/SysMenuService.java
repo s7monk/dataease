@@ -28,130 +28,36 @@ import java.util.Set;
 
 /** Menu service. */
 public interface SysMenuService extends IService<SysMenu> {
-    /**
-     * Query menu list by user.
-     *
-     * @return menu list
-     */
+
     List<SysMenu> selectMenuList();
 
-    /**
-     * Query menu list.
-     *
-     * @param menu query params
-     * @return menu list
-     */
     List<SysMenu> selectMenuList(SysMenu menu);
 
-    /**
-     * Query permissions by user ID.
-     *
-     * @param userId user ID
-     * @return permission List
-     */
     Set<String> selectMenuPermsByUserId(Integer userId);
 
-    /**
-     * Query permissions by role ID.
-     *
-     * @param roleId role ID
-     * @return permission List
-     */
     Set<String> selectMenuPermsByRoleId(Integer roleId);
 
-    /**
-     * Query menu list by user ID.
-     *
-     * @param userId user ID
-     * @return menu list
-     */
     List<SysMenu> selectMenuTreeByUserId(Integer userId);
 
-    /**
-     * Query menu tree information by role ID.
-     *
-     * @param roleId role ID
-     * @return selected menu list
-     */
-    List<Integer> selectMenuListByRoleId(Integer roleId);
+    List<Long> selectMenuListByRoleId(Integer roleId);
 
-    /**
-     * Build router by menu.
-     *
-     * @param menus menu list
-     * @return router list
-     */
-    List<RouterVO> buildMenus(List<SysMenu> menus);
+    // List<RouterVO> buildMenus(List<SysMenu> menus);
 
-    /**
-     * Builder menu tree.
-     *
-     * @param menus menu list
-     * @return menu tree
-     */
     List<SysMenu> buildMenuTree(List<SysMenu> menus);
 
-    /**
-     * Builder tree select by menu.
-     *
-     * @param menus menu list
-     * @return menu tree select
-     */
     List<TreeSelect> buildMenuTreeSelect(List<SysMenu> menus);
 
-    /**
-     * Query menu info by menu ID.
-     *
-     * @param menuId menu ID
-     * @return menu info
-     */
-    SysMenu selectMenuById(Integer menuId);
+    SysMenu selectMenuById(Long menuId);
 
-    /**
-     * Is there a menu sub node present.
-     *
-     * @param menuId menu ID
-     * @return result
-     */
-    boolean hasChildByMenuId(Integer menuId);
+    boolean hasChildByMenuId(Long menuId);
 
-    /**
-     * Query menu usage quantity.
-     *
-     * @param menuId menu ID
-     * @return result
-     */
-    boolean checkMenuExistRole(Integer menuId);
+    boolean checkMenuExistRole(Long menuId);
 
-    /**
-     * Add menu.
-     *
-     * @param menu menu info
-     * @return result
-     */
     boolean insertMenu(SysMenu menu);
 
-    /**
-     * Update menu.
-     *
-     * @param menu menu info
-     * @return result
-     */
     boolean updateMenu(SysMenu menu);
 
-    /**
-     * Delete menu.
-     *
-     * @param menuId menu ID
-     * @return result
-     */
-    boolean deleteMenuById(Integer menuId);
+    boolean deleteMenuById(Long menuId);
 
-    /**
-     * Verify if the menu name is unique.
-     *
-     * @param menu menu info
-     * @return result
-     */
     boolean checkMenuNameUnique(SysMenu menu);
 }

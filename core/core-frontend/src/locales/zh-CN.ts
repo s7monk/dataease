@@ -2459,5 +2459,19 @@ export default {
   variable: {
     give_up: 's',
     save_apply: '保存并应用'
+  },
+  roleKey : {
+    workbranch: '工作台',
+    panel: '数据看板',
+    screen: '数据大屏',
+    data: '数据准备',
+    dataset: '数据集',
+    datasource: '数据源',
+    system: '系统管理',
+    user: '用户管理',
+    role: '角色管理',
+    auth: '权限管理',
+    project: '项目管理',
+    timezone: '时区管理',
   }
 }
