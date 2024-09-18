@@ -1,5 +1,6 @@
 package io.dataease.system.server;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import io.dataease.api.system.SysParameterApi;
 import io.dataease.api.system.request.OnlineMapEditor;
 import io.dataease.api.system.vo.SettingItemVO;
@@ -48,6 +49,7 @@ public class SysParameterServer implements SysParameterApi {
         sysParameterManage.saveBasic(settingItemVOS);
     }
 
+    @SaIgnore
     @Override
     public Integer RequestTimeOut() {
         Integer frontTimeOut = 60;
@@ -61,11 +63,13 @@ public class SysParameterServer implements SysParameterApi {
         return frontTimeOut;
     }
 
+    @SaIgnore
     @Override
     public List<Object> ui() {
         return sysParameterManage.getUiList();
     }
 
+    @SaIgnore
     @Override
     public Integer defaultLogin() {
         return sysParameterManage.defaultLogin();

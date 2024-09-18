@@ -1,5 +1,6 @@
 package io.dataease.datasource.server;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -724,6 +725,7 @@ public class DatasourceServer implements DatasourceApi {
         return datasourceDTO;
     }
 
+    @SaIgnore
     @Override
     public List<BusiNodeVO> tree(BusiNodeRequest request) throws DEException {
         return dataSourceManage.tree(request);

@@ -2,11 +2,22 @@
 import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+
+const tabArray = ref([
+  { label: '按用户授权', name: 'user' },
+  { label: '按资源授权', name: 'resource' },
+])
+
+const activeName = ref('user')
+
 </script>
 <template>
   <div class="container-header">
     <p class="router-title">{{ t('system.auth_manager') }}</p>
   </div>
+  <el-tabs v-model="activeName">
+    <el-tab-pane v-for="item in tabArray" :key="item.name" :label="item.label" :name="item.name" />
+  </el-tabs>
   <div class="container-content">
 
   </div>
@@ -25,9 +36,10 @@ const { t } = useI18n()
 .container-content {
   width: 100%;
   background: #ffffff;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 182px);
   box-sizing: border-box;
-  margin-top: 16px;
+  margin-top: 12px;
+  border-radius: 4px;
 }
 .container-header {
   height: 32px;

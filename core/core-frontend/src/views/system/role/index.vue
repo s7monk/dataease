@@ -1,10 +1,19 @@
 <script lang="ts" setup>
-import {ref, reactive, computed, watch, onMounted} from 'vue'
+import {ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 import GridTable from "@/components/grid-table/src/GridTable.vue";
 import {ElMessage, ElMessageBox, FormRules} from "element-plus-secondary";
-import {roleListApi, roleStatusUpdateApi, roleMenuApi, roleCreateApi} from "@/api/user";
+import {
+  roleListApi,
+  roleStatusUpdateApi,
+  roleMenuApi,
+  roleCreateApi,
+  roleUpdateApi,
+  getPermissionByRoleId,
+  roleDelApi,
+  userDelApi
+} from "@/api/user";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
 
@@ -236,13 +245,19 @@ const handleSubmit = async () => {
 
         form.menuIds = checkedKeys;
 
-        const response = await roleCreateApi(form);
+        let response;
+        if (isEditMode.value) {
+          // 这里应该调用更新角色的API
+          response = await roleUpdateApi(form);
+        } else {
+          response = await roleCreateApi(form);
+        }
         if (response.data.code === 200) {
-          ElMessage.success('角色创建成功');
+          ElMessage.success(isEditMode.value ? '角色更新成功' : '角色创建成功');
           dialogFormVisible.value = false;
           getTableData();
         } else {
-          ElMessage.error('角色创建失败: ' + response.data.message);
+          ElMessage.error('操作失败: ' + response.data.message);
         }
       } else {
         ElMessage.error('请填写正确的角色信息');
@@ -255,6 +270,57 @@ const handleSubmit = async () => {
       ElMessage.error('表单校验失败: ' + error.message);
     }
   }
+};
+
+async function getDetail(role) {
+  const res = await getPermissionByRoleId(role.id)
+  const { checkedKeys } = res.data.data
+  form.id = role.id;
+  form.roleName = role.roleName;
+  form.roleKey = role.roleKey;
+  form.enabled = role.enabled;
+  form.remark = role.remark;
+  form.menuIds = checkedKeys;
+}
+
+const openEditDialog =async (role) => {
+  isEditMode.value = true;
+  await getDetail(role)
+  if (menuTreeRef.value) {
+    menuTreeRef.value.setCheckedKeys(form.menuIds);
+  }
+  dialogFormVisible.value = true;
+}
+
+const confirmDeleteRole = (roleId) => {
+  ElMessageBox.confirm(
+    '您确定要删除该角色吗？',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      draggable: true,
+      showClose: false,
+      confirmButtonType: 'danger',
+    }
+  ).then(() => {
+    deleteRole(roleId);
+  }).catch(() => {
+  });
+};
+
+const deleteRole = (roleId) => {
+  roleDelApi(roleId).then(response => {
+    if (response.data.code === 200) {
+      ElMessage.success('角色删除成功');
+      getTableData();
+    } else {
+      throw new Error('Failed to delete user');
+    }
+  }).catch(error => {
+    console.error('Error deleting user:', error);
+    ElMessage.error('角色删除失败，请重试');
+  });
 };
 
 onMounted(() => {
@@ -353,6 +419,7 @@ onMounted(() => {
             <el-button
               text
               v-permission="['dataset']"
+              @click="openEditDialog(scope.row)"
             >
               <template #icon>
                 <Icon name="icon_edit_outlined"></Icon>
@@ -361,6 +428,7 @@ onMounted(() => {
             <el-button
               text
               v-permission="['dataset']"
+              @click="confirmDeleteRole(scope.row.id)"
             >
               <template #icon>
                 <Icon name="icon_delete-trash_outlined"></Icon>

@@ -104,9 +104,9 @@ public class SysRoleController {
     }
 
     @SaCheckPermission("system:role:delete")
-    @DeleteMapping("/{roleIds}")
-    public R<Void> delete(@PathVariable Integer[] roleIds) {
-        return roleService.deleteRoleByIds(roleIds) > 0 ? R.succeed() : R.failed();
+    @DeleteMapping("/{roleId}")
+    public R<Void> delete(@PathVariable Integer roleId) {
+        return roleService.deleteRoleByIds(roleId) > 0 ? R.succeed() : R.failed();
     }
 
     @SaCheckPermission("system:role:query")

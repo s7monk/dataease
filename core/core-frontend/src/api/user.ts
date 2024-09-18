@@ -47,11 +47,11 @@ export const personInfoApi = () => request.get({ url: `/user/personInfo` })
 
 export const roleCreateApi = data => request.post({ url: '/role', data })
 
-export const roleEditApi = data => request.post({ url: '/role/edit', data })
+export const roleUpdateApi = data => request.put({ url: '/role', data })
 
-export const roleDetailApi = rid => request.get({ url: `/role/detail/${rid}` })
+export const getPermissionByRoleId = rid => request.get({ url: `/menu/roleMenuTreeselect/${rid}` })
 
-export const roleDelApi = rid => request.post({ url: `/role/delete/${rid}` })
+export const roleDelApi = rid => request.delete({ url: `/role/${rid}` })
 
 export const beforeUnmountInfoApi = data => request.post({ url: '/role/beforeUnmountInfo', data })
 

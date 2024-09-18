@@ -1,5 +1,6 @@
 package io.dataease.dataset.server;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import io.dataease.api.dataset.DatasetTreeApi;
 import io.dataease.api.dataset.dto.DatasetNodeDTO;
 import io.dataease.api.dataset.union.DatasetGroupInfoDTO;
@@ -55,11 +56,12 @@ public class DatasetTreeServer implements DatasetTreeApi {
         datasetGroupManage.delete(id);
     }
 
-
+    @SaIgnore
     public List<BusiNodeVO> tree(BusiNodeRequest request) {
         return datasetGroupManage.tree(request);
     }
 
+    @SaIgnore
     @Override
     public DataSetBarVO barInfo(Long id) {
         return datasetGroupManage.queryBarInfo(id);

@@ -18,6 +18,7 @@
 
 package io.dataease.controller;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import io.dataease.data.dto.LoginDTO;
@@ -40,28 +41,19 @@ public class LoginController {
 
     @Autowired private UserService userService;
 
-    /**
-     * login by username and password.
-     *
-     * @param loginDTO login info
-     * @return token string
-     */
+    @SaIgnore
     @PostMapping("/login/localLogin")
     public R<UserInfoVO> login(@RequestBody LoginDTO loginDTO) throws Exception {
         return R.succeed(userService.login(loginDTO));
     }
 
-    /**
-     * get token info.
-     *
-     * @return token info
-     */
+    @SaIgnore
     @GetMapping("/login/refresh")
     public R<SaTokenInfo> tokenInfo() {
         return R.succeed(StpUtil.getTokenInfo());
     }
 
-    /** logout. */
+    @SaIgnore
     @GetMapping("/logout")
     public R<Void> logout() {
         StpUtil.logout(StpUtil.getLoginIdAsInt());

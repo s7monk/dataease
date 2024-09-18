@@ -165,18 +165,16 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteRoleByIds(Integer[] roleIds) {
-        for (Integer roleId : roleIds) {
-            SysRole sysRole = new SysRole();
-            sysRole.setId(roleId);
-            checkRoleAllowed(sysRole);
-            SysRole role = getRoleById(roleId);
-            if (countUserRoleByRoleId(roleId) > 0) {
-                throw new RoleInUsedException(role.getRoleName());
-            }
+    public int deleteRoleByIds(Integer roleIds) {
+        SysRole sysRole = new SysRole();
+        sysRole.setId(roleIds);
+        checkRoleAllowed(sysRole);
+        SysRole role = getRoleById(roleIds);
+        if (countUserRoleByRoleId(roleIds) > 0) {
+            throw new RoleInUsedException(role.getRoleName());
         }
         roleMenuMapper.deleteRoleMenu(roleIds);
-        return roleMapper.deleteBatchIds(Arrays.asList(roleIds));
+        return roleMapper.deleteById(roleIds);
     }
 
     @Override

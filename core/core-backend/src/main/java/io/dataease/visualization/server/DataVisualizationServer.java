@@ -1,5 +1,6 @@
 package io.dataease.visualization.server;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.dataease.api.dataset.union.DatasetGroupInfoDTO;
@@ -464,7 +465,7 @@ public class DataVisualizationServer implements DataVisualizationApi {
         coreVisualizationManage.delete(dvId);
     }
 
-
+    @SaIgnore
     @Override
     public List<BusiNodeVO> tree(BusiNodeRequest request) {
         return coreVisualizationManage.tree(request);

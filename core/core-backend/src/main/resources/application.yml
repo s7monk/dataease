@@ -84,4 +84,4 @@ sa-token:
 interceptor:
   exclude:
     path:
-      patterns: /**
+      patterns: /, /#, /#/, /login/localLogin, /login/refresh, /api/login/localLogin, /api/login/refresh, /api/sysParameter/requestTimeOut

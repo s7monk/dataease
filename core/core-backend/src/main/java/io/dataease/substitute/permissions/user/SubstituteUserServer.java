@@ -1,6 +1,7 @@
 package io.dataease.substitute.permissions.user;
 
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
 import io.dataease.api.permissions.user.vo.UserFormVO;
 import io.dataease.data.vo.UserVO;
@@ -25,6 +26,7 @@ public class SubstituteUserServer {
     @Autowired
     private UserService userService;
 
+    @SaIgnore
     @GetMapping("/info")
     public Map<String, Object> info() {
         Map<String, Object> result = new HashMap<>();
@@ -39,6 +41,8 @@ public class SubstituteUserServer {
         }
         return result;
     }
+
+    @SaIgnore
     @GetMapping("/personInfo")
     public UserFormVO personInfo() {
         UserFormVO userFormVO = new UserFormVO();

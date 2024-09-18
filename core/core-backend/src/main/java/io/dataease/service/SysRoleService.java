@@ -122,7 +122,7 @@ public interface SysRoleService extends IService<SysRole> {
      * @param roleIds role IDs
      * @return result
      */
-    int deleteRoleByIds(Integer[] roleIds);
+    int deleteRoleByIds(Integer roleIds);
 
     /**
      * Unauthorize user role.
