@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import UserAuth from './auth-user/UserAuth.vue'
 const { t } = useI18n()
 
 const tabArray = ref([
-  { label: '按用户授权', name: 'user' },
-  { label: '按资源授权', name: 'resource' },
+  { label: '按用户配置', name: 'userAuth' },
+  { label: '按资源配置', name: 'resourceAuth' },
 ])
 
-const activeName = ref('user')
+const activeName = ref('userAuth')
 
 </script>
 <template>
@@ -19,7 +20,7 @@ const activeName = ref('user')
     <el-tab-pane v-for="item in tabArray" :key="item.name" :label="item.label" :name="item.name" />
   </el-tabs>
   <div class="container-content">
-
+    <user-auth v-if="activeName === 'userAuth'" />
   </div>
 </template>
 <style lang="less" scoped>
@@ -40,6 +41,13 @@ const activeName = ref('user')
   box-sizing: border-box;
   margin-top: 12px;
   border-radius: 4px;
+
+  .left-container {
+    width: 20%;
+    .left-tabs {
+      padding: 16px;
+    }
+  }
 }
 .container-header {
   height: 32px;
