@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import {ElDivider} from "element-plus-secondary";
 const { t } = useI18n()
 const activeTab = ref('user')
+const activeResourceTab = ref('resourceTab')
 const activeData = ref({});
 const filterUser = ref('');
 
@@ -55,26 +57,56 @@ const handleMenuSelect = (index) => {
         </el-tab-pane>
       </el-tabs>
     </el-aside>
-    <el-main class="auth-config">
-      <el-form>
-        <el-form-item label="读取权限">
-          <el-checkbox v-model="activeData.read" :disabled="!Object.keys(activeData).length">读取</el-checkbox>
-        </el-form-item>
-        <el-form-item label="写入权限">
-          <el-checkbox v-model="activeData.write" :disabled="!Object.keys(activeData).length">写入</el-checkbox>
-        </el-form-item>
-        <el-form-item label="删除权限">
-          <el-checkbox v-model="activeData.delete" :disabled="!Object.keys(activeData).length">删除</el-checkbox>
-        </el-form-item>
-      </el-form>
-    </el-main>
+    <div class="right-container">
+      <el-tabs v-model="activeResourceTab">
+        <el-tab-pane name="resourceTab" label="资源权限">
+          <el-container class="right-main-container">
+            <el-aside class="right-main-aside">
+              <div class="right-main-aside-menu">
+                <el-menu class="right-menu" @select="handleMenuSelect">
+                  <el-menu-item index="1">数据看板</el-menu-item>
+                  <el-menu-item index="2">数据大屏</el-menu-item>
+                  <el-menu-item index="3">数据集</el-menu-item>
+                  <el-menu-item index="4">数据源</el-menu-item>
+                </el-menu>
+              </div>
+            </el-aside>
+          </el-container>
+        </el-tab-pane>
+      </el-tabs>
+      <el-button type="info" class="save-button" plain>保存</el-button>
+    </div>
   </el-container>
 </template>
 
 <style lang="less" scoped>
-.ed-tabs--bottom .ed-tabs__item.is-bottom:nth-child(2), .ed-tabs--bottom .ed-tabs__item.is-top:nth-child(2), .ed-tabs--top .ed-tabs__item.is-bottom:nth-child(2), .ed-tabs--top .ed-tabs__item.is-top:nth-child(2) {
-  padding-left: 20px;
+::v-deep .ed-tabs__nav.is-top .ed-tabs__item{
+  padding-left: 30px;
 }
+::v-deep .right-main-aside-menu .ed-menu {
+  padding:  0 20px 0 0;
+}
+
+::v-deep .right-main-aside-menu .ed-menu-item {
+  border-radius: 4px; // 可选，增加圆角效果
+}
+
+::v-deep .right-container .ed-tabs  {
+  height: calc(100vh - 181px);;
+}
+
+::v-deep .right-container .ed-tabs__content  {
+  height: calc(100vh - 225px);
+}
+
+::v-deep .right-container .ed-tab-pane  {
+  height: 100%;
+}
+
+::v-deep .right-container .ed-main  {
+  height: 100%;
+}
+
 .user-auth-container {
   width: 100%;
   height: 100%;
@@ -82,7 +114,7 @@ const handleMenuSelect = (index) => {
   .user-list {
     width: 260px;
     overflow: auto;
-    border-right: 1px solid #ebeef5;
+    border-right: 1.2px solid #d1d4db;
 
     .left-container {
       padding: 12px 20px 16px 20px;
@@ -98,6 +130,37 @@ const handleMenuSelect = (index) => {
   .auth-config {
     flex-grow: 1;
     padding: 20px;
+    height: 100%;
+  }
+
+  .right-container {
+    width: 100%;
+    position: relative;
+
+    .save-button {
+      height: 30px;
+      position: absolute;
+      right: 20px;
+      top: 8px;
+      z-index: 100; // 确保按钮在最前面
+    }
+
+    .right-main-container {
+      width: 100%;
+      height: 100%;
+
+      .right-main-aside {
+        width: 160px;
+        .right-main-aside-menu {
+          height: 100%;
+          border-right: 1.2px solid #d1d4db;
+          .right-menu {
+            padding: 20px;
+            border: none;
+          }
+        }
+      }
+    }
   }
 }
 </style>
