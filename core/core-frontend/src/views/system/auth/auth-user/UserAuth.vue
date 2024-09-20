@@ -147,7 +147,7 @@ const state = reactive({
                 </el-menu>
               </div>
             </el-aside>
-            <el-main>
+            <el-main class="right-el-main">
               <el-input class="user-search-input" placeholder="搜索" v-model="filterUser" >
                 <template #prefix>
                   <el-icon>
@@ -160,36 +160,37 @@ const state = reactive({
                 :data="state.tableData"
                 class="resource-table"
                 row-key="id"
+                style="table-layout: auto;"
               >
-                <el-table-column width="610" prop="name" key="name" label="资源名称">
+                <el-table-column width="340" prop="name" key="name" label="资源名称">
                   <template #default="scope">
-                    <div style="display: flex; align-items: center; min-width: 100%;">
-                      <el-icon style="font-size: 18px;text-align:center" v-if="scope.row.leaf">
+                    <div class="resource-tree-first-cell">
+                      <el-icon class="resource-tree-first-cell-icon" v-if="scope.row.leaf">
                         <Icon name="dv-dashboard-spine"/>
                       </el-icon>
-                      <el-icon style="font-size: 18px" v-else-if="!scope.row.leaf">
+                      <el-icon class="resource-tree-first-cell-icon" v-else-if="!scope.row.leaf">
                         <Icon name="dv-folder" />
                       </el-icon>
-                      <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                      <span calss="resource-tree-first-cell-span">{{ scope.row.name }}</span>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column width="140" prop="select" key="select" label="查看" align="center">
+                <el-table-column  prop="select" key="select" label="查看" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.select" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="140" prop="manage" key="manage" label="管理" align="center">
+                <el-table-column  prop="manage" key="manage" label="管理" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.manage"  size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="140" prop="share" key="share" label="分享" align="center">
+                <el-table-column  prop="share" key="share" label="分享" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.share" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="100" fixed="right"  prop="export" key="export" label="导出" align="center">
+                <el-table-column fixed="right"  prop="export" key="export" label="导出" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
@@ -287,14 +288,14 @@ const state = reactive({
   height: 100%;
 
   .user-list {
-    width: 260px;
+    width: 22%;
     overflow: auto;
     border-right: 1.2px solid #d1d4db;
 
     .left-container {
       padding: 12px 20px 16px 20px;
       .user-search-input {
-        width: 220px
+        width: 204px
       }
       .user-menu {
         margin-top: 16px;
@@ -310,7 +311,7 @@ const state = reactive({
   }
 
   .right-container {
-    width: 100%;
+    width: 78%;
     position: relative;
 
     .save-button {
@@ -340,8 +341,25 @@ const state = reactive({
     .resource-table {
       width: 100%;
       margin-top: 20px;
+
+      .resource-tree-first-cell {
+        display: flex;
+        align-items: center;
+        min-width: 100%;
+      }
+
+      .resource-tree-first-cell-icon {
+        font-size: 18px;
+      }
+
+      .resource-tree-first-cell-span {
+        margin-left: 10px;
+      }
     }
   }
 
+  .right-el-main {
+    width: 100%;
+  }
 }
 </style>
