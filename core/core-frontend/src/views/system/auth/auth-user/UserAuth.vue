@@ -1,17 +1,29 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import {ElDivider} from "element-plus-secondary";
+import {Icon} from "@/components/icon-custom";
 const { t } = useI18n()
 const activeTab = ref('user')
 const activeResourceTab = ref('resourceTab')
 const activeData = ref({});
 const filterUser = ref('');
+const activeMenuIndex = ref("管理员");
+const activeResourceIndex = ref('1');
+import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
+import GridTable from "@/components/grid-table/src/GridTable.vue";
+import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
+import {ElIcon} from "element-plus-secondary";
+const appearanceStore = useAppearanceStoreWithOut()
+const tempColor = computed(() => {
+  return {
+    '--temp-color':
+      (appearanceStore.themeColor === 'custom' ? appearanceStore.customColor : '#3370FF') + '1A'
+  }
+})
 
-const userData = ref({
-  docs_admin: { read: true, write: false, delete: false },
-  docs_demo: { read: true, write: true, delete: false }
-});
+const userData = ref(
+  ["管理员", "史亚光", "石在虎"]
+);
 
 const roleData = ref({
   管理员: { read: true, write: true, delete: true },
@@ -29,7 +41,57 @@ const handleMenuSelect = (index) => {
   } else {
     activeData.value = roleData.value[index] || {};
   }
+  console.log(tableData)
 };
+
+const tableData = [
+  {name: '数据看板',select: '是', export: '是'}
+]
+
+const state = reactive({
+  tableData: [
+    {
+      id: 1,
+      name: "数据看板",
+      select: true,
+      manage: true,
+      share: true,
+      export: false,
+      leaf: false,
+      children: [
+        {
+          id: 2,
+          name: "演示看板",
+          select: true,
+          manage: true,
+          share: true,
+          export: false,
+          leaf: false,
+          children: [
+            {
+              id: 3,
+              name: "用户看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 4,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            }
+          ],
+        },
+      ],
+    }
+  ],
+})
 
 </script>
 
@@ -39,21 +101,35 @@ const handleMenuSelect = (index) => {
       <el-tabs v-model="activeTab" @tab-click="handleTabClick">
         <el-tab-pane name="user" label="用户">
           <div class="left-container">
-            <el-input class="user-search-input" placeholder="搜索" v-model="filterUser" />
-            <el-menu class="user-menu" @select="handleMenuSelect">
-              <el-menu-item v-for="(value, key) in userData" :key="key" :index="key">
-                {{ key }}
+            <el-input class="user-search-input" placeholder="搜索" v-model="filterUser">
+              <template #prefix>
+                <el-icon>
+                  <Icon name="icon_search-outline_outlined" />
+                </el-icon>
+              </template>
+            </el-input>
+            <el-menu class="user-menu" :style="tempColor" :default-active="activeMenuIndex" @select="handleMenuSelect">
+              <el-menu-item v-for="value in userData" :key="value" :index="value">
+                {{ value }}
               </el-menu-item>
             </el-menu>
           </div>
         </el-tab-pane>
         <el-tab-pane name="role" label="角色">
-          <el-input placeholder="搜索" v-model="filterUser" />
-          <el-menu @select="handleMenuSelect">
-            <el-menu-item v-for="(value, key) in userData" :key="key" :index="key">
-              {{ key }}
-            </el-menu-item>
-          </el-menu>
+          <div class="left-container">
+            <el-input class="user-search-input" placeholder="搜索" v-model="filterUser">
+              <template #prefix>
+                <el-icon>
+                  <Icon name="icon_search-outline_outlined" />
+                </el-icon>
+              </template>
+            </el-input>
+            <el-menu class="user-menu" @select="handleMenuSelect">
+              <el-menu-item v-for="value in userData" :key="value" :index="value">
+                {{ value }}
+              </el-menu-item>
+            </el-menu>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </el-aside>
@@ -63,7 +139,7 @@ const handleMenuSelect = (index) => {
           <el-container class="right-main-container">
             <el-aside class="right-main-aside">
               <div class="right-main-aside-menu">
-                <el-menu class="right-menu" @select="handleMenuSelect">
+                <el-menu class="right-menu" :style="tempColor"  :default-active="activeResourceIndex" @select="handleMenuSelect">
                   <el-menu-item index="1">数据看板</el-menu-item>
                   <el-menu-item index="2">数据大屏</el-menu-item>
                   <el-menu-item index="3">数据集</el-menu-item>
@@ -71,6 +147,62 @@ const handleMenuSelect = (index) => {
                 </el-menu>
               </div>
             </el-aside>
+            <el-main>
+              <el-input class="user-search-input" placeholder="搜索" v-model="filterUser" >
+                <template #prefix>
+                  <el-icon>
+                    <Icon name="icon_search-outline_outlined" />
+                  </el-icon>
+                </template>
+              </el-input>
+              <el-table
+                header-cell-class-name="header-cell"
+                :data="state.tableData"
+                class="resource-table"
+                row-key="id"
+              >
+                <el-table-column width="610" prop="name" key="name" label="资源名称">
+                  <template #default="scope">
+                    <div style="display: flex; align-items: center; min-width: 100%;">
+                      <el-icon style="font-size: 18px;text-align:center" v-if="scope.row.leaf">
+                        <Icon name="dv-dashboard-spine"/>
+                      </el-icon>
+                      <el-icon style="font-size: 18px" v-else-if="!scope.row.leaf">
+                        <Icon name="dv-folder" />
+                      </el-icon>
+                      <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column width="140" prop="select" key="select" label="查看" align="center">
+                  <template #default="scope">
+                    <el-checkbox v-model="scope.row.select" size="default" />
+                  </template>
+                </el-table-column>
+                <el-table-column width="140" prop="manage" key="manage" label="管理" align="center">
+                  <template #default="scope">
+                    <el-checkbox v-model="scope.row.manage"  size="default" />
+                  </template>
+                </el-table-column>
+                <el-table-column width="140" prop="share" key="share" label="分享" align="center">
+                  <template #default="scope">
+                    <el-checkbox v-model="scope.row.share" size="default" />
+                  </template>
+                </el-table-column>
+                <el-table-column width="100" fixed="right"  prop="export" key="export" label="导出" align="center">
+                  <template #default="scope">
+                    <el-checkbox v-model="scope.row.export" size="default" />
+                  </template>
+                </el-table-column>
+                <template #empty>
+                  <empty-background
+                    description="暂无数据"
+                    img-type="noneWhite"
+                  />
+                </template>
+              </el-table>
+
+            </el-main>
           </el-container>
         </el-tab-pane>
       </el-tabs>
@@ -80,30 +212,73 @@ const handleMenuSelect = (index) => {
 </template>
 
 <style lang="less" scoped>
-::v-deep .ed-tabs__nav.is-top .ed-tabs__item{
+.ed-menu {
+  border: none;
+  .ed-menu-item:not(.is-active) {
+    &:hover {
+      background-color: #1f23291a !important;
+    }
+  }
+  .is-active:not(.ed-sub-menu) {
+    background-color: var(--temp-color);
+  }
+  :deep(.ed-sub-menu) {
+    margin: 0;
+    .ed-sub-menu__title {
+      &:hover {
+        background-color: #1f23291a;
+      }
+    }
+    .ed-menu-item:not(.is-active) {
+      &:hover {
+        background-color: #1f23291a !important;
+      }
+    }
+    ul.ed-menu {
+      li.ed-menu-item {
+        i {
+          width: 4px !important;
+        }
+      }
+    }
+  }
+  :deep(.ed-sub-menu.is-active) {
+    .ed-sub-menu__title {
+      color: var(--ed-color-primary);
+    }
+    .is-active {
+      background-color: var(--temp-color);
+    }
+  }
+}
+:deep(.ed-tabs__nav.is-top  .ed-tabs__item) {
   padding-left: 30px;
 }
-::v-deep .right-main-aside-menu .ed-menu {
+.right-main-aside-menu :deep(.ed-menu) {
   padding:  0 20px 0 0;
 }
 
-::v-deep .right-main-aside-menu .ed-menu-item {
-  border-radius: 4px; // 可选，增加圆角效果
+.right-main-aside-menu :deep(.ed-menu-item) {
+  border-radius: 4px;
 }
 
-::v-deep .right-container .ed-tabs  {
+.left-container :deep(.ed-menu-item) {
+  border-radius: 4px;
+}
+
+.right-container :deep(.ed-tabs)  {
   height: calc(100vh - 181px);;
 }
 
-::v-deep .right-container .ed-tabs__content  {
+.right-container  :deep(.ed-tabs__content)  {
   height: calc(100vh - 225px);
 }
 
-::v-deep .right-container .ed-tab-pane  {
+.right-container  :deep(.ed-tab-pane)  {
   height: 100%;
 }
 
-::v-deep .right-container .ed-main  {
+.right-container  :deep(.ed-main) {
   height: 100%;
 }
 
@@ -122,6 +297,7 @@ const handleMenuSelect = (index) => {
         width: 220px
       }
       .user-menu {
+        margin-top: 16px;
         border: none;
       }
     }
@@ -142,7 +318,7 @@ const handleMenuSelect = (index) => {
       position: absolute;
       right: 20px;
       top: 8px;
-      z-index: 100; // 确保按钮在最前面
+      z-index: 100;
     }
 
     .right-main-container {
@@ -161,6 +337,11 @@ const handleMenuSelect = (index) => {
         }
       }
     }
+    .resource-table {
+      width: 100%;
+      margin-top: 20px;
+    }
   }
+
 }
 </style>
