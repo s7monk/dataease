@@ -288,14 +288,14 @@ const state = reactive({
   height: 100%;
 
   .user-list {
-    width: 22%;
+    width: 250px;
     overflow: auto;
     border-right: 1.2px solid #d1d4db;
 
     .left-container {
       padding: 12px 20px 16px 20px;
       .user-search-input {
-        width: 204px
+        width: 210px
       }
       .user-menu {
         margin-top: 16px;
@@ -311,7 +311,7 @@ const state = reactive({
   }
 
   .right-container {
-    width: 78%;
+    width: calc(100% - 250px);
     position: relative;
 
     .save-button {
