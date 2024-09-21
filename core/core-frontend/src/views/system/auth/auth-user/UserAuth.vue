@@ -174,22 +174,22 @@ const state = reactive({
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column width=80 prop="select" key="select" label="查看" align="center">
+                <el-table-column width="100" prop="select" key="select" label="查看" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.select" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="80" prop="manage" key="manage" label="管理" align="center">
+                <el-table-column width="100" prop="manage" key="manage" label="管理" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.manage"  size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column  width="80" prop="share" key="share" label="分享" align="center">
+                <el-table-column  width="100" prop="share" key="share" label="分享" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.share" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="80" fixed="right"  prop="export" key="export" label="导出" align="center">
+                <el-table-column width="100" fixed="right"  prop="export" key="export" label="导出" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
@@ -287,14 +287,14 @@ const state = reactive({
   height: 100%;
 
   .user-list {
-    width: 250px;
+    width: 260px;
     overflow: auto;
     border-right: 1.2px solid #d1d4db;
 
     .left-container {
       padding: 12px 20px 16px 20px;
       .user-search-input {
-        width: 210px
+        width: 220px
       }
       .user-menu {
         margin-top: 16px;
@@ -310,7 +310,7 @@ const state = reactive({
   }
 
   .right-container {
-    width: calc(100% - 250px);
+    width: calc(100% - 260px);
     position: relative;
 
     .save-button {
