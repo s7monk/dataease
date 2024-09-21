@@ -160,9 +160,8 @@ const state = reactive({
                 :data="state.tableData"
                 class="resource-table"
                 row-key="id"
-                style="table-layout: auto;"
               >
-                <el-table-column width="340" prop="name" key="name" label="资源名称">
+                <el-table-column prop="name" key="name" label="资源名称">
                   <template #default="scope">
                     <div class="resource-tree-first-cell">
                       <el-icon class="resource-tree-first-cell-icon" v-if="scope.row.leaf">
@@ -175,22 +174,22 @@ const state = reactive({
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column  prop="select" key="select" label="查看" align="center">
+                <el-table-column width=80 prop="select" key="select" label="查看" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.select" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column  prop="manage" key="manage" label="管理" align="center">
+                <el-table-column width="80" prop="manage" key="manage" label="管理" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.manage"  size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column  prop="share" key="share" label="分享" align="center">
+                <el-table-column  width="80" prop="share" key="share" label="分享" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.share" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column fixed="right"  prop="export" key="export" label="导出" align="center">
+                <el-table-column width="80" fixed="right"  prop="export" key="export" label="导出" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
@@ -354,6 +353,9 @@ const state = reactive({
 
       .resource-tree-first-cell-span {
         margin-left: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
