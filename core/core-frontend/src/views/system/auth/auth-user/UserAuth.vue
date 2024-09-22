@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, reactive } from 'vue'
+import {ref, computed, reactive, watch, onMounted} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 const { t } = useI18n()
@@ -7,12 +7,16 @@ const activeTab = ref('user')
 const activeResourceTab = ref('resourceTab')
 const activeData = ref({});
 const filterUser = ref('');
-const activeMenuIndex = ref("管理员");
+const filterRole = ref('');
+const activeMenuIndex = ref("1");
+const activeRoleMenuIndex = ref("1");
 const activeResourceIndex = ref('1');
 import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
-import GridTable from "@/components/grid-table/src/GridTable.vue";
 import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
 import {ElIcon} from "element-plus-secondary";
+import {roleListApi, userListApi} from "@/api/user";
+import dayjs from "dayjs";
+import {debounce} from "lodash";
 const appearanceStore = useAppearanceStoreWithOut()
 const tempColor = computed(() => {
   return {
@@ -21,34 +25,23 @@ const tempColor = computed(() => {
   }
 })
 
-const userData = ref(
-  ["管理员", "史亚光", "石在虎"]
-);
-
-const roleData = ref({
-  管理员: { read: true, write: true, delete: true },
-  编辑者: { read: true, write: false, delete: false }
-});
-
 const handleTabClick = (tab) => {
   activeTab.value = tab.props.name;
   activeData.value = {};
 };
 
-const handleMenuSelect = (index) => {
-  if (activeTab.value === 'user') {
-    activeData.value = userData.value[index] || {};
-  } else {
-    activeData.value = roleData.value[index] || {};
-  }
-  console.log(tableData)
+const handleUserMenuSelect = (index: string) => {
+  const userId = parseInt(index, 10);
 };
 
-const tableData = [
-  {name: '数据看板',select: '是', export: '是'}
-]
+const handleRoleMenuSelect = (index: string) => {
+  const roleId = parseInt(index, 10);
+  console.log(roleId)
+};
 
 const state = reactive({
+  userTableData: [],
+  roleTableData: [],
   tableData: [
     {
       id: 1,
@@ -85,7 +78,61 @@ const state = reactive({
               share: true,
               export: false,
               leaf: true,
-            }
+            },
+            {
+              id: 5,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 6,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 7,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 8,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 9,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 10,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
           ],
         },
       ],
@@ -93,6 +140,70 @@ const state = reactive({
   ],
 })
 
+const getUserTableData = () => {
+  const params = {
+    nickname: filterUser.value,
+    pageNum: 1,
+    pageSize: 999999999
+  }
+
+  userListApi(params).then(res => {
+    state.userTableData = res.data.data.map(item => {
+      const {id, username, nickname, mobile, email, enabled, createTime, roles} = item
+      return {
+        id,
+        username,
+        nickname,
+        mobile,
+        email,
+        enabled,
+        createTime: dayjs(createTime).format('YYYY-MM-DD HH:mm:ss'),
+        roleIds: roles.map(role => role.id)
+      }
+    })
+  })
+}
+
+const debouncedGetUserTableData  = debounce(getUserTableData, 300);
+
+watch(filterUser, () => {
+  debouncedGetUserTableData();
+});
+
+const getRoleTableData = () => {
+  const params = {
+    roleName: filterRole.value,
+    pageNum: 1,
+    pageSize: 99999999
+  }
+
+  roleListApi(params).then(res => {
+    state.roleTableData = res.data.data.map(item => {
+      const {id, roleName, roleKey, enabled, remark, createTime, menuIds, indeterminateKeys} = item
+      return {
+        id,
+        roleName,
+        roleKey,
+        enabled,
+        remark,
+        createTime: dayjs(createTime).format('YYYY-MM-DD HH:mm:ss'),
+        menuIds,
+        indeterminateKeys
+      }
+    })
+  })
+}
+
+const debouncedGetRoleTableData  = debounce(getRoleTableData, 300);
+
+watch(filterRole, () => {
+  debouncedGetRoleTableData();
+});
+
+onMounted(() => {
+  getUserTableData();
+  getRoleTableData();
+});
 </script>
 
 <template>
@@ -101,34 +212,38 @@ const state = reactive({
       <el-tabs v-model="activeTab" @tab-click="handleTabClick">
         <el-tab-pane name="user" label="用户">
           <div class="left-container">
-            <el-input class="user-search-input" placeholder="搜索" v-model="filterUser">
+            <el-input class="user-search-input" placeholder="搜索" v-model="filterUser" clearable>
               <template #prefix>
                 <el-icon>
                   <Icon name="icon_search-outline_outlined" />
                 </el-icon>
               </template>
             </el-input>
-            <el-menu class="user-menu" :style="tempColor" :default-active="activeMenuIndex" @select="handleMenuSelect">
-              <el-menu-item v-for="value in userData" :key="value" :index="value">
-                {{ value }}
-              </el-menu-item>
-            </el-menu>
+            <el-scrollbar height="calc(100vh - 286px)">
+              <el-menu class="user-menu" :style="tempColor" :default-active="activeMenuIndex" @select="handleUserMenuSelect">
+                <el-menu-item v-for="value in state.userTableData" :key="value.id" :index="value.id.toString()">
+                  {{ value.nickname }}
+                </el-menu-item>
+              </el-menu>
+            </el-scrollbar>
           </div>
         </el-tab-pane>
         <el-tab-pane name="role" label="角色">
           <div class="left-container">
-            <el-input class="user-search-input" placeholder="搜索" v-model="filterUser">
+            <el-input class="user-search-input" placeholder="搜索" v-model="filterRole" clearable>
               <template #prefix>
                 <el-icon>
                   <Icon name="icon_search-outline_outlined" />
                 </el-icon>
               </template>
             </el-input>
-            <el-menu class="user-menu" @select="handleMenuSelect">
-              <el-menu-item v-for="value in userData" :key="value" :index="value">
-                {{ value }}
-              </el-menu-item>
-            </el-menu>
+            <el-scrollbar height="calc(100vh - 286px)">
+              <el-menu class="user-menu" :style="tempColor" @select="handleRoleMenuSelect" :default-active="activeRoleMenuIndex">
+                <el-menu-item v-for="value in state.roleTableData" :key="value.id" :index="value.id.toString()">
+                  {{ value.roleName }}
+                </el-menu-item>
+              </el-menu>
+            </el-scrollbar>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -139,12 +254,14 @@ const state = reactive({
           <el-container class="right-main-container">
             <el-aside class="right-main-aside">
               <div class="right-main-aside-menu">
-                <el-menu class="right-menu" :style="tempColor"  :default-active="activeResourceIndex" @select="handleMenuSelect">
-                  <el-menu-item index="1">数据看板</el-menu-item>
-                  <el-menu-item index="2">数据大屏</el-menu-item>
-                  <el-menu-item index="3">数据集</el-menu-item>
-                  <el-menu-item index="4">数据源</el-menu-item>
-                </el-menu>
+                <el-scrollbar height="calc(100vh - 226px)">
+                  <el-menu class="right-menu" :style="tempColor"  :default-active="activeResourceIndex" @select="handleMenuSelect">
+                    <el-menu-item index="1">数据看板</el-menu-item>
+                    <el-menu-item index="2">数据大屏</el-menu-item>
+                    <el-menu-item index="3">数据集</el-menu-item>
+                    <el-menu-item index="4">数据源</el-menu-item>
+                  </el-menu>
+                </el-scrollbar>
               </div>
             </el-aside>
             <el-main class="right-el-main">
@@ -160,18 +277,17 @@ const state = reactive({
                 :data="state.tableData"
                 class="resource-table"
                 row-key="id"
+                height="calc(100vh - 304px)"
               >
                 <el-table-column prop="name" key="name" label="资源名称">
                   <template #default="scope">
-                    <div class="resource-tree-first-cell">
-                      <el-icon class="resource-tree-first-cell-icon" v-if="scope.row.leaf">
-                        <Icon name="dv-dashboard-spine"/>
-                      </el-icon>
-                      <el-icon class="resource-tree-first-cell-icon" v-else-if="!scope.row.leaf">
-                        <Icon name="dv-folder" />
-                      </el-icon>
-                      <span calss="resource-tree-first-cell-span">{{ scope.row.name }}</span>
-                    </div>
+                    <el-icon class="resource-tree-first-cell-icon" v-if="scope.row.leaf">
+                      <Icon name="dv-dashboard-spine"/>
+                    </el-icon>
+                    <el-icon class="resource-tree-first-cell-icon" v-else-if="!scope.row.leaf">
+                      <Icon name="dv-folder" />
+                    </el-icon>
+                    <span class="resource-tree-first-cell-span">{{ scope.row.name }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column width="100" prop="select" key="select" label="查看" align="center">
@@ -201,7 +317,6 @@ const state = reactive({
                   />
                 </template>
               </el-table>
-
             </el-main>
           </el-container>
         </el-tab-pane>
@@ -212,6 +327,12 @@ const state = reactive({
 </template>
 
 <style lang="less" scoped>
+.right-container :deep(.ed-tabs__active-bar) {
+  width: 64px !important;
+  left: 67% !important;
+  transform: translateX(-50%) !important;
+}
+
 .ed-menu {
   border: none;
   .ed-menu-item:not(.is-active) {
@@ -311,6 +432,7 @@ const state = reactive({
 
   .right-container {
     width: calc(100% - 260px);
+    height: 100%;
     position: relative;
 
     .save-button {
@@ -339,29 +461,24 @@ const state = reactive({
     }
     .resource-table {
       width: 100%;
-      margin-top: 20px;
-
-      .resource-tree-first-cell {
-        display: flex;
-        align-items: center;
-        min-width: 100%;
-      }
+      margin-top: 16px;
 
       .resource-tree-first-cell-icon {
         font-size: 18px;
+        position: relative;
+        top: 3.3px;
       }
 
       .resource-tree-first-cell-span {
         margin-left: 10px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
   }
 
   .right-el-main {
     width: 100%;
+    height: 100%;
+    overflow: hidden;
   }
 }
 </style>
