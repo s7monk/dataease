@@ -1,0 +1,38 @@
+<!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.dataease.mapper.DataVisualizationMapper">
+    <resultMap id="DataVisualizationRes" type="io.dataease.data.model.DataVisualization">
+        <id     property="id"       column="id"      />
+        <result property="name"     column="name"    />
+        <result property="pid"     column="pid"    />
+        <result property="orgId"     column="org_id"     />
+        <result property="level"  column="level"  />
+        <result property="nodeType"        column="node_type"        />
+        <result property="type"     column="type"     />
+        <result property="canvasStyleData"   column="canvas_style_data"  />
+        <result property="componentData"   column="component_data"  />
+        <collection property="mobileLayout" column="mobile_layout" />
+        <collection property="status" column="status" />
+        <collection property="selfWatermarkStatus" column="self_watermark_status" />
+        <collection property="sort" column="sort" />
+        <collection property="createTime" column="create_time" />
+        <collection property="createBy" column="create_by" />
+        <collection property="updateTime" column="update_time" />
+        <collection property="updateBy" column="update_by" />
+        <collection property="remark" column="remark" />
+        <collection property="source" column="source" />
+        <collection property="deleteFlag" column="delete_flag" />
+        <collection property="deleteTime" column="delete_time" />
+        <collection property="deleteBy" column="delete_by" />
+        <collection property="version" column="version" />
+    </resultMap>
+
+    <sql id="selectDataVisualizationVO">
+        select id, `name`, pid, org_id, `level`, node_type, `type`, canvas_style_data, component_data, mobile_layout, status, self_watermark_status, sort, create_time, create_by, update_time, update_by, remark, `source`, delete_flag, delete_time, delete_by, version from data_visualization_info
+    </sql>
+
+    <select id="listResourcesByIds" parameterType="io.dataease.data.model.DataVisualization">
+
+    </select>
+</mapper>-->

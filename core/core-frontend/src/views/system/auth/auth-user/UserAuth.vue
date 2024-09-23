@@ -133,6 +133,33 @@ const state = reactive({
               export: false,
               leaf: true,
             },
+            {
+              id: 10,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 10,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
+            {
+              id: 10,
+              name: "角色看板",
+              select: true,
+              manage: true,
+              share: true,
+              export: false,
+              leaf: true,
+            },
           ],
         },
       ],
@@ -277,7 +304,7 @@ onMounted(() => {
                 :data="state.tableData"
                 class="resource-table"
                 row-key="id"
-                height="calc(100vh - 304px)"
+                height="calc(100vh - 306px)"
               >
                 <el-table-column prop="name" key="name" label="资源名称">
                   <template #default="scope">
@@ -290,22 +317,27 @@ onMounted(() => {
                     <span class="resource-tree-first-cell-span">{{ scope.row.name }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column width="100" prop="select" key="select" label="查看" align="center">
+                <el-table-column width="80" prop="select" key="select" label="查看" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.select" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="100" prop="manage" key="manage" label="管理" align="center">
+                <el-table-column width="80" prop="manage" key="manage" label="管理" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.manage"  size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column  width="100" prop="share" key="share" label="分享" align="center">
+                <el-table-column  width="80" prop="share" key="share" label="分享" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.share" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="100" fixed="right"  prop="export" key="export" label="导出" align="center">
+                <el-table-column width="80" fixed="right"  prop="export" key="export" label="导出" align="center">
+                  <template #default="scope">
+                    <el-checkbox v-model="scope.row.export" size="default" />
+                  </template>
+                </el-table-column>
+                <el-table-column width="80" fixed="right"  prop="export" key="export" label="授权" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
@@ -328,8 +360,8 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .right-container :deep(.ed-tabs__active-bar) {
-  width: 64px !important;
-  left: 67% !important;
+  width: 63px !important;
+  left: 66% !important;
   transform: translateX(-50%) !important;
 }
 
