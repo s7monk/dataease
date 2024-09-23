@@ -8,13 +8,15 @@ const activeResourceTab = ref('resourceTab')
 const activeData = ref({});
 const filterUser = ref('');
 const filterRole = ref('');
-const activeMenuIndex = ref("1");
+const filterResource = ref('');
+const activeMenuIndex = ref('1');
 const activeRoleMenuIndex = ref("1");
 const activeResourceIndex = ref('1');
 import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
 import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
 import {ElIcon} from "element-plus-secondary";
 import {roleListApi, userListApi} from "@/api/user";
+import { getDashboardsByUserId } from "@/api/auth";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
 const appearanceStore = useAppearanceStoreWithOut()
@@ -31,7 +33,7 @@ const handleTabClick = (tab) => {
 };
 
 const handleUserMenuSelect = (index: string) => {
-  const userId = parseInt(index, 10);
+  activeMenuIndex.value = index
 };
 
 const handleRoleMenuSelect = (index: string) => {
@@ -42,130 +44,30 @@ const handleRoleMenuSelect = (index: string) => {
 const state = reactive({
   userTableData: [],
   roleTableData: [],
-  tableData: [
-    {
-      id: 1,
-      name: "数据看板",
-      select: true,
-      manage: true,
-      share: true,
-      export: false,
-      leaf: false,
-      children: [
-        {
-          id: 2,
-          name: "演示看板",
-          select: true,
-          manage: true,
-          share: true,
-          export: false,
-          leaf: false,
-          children: [
-            {
-              id: 3,
-              name: "用户看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 4,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 5,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 6,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 7,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 8,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 9,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 10,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 10,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 10,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-            {
-              id: 10,
-              name: "角色看板",
-              select: true,
-              manage: true,
-              share: true,
-              export: false,
-              leaf: true,
-            },
-          ],
-        },
-      ],
-    }
-  ],
+  DashboardsWithUserTableData: [],
 })
+
+const getDashboardsWithUserTableData = () => {
+  getDashboardsByUserId(activeMenuIndex.value, filterResource.value).then(res => {
+    console.log(res);
+    state.DashboardsWithUserTableData = res.data.map(item => transformItem(item));
+  });
+};
+
+const transformItem = (item) => {
+  const { resourceId, resourceName, isSelect, isManage, isShare, isExport, isAuth, leaf, children } = item;
+  return {
+    id: resourceId,
+    name: resourceName,
+    select: isSelect === 1,
+    manage: isManage === 1,
+    share: isShare === 1,
+    export: isExport === 1,
+    auth: isAuth === 1,
+    leaf: leaf === 1,
+    children: children ? children.map(child => transformItem(child)) : [],
+  };
+};
 
 const getUserTableData = () => {
   const params = {
@@ -223,6 +125,11 @@ const getRoleTableData = () => {
 
 const debouncedGetRoleTableData  = debounce(getRoleTableData, 300);
 
+watch(activeMenuIndex, () => {
+  getDashboardsWithUserTableData();
+});
+
+
 watch(filterRole, () => {
   debouncedGetRoleTableData();
 });
@@ -230,6 +137,7 @@ watch(filterRole, () => {
 onMounted(() => {
   getUserTableData();
   getRoleTableData();
+  getDashboardsWithUserTableData();
 });
 </script>
 
@@ -292,7 +200,7 @@ onMounted(() => {
               </div>
             </el-aside>
             <el-main class="right-el-main">
-              <el-input class="user-search-input" placeholder="搜索" v-model="filterUser" >
+              <el-input class="user-search-input" placeholder="搜索" v-model="filterResource" >
                 <template #prefix>
                   <el-icon>
                     <Icon name="icon_search-outline_outlined" />
@@ -301,7 +209,7 @@ onMounted(() => {
               </el-input>
               <el-table
                 header-cell-class-name="header-cell"
-                :data="state.tableData"
+                :data="state.DashboardsWithUserTableData"
                 class="resource-table"
                 row-key="id"
                 height="calc(100vh - 306px)"
@@ -332,12 +240,12 @@ onMounted(() => {
                     <el-checkbox v-model="scope.row.share" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="80" fixed="right"  prop="export" key="export" label="导出" align="center">
+                <el-table-column width="80" prop="export" key="export" label="导出" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="80" fixed="right"  prop="export" key="export" label="授权" align="center">
+                <el-table-column width="80" fixed="right"  prop="auth" key="export" label="授权" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>

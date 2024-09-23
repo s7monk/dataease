@@ -7,5 +7,11 @@ import java.util.List;
 
 public interface DataVisualizationService extends IService<DataVisualization> {
 
+    List<DataVisualization> getDataVisualizations();
+
+    List<DataVisualization> selectDataVisualizationByIds();
+
     List<DataVisualization> selectDataVisualizationByLoginId();
+
+    List<Long> selectAuthorizedResourceIds();
 }

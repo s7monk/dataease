@@ -24,6 +24,14 @@ public class UserResourceServiceImpl extends ServiceImpl<UserResourceMapper, Use
     }
 
     @Override
+    public List<UserResource> selectAuthorizedResourceByUid(Integer userId) {
+        QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("is_auth", 1);
+        return userResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
     public List<UserResource> selectResourceByResourceId(Long resourceId) {
         QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);

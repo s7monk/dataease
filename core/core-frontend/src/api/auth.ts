@@ -1,5 +1,12 @@
 import request from '@/config/axios'
 
+export const getDashboardsByUserId = (userId: string, resourceName: string) => {
+  return request.get({
+    url: '/auth/getDashboardsByUserId',
+    params: { userId, resourceName }
+  });
+};
+
 export const queryUserApi = data => request.post({ url: '/user/byCurOrg', data })
 export const queryUserOptionsApi = () => request.get({ url: '/user/org/option' })
 export const queryRoleApi = data => request.post({ url: '/role/byCurOrg', data })

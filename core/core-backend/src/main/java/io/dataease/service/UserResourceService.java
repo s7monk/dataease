@@ -9,5 +9,7 @@ public interface UserResourceService extends IService<UserResource> {
 
     List<UserResource> selectResourceByUid(Integer userId);
 
+    List<UserResource> selectAuthorizedResourceByUid(Integer userId);
+
     List<UserResource> selectResourceByResourceId(Long resourceId);
 }
