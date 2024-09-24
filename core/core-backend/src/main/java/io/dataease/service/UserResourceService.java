@@ -11,5 +11,5 @@ public interface UserResourceService extends IService<UserResource> {
 
     List<UserResource> selectAuthorizedResourceByUid(Integer userId);
 
-    List<UserResource> selectResourceByResourceId(Long resourceId);
+    List<UserResource> selectResourceByResourceId(String resourceId);
 }

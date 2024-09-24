@@ -13,7 +13,7 @@ public class RoleResource {
 
     private Integer RoleId;
 
-    private Long resourceId;
+    private String resourceId;
 
     private Integer isSelect;
 

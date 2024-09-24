@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ResourceVO {
 
-    private Long resourceId;
+    private String resourceId;
 
     private String resourceName;
 

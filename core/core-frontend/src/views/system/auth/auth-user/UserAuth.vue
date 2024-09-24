@@ -1,7 +1,14 @@
 <script lang="ts" setup>
-import {ref, computed, reactive, watch, onMounted} from 'vue'
+import {ref, computed, reactive, watch, onMounted, nextTick} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
+import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
+import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
+import {ElIcon} from "element-plus-secondary";
+import {roleListApi, userListApi} from "@/api/user";
+import { getDashboardsByUserId } from "@/api/auth";
+import dayjs from "dayjs";
+import {debounce} from "lodash";
 const { t } = useI18n()
 const activeTab = ref('user')
 const activeResourceTab = ref('resourceTab')
@@ -12,13 +19,7 @@ const filterResource = ref('');
 const activeMenuIndex = ref('1');
 const activeRoleMenuIndex = ref("1");
 const activeResourceIndex = ref('1');
-import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
-import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
-import {ElIcon} from "element-plus-secondary";
-import {roleListApi, userListApi} from "@/api/user";
-import { getDashboardsByUserId } from "@/api/auth";
-import dayjs from "dayjs";
-import {debounce} from "lodash";
+const resourceTable = ref(null);
 const appearanceStore = useAppearanceStoreWithOut()
 const tempColor = computed(() => {
   return {
@@ -41,18 +42,33 @@ const handleRoleMenuSelect = (index: string) => {
   console.log(roleId)
 };
 
+const treeProps = reactive({
+  checkStrictly: false,
+})
+
 const state = reactive({
   userTableData: [],
   roleTableData: [],
-  DashboardsWithUserTableData: [],
+  dashboardsWithUserTableData: [],
+  originalDashboards: [],
+  expandedRowKeys: new Set<string>(),
+  highlightedRowKeys: new Set<string>(),
+  selectedRowKeys: new Set<string>(),
 })
 
 const getDashboardsWithUserTableData = () => {
-  getDashboardsByUserId(activeMenuIndex.value, filterResource.value).then(res => {
-    console.log(res);
-    state.DashboardsWithUserTableData = res.data.map(item => transformItem(item));
+  getDashboardsByUserId(activeMenuIndex.value, '').then(res => {
+    //state.dashboardsWithUserTableData = res.data.map(item => transformItem(item));
+    state.originalDashboards = res.data.map(transformItem);
+    state.dashboardsWithUserTableData = state.originalDashboards;
   });
 };
+
+const debouncedGetDashboardsWithUserTableData  = debounce(getDashboardsWithUserTableData, 300);
+
+/*watch(filterResource, () => {
+  debouncedGetDashboardsWithUserTableData();
+});*/
 
 const transformItem = (item) => {
   const { resourceId, resourceName, isSelect, isManage, isShare, isExport, isAuth, leaf, children } = item;
@@ -134,6 +150,108 @@ watch(filterRole, () => {
   debouncedGetRoleTableData();
 });
 
+const searchResource = () => {
+  if (!filterResource.value) {
+    state.dashboardsWithUserTableData = state.originalDashboards;
+    state.expandedRowKeys.clear();
+    state.highlightedRowKeys.clear();
+    state.selectedRowKeys.clear();
+    return;
+  }
+
+  const searchTerm = filterResource.value.toLowerCase();
+  const searchResults = [];
+
+  const searchTree = (nodes, parentPath = []) => {
+    for (const node of nodes) {
+      const currentPath = [...parentPath, node];
+      if (node.name.toLowerCase().includes(searchTerm)) {
+        searchResults.push(currentPath);
+      }
+      if (node.children && node.children.length) {
+        searchTree(node.children, currentPath);
+      }
+    }
+  };
+
+  searchTree(state.originalDashboards);
+
+  if (searchResults.length > 0) {
+    const expandedResults = expandAndHighlightSearchResults(searchResults, searchTerm);
+    state.dashboardsWithUserTableData = expandedResults;
+  } else {
+    state.dashboardsWithUserTableData = [];
+  }
+
+ /* console.log('Expanded Row Keys:', Array.from(state.expandedRowKeys));
+  console.log('Highlighted Row Keys:', Array.from(state.highlightedRowKeys))*/
+};
+
+const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
+  const expandedResults = [];
+  const addedNodeIds = new Set<string>();
+  const highlightedNodeIds = new Set<string>();
+
+  const addChildren = (node, targetArray) => {
+    if (addedNodeIds.has(node.id)) return;
+    const newNode = { ...node, children: [] };
+    targetArray.push(newNode);
+    addedNodeIds.add(node.id);
+    if (node.children && node.children.length) {
+      for (const child of node.children) {
+        addChildren(child, newNode.children);
+      }
+    }
+  };
+
+  let selectedRow = null;
+
+  for (const path of searchResults) {
+    let currentLevel = expandedResults;
+    for (const node of path) {
+      if (!addedNodeIds.has(node.id)) {
+        const newNode = { ...node, children: [] };
+        currentLevel.push(newNode);
+        addedNodeIds.add(node.id);
+        currentLevel = newNode.children;
+        if (node.children && node.children.length) {
+          for (const child of node.children) {
+            addChildren(child, newNode.children);
+          }
+        }
+      } else {
+        const existingNode = currentLevel.find(n => n.id === node.id);
+        currentLevel = existingNode.children;
+      }
+      if (node.name.toLowerCase().includes(searchTerm)) {
+        highlightedNodeIds.add(node.id);
+        state.expandedRowKeys.add(node.id);
+        selectedRow = node;
+      }
+      state.expandedRowKeys.add(node.id);
+
+      if (selectedRow) {
+        nextTick(() => {
+          if (resourceTable.value) {
+            resourceTable.value.setCurrentRow(selectedRow);
+          }
+        });
+      }
+    }
+  }
+
+  state.highlightedRowKeys = highlightedNodeIds;
+  return expandedResults;
+};
+
+
+
+watch(filterResource, debounce(searchResource, 300));
+
+const rowClassName = ({ row }) => {
+  return state.highlightedRowKeys.has(row.id) ? 'highlight-row' : '';
+};
+
 onMounted(() => {
   getUserTableData();
   getRoleTableData();
@@ -200,7 +318,7 @@ onMounted(() => {
               </div>
             </el-aside>
             <el-main class="right-el-main">
-              <el-input class="user-search-input" placeholder="搜索" v-model="filterResource" >
+              <el-input class="user-search-input" placeholder="搜索" v-model="filterResource" clearable>
                 <template #prefix>
                   <el-icon>
                     <Icon name="icon_search-outline_outlined" />
@@ -209,12 +327,16 @@ onMounted(() => {
               </el-input>
               <el-table
                 header-cell-class-name="header-cell"
-                :data="state.DashboardsWithUserTableData"
+                :data="state.dashboardsWithUserTableData"
                 class="resource-table"
                 row-key="id"
                 height="calc(100vh - 306px)"
+                :highlight-current-row="true"
+                :expand-row-keys="Array.from(state.expandedRowKeys)"
+                :row-class-name="rowClassName"
+                ref="resourceTable"
               >
-                <el-table-column prop="name" key="name" label="资源名称">
+                <el-table-column prop="id" key="id" label="资源名称">
                   <template #default="scope">
                     <el-icon class="resource-tree-first-cell-icon" v-if="scope.row.leaf">
                       <Icon name="dv-dashboard-spine"/>
@@ -245,9 +367,9 @@ onMounted(() => {
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="80" fixed="right"  prop="auth" key="export" label="授权" align="center">
+                <el-table-column width="80" fixed="right"  prop="auth" key="auth" label="授权" align="center">
                   <template #default="scope">
-                    <el-checkbox v-model="scope.row.export" size="default" />
+                    <el-checkbox v-model="scope.row.auth" size="default" />
                   </template>
                 </el-table-column>
                 <template #empty>
@@ -267,6 +389,9 @@ onMounted(() => {
 </template>
 
 <style lang="less" scoped>
+.highlight-row {
+  background-color: #ffffcc !important;
+}
 .right-container :deep(.ed-tabs__active-bar) {
   width: 63px !important;
   left: 66% !important;

@@ -32,7 +32,7 @@ public class RoleResourceServiceImpl extends ServiceImpl<RoleResourceMapper, Rol
     }
 
     @Override
-    public List<RoleResource> selectResourceByResourceId(Long resourceId) {
+    public List<RoleResource> selectResourceByResourceId(String resourceId) {
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);
         return roleResourceMapper.selectList(queryWrapper);

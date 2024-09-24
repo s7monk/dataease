@@ -13,7 +13,7 @@ public class UserResource {
 
     private Integer userId;
 
-    private Long resourceId;
+    private String resourceId;
 
     private Integer isSelect;
 

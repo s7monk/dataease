@@ -17,7 +17,7 @@ public class DataVisualization implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private String id;
 
     /**
      * 名称
@@ -27,7 +27,7 @@ public class DataVisualization implements Serializable {
     /**
      * 父id
      */
-    private Long pid;
+    private String pid;
 
     /**
      * 所属组织id

@@ -32,7 +32,7 @@ public class UserResourceServiceImpl extends ServiceImpl<UserResourceMapper, Use
     }
 
     @Override
-    public List<UserResource> selectResourceByResourceId(Long resourceId) {
+    public List<UserResource> selectResourceByResourceId(String resourceId) {
         QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);
         return userResourceMapper.selectList(queryWrapper);

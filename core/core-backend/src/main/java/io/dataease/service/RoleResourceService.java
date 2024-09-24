@@ -11,5 +11,5 @@ public interface RoleResourceService extends IService<RoleResource> {
 
     List<RoleResource> selectAuthorizedResourceByRoleIds(List<Integer> roleIds);
 
-    List<RoleResource> selectResourceByResourceId(Long resourceId);
+    List<RoleResource> selectResourceByResourceId(String resourceId);
 }

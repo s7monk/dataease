@@ -64,14 +64,14 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
     }
 
     @Override
-    public List<Long> selectAuthorizedResourceIds() {
+    public List<String> selectAuthorizedResourceIds() {
         int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
         List<Integer> roles = roleService.selectRoleListByUserId(userId);
         List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIds(roles);
         List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUid(userId);
         List<DataVisualization> dataVisualizations = selectDataVisualizationByLoginId();
 
-        Set<Long> resourceIds = roleResources.stream()
+        Set<String> resourceIds = roleResources.stream()
                 .map(RoleResource::getResourceId)
                 .collect(Collectors.toSet());
 
