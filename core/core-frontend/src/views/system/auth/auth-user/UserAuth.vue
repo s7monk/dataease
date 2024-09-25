@@ -183,8 +183,8 @@ const searchResource = () => {
     state.dashboardsWithUserTableData = [];
   }
 
- /* console.log('Expanded Row Keys:', Array.from(state.expandedRowKeys));
-  console.log('Highlighted Row Keys:', Array.from(state.highlightedRowKeys))*/
+  console.log(state.dashboardsWithUserTableData)
+  console.log('Expanded Row Keys:', Array.from(state.expandedRowKeys));
 };
 
 const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
@@ -224,11 +224,19 @@ const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
         currentLevel = existingNode.children;
       }
       if (node.name.toLowerCase().includes(searchTerm)) {
-        highlightedNodeIds.add(node.id);
-        state.expandedRowKeys.add(node.id);
-        selectedRow = node;
+        if (node.leaf) {
+          highlightedNodeIds.add(node.id);
+          state.expandedRowKeys.add(node.id);
+          selectedRow = node;
+          for (const parentNode of path) {
+            state.expandedRowKeys.add(parentNode.id);
+          }
+        } else {
+          highlightedNodeIds.add(node.id);
+        }
+
       }
-      state.expandedRowKeys.add(node.id);
+      // state.expandedRowKeys.add(node.id);
 
       if (selectedRow) {
         nextTick(() => {
@@ -244,7 +252,83 @@ const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
   return expandedResults;
 };
 
+/*const expandAndHighlightSearchResults = (searchResults) => {
+  const expandedResults = [];
+  const addedNodeIds = new Set<string>();
+  const highlightedNodeIds = new Set<string>();
 
+  const addNodeWithChildren = (node, targetArray) => {
+    if (addedNodeIds.has(node.id)) return;
+    const newNode = { ...node, children: [] };
+    targetArray.push(newNode);
+    addedNodeIds.add(node.id);
+    if (node.children && node.children.length) {
+      for (const child of node.children) {
+        addNodeWithChildren(child, newNode.children);
+      }
+    }
+  };
+
+  const addNodeWithoutSiblings = (node, targetArray) => {
+    if (addedNodeIds.has(node.id)) return;
+    const newNode = { ...node, children: [] };
+    targetArray.push(newNode);
+    addedNodeIds.add(node.id);
+    if (node.children && node.children.length) {
+      for (const child of node.children) {
+        addNodeWithoutSiblings(child, newNode.children);
+      }
+    }
+  };
+
+  let selectedRow = null;
+
+  for (const path of searchResults) {
+    let currentLevel = expandedResults;
+    const isParentMatch = path[path.length - 1].leaf === false; // 判断最后一个节点是否是父节点
+
+    for (let i = 0; i < path.length; i++) {
+      const node = path[i];
+      if (!addedNodeIds.has(node.id)) {
+        const newNode = { ...node, children: [] };
+        currentLevel.push(newNode);
+        addedNodeIds.add(node.id);
+        currentLevel = newNode.children;
+
+        if (isParentMatch && i === path.length - 1) {
+          // 如果是父节点匹配，添加父节点及其所有子节点
+          addNodeWithChildren(node, newNode.children);
+          highlightedNodeIds.add(node.id);
+        } else if (!isParentMatch && i === path.length - 1) {
+          // 如果是子节点匹配，添加子节点及其父节点，并展开父节点
+          highlightedNodeIds.add(node.id);
+          state.expandedRowKeys.add(node.id);
+          selectedRow = node;
+          for (const parentNode of path.slice(0, -1)) {
+            state.expandedRowKeys.add(parentNode.id);
+          }
+        } else if (!isParentMatch) {
+          // 如果是路径中的父节点，添加父节点但不包括兄弟节点
+          addNodeWithoutSiblings(node, newNode.children);
+        }
+      } else {
+        const existingNode = currentLevel.find(n => n.id === node.id);
+        currentLevel = existingNode.children;
+      }
+    }
+  }
+
+  if (selectedRow) {
+    nextTick(() => {
+      if (resourceTable.value) {
+        resourceTable.value.setCurrentRow(selectedRow);
+      }
+    });
+  }
+
+  state.highlightedRowKeys = highlightedNodeIds;
+  return expandedResults;
+};*/
 
 watch(filterResource, debounce(searchResource, 300));
 
@@ -388,7 +472,8 @@ onMounted(() => {
   </el-container>
 </template>
 
-<style lang="less" scoped>
+<style lang="less" scoped>父节点匹配时：返回父节点及其所有子节点，但不展开父节点。
+子节点匹配时：返回匹配的子节点及其父节点，且展开父节点，并且不返回未匹配的兄弟节点。
 .highlight-row {
   background-color: #ffffcc !important;
 }
