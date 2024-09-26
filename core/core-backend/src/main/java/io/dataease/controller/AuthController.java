@@ -35,22 +35,9 @@ public class AuthController {
     private DataVisualizationService dataVisualizationService;
 
     @GetMapping("/getDashboardsByUserId")
-    public List<ResourceVO> getDashboardsByUserId(String userId, String resourceName) {
+    public List<ResourceVO> getDashboardsByUserId(String userId) {
         List<DataVisualization> dataVisualizations = dataVisualizationService.getDataVisualizations();
         List<DataVisualization> dashboards = dataVisualizations.stream().filter(item -> item.getType().equals("dashboard")).collect(Collectors.toList());
-        if (StringUtils.isNotBlank(resourceName)) {
-            dashboards = searchDashboardsByName(dataVisualizations, dashboards, resourceName);
-          /*  dashboards = dashboards.stream().filter(item -> {
-                if (item.getNodeType().equals("leaf")) {
-                    return item.getName().contains(resourceName);
-                } else return item.getNodeType().equals("folder") && item.getName().contains(resourceName);
-            }).collect(Collectors.toList());
-
-            if (!dashboards.isEmpty() && dashboards.get(0).getNodeType().equals("folder")) {
-                DataVisualization folderNode = dashboards.get(0);
-                dashboards.addAll(findChildNodes(dataVisualizations, folderNode.getId()));
-            }*/
-        }
 
         List<ResourceVO> resourceList = new ArrayList<>();
         Map<String, ResourceVO> resourceMap = new HashMap<>();
@@ -106,49 +93,63 @@ public class AuthController {
         return resourceList;
     }
 
-    private List<DataVisualization> searchDashboardsByName(List<DataVisualization> dataVisualizations, List<DataVisualization> dashboards, String resourceName) {
-        Set<String> addedIds = new HashSet<>();
-        List<DataVisualization> result = new ArrayList<>();
+    @GetMapping("/getDataViewByUserId")
+    public List<ResourceVO> getDataViewByUserId(String userId) {
+        List<DataVisualization> dataVisualizations = dataVisualizationService.getDataVisualizations();
+        List<DataVisualization> dashboards = dataVisualizations.stream().filter(item -> item.getType().equals("dataV")).collect(Collectors.toList());
 
-        for (DataVisualization item : dashboards) {
-            if (item.getName().equals(resourceName)) {
-                result.add(item);
-                addedIds.add(item.getId());
+        List<ResourceVO> resourceList = new ArrayList<>();
+        Map<String, ResourceVO> resourceMap = new HashMap<>();
+        if (Objects.equals(userId, "1")) {
+            for (DataVisualization dashboard : dashboards) {
+                ResourceVO resourceVO = buildResourceVO(dashboard, 1, 1, 1, 1, 1);
+                resourceMap.put(dashboard.getId(), resourceVO);
+            }
+        } else {
+            List<UserResource> userResources = userResourceService.selectResourceByUid(Integer.valueOf(userId));
 
-                if (item.getNodeType().equals("folder")) {
-                    List<DataVisualization> childNodes = findChildNodes(dataVisualizations, item.getId());
-                    for (DataVisualization child : childNodes) {
-                        if (!addedIds.contains(child.getId())) {
-                            result.add(child);
-                            addedIds.add(child.getId());
-                        }
+            List<DataVisualization> userCreatedDashboards = dashboards.stream()
+                    .filter(dashboard -> dashboard.getCreateBy().equals(userId))
+                    .collect(Collectors.toList());
+
+            Set<String> authorizedResourceIds = userResources.stream()
+                    .map(UserResource::getResourceId)
+                    .collect(Collectors.toSet());
+
+            for (DataVisualization dashboard : dashboards) {
+                if (userCreatedDashboards.contains(dashboard)) {
+                    ResourceVO resourceVO = buildResourceVO(dashboard, 1, 1, 1, 1, 1);
+                    resourceMap.put(dashboard.getId(), resourceVO);
+                } else if (authorizedResourceIds.contains(dashboard.getId())) {
+                    UserResource userResource = userResources.stream()
+                            .filter(ur -> ur.getResourceId().equals(dashboard.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (userResource != null) {
+                        ResourceVO resourceVO = buildResourceVO(dashboard, userResource.getIsSelect(),
+                                userResource.getIsManage(), userResource.getIsShare(), userResource.getIsExport(), userResource.getIsAuth());
+                        resourceMap.put(dashboard.getId(), resourceVO);
                     }
+                }
+            }
+
+        }
+
+        for (DataVisualization dashboard : dashboards) {
+            ResourceVO resourceVO = resourceMap.get(dashboard.getId());
+            if (resourceVO != null) {
+                if (Objects.equals(dashboard.getPid(), "0")) {
+                    resourceList.add(resourceVO);
                 } else {
-                    List<DataVisualization> parentNodes = findParentNodes(dataVisualizations, item.getPid());
-                    for (DataVisualization parent : parentNodes) {
-                        if (!addedIds.contains(parent.getId())) {
-                            result.add(parent);
-                            addedIds.add(parent.getId());
-                        }
+                    ResourceVO parent = resourceMap.get(dashboard.getPid());
+                    if (parent != null) {
+                        parent.getChildren().add(resourceVO);
                     }
                 }
             }
         }
-
-        return result;
-    }
-
-    private List<DataVisualization> findParentNodes(List<DataVisualization> dataVisualizations, String childId) {
-        List<DataVisualization> parentNodes = new ArrayList<>();
-        for (DataVisualization dataVisualization : dataVisualizations) {
-            if (dataVisualization.getId().equals(childId)) {
-                parentNodes.add(dataVisualization);
-                if (!Objects.equals(dataVisualization.getPid(), "0")) {
-                    parentNodes.addAll(findParentNodes(dataVisualizations, dataVisualization.getPid()));
-                }
-            }
-        }
-        return parentNodes;
+        return resourceList;
     }
 
     private ResourceVO buildResourceVO(DataVisualization dashboard, Integer isSelect, Integer isManage, Integer isShare,
@@ -164,18 +165,5 @@ public class AuthController {
                 .leaf("folder".equals(dashboard.getNodeType()) ? 0 : 1)
                 .children(new ArrayList<>())
                 .build();
-    }
-
-    private List<DataVisualization> findChildNodes(List<DataVisualization> dataVisualizations, String parentId) {
-        List<DataVisualization> childNodes = new ArrayList<>();
-        for (DataVisualization dataVisualization : dataVisualizations) {
-            if (dataVisualization.getPid().equals(parentId)) {
-                childNodes.add(dataVisualization);
-                if (dataVisualization.getNodeType().equals("folder")) {
-                    childNodes.addAll(findChildNodes(dataVisualizations, dataVisualization.getId()));
-                }
-            }
-        }
-        return childNodes;
     }
 }

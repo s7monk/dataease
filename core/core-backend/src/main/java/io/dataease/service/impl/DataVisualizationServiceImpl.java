@@ -40,7 +40,9 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
     public List<DataVisualization> getDataVisualizations() {
         String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         if (Objects.equals(userId, "1")) {
-            return this.list();
+            QueryWrapper<DataVisualization> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("delete_flag", 0);
+            return dataVisualizationMapper.selectList(queryWrapper);
         } else {
             return selectDataVisualizationByIds();
         }
@@ -49,6 +51,7 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
     @Override
     public List<DataVisualization> selectDataVisualizationByIds() {
         QueryWrapper<DataVisualization> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("delete_flag", 0);
         queryWrapper.in("id", selectAuthorizedResourceIds());
         return dataVisualizationMapper.selectList(queryWrapper);
     }
@@ -58,6 +61,7 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
         String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         QueryWrapper<DataVisualization> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("create_by", userId);
+        queryWrapper.eq("delete_flag", 0);
         queryWrapper.eq("delete_flag", 0);
         queryWrapper.orderByDesc("create_time");
         return dataVisualizationMapper.selectList(queryWrapper);

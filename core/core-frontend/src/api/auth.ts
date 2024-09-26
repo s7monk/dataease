@@ -1,9 +1,16 @@
 import request from '@/config/axios'
 
-export const getDashboardsByUserId = (userId: string, resourceName: string) => {
+export const getDashboardsByUserId = (userId: string) => {
   return request.get({
     url: '/auth/getDashboardsByUserId',
-    params: { userId, resourceName }
+    params: { userId }
+  });
+};
+
+export const getDataViewByUserId = (userId: string) => {
+  return request.get({
+    url: '/auth/getDataViewByUserId',
+    params: { userId }
   });
 };
 
