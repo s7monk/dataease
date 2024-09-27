@@ -1,14 +1,15 @@
 <script lang="ts" setup>
-import {ref, computed, reactive, watch, onMounted, nextTick} from 'vue'
-import { useI18n } from '@/hooks/web/useI18n'
+import {computed, onMounted, reactive, ref, watch} from 'vue'
+import {useI18n} from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
-import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
+import {useAppearanceStoreWithOut} from '@/store/modules/appearance'
 import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
 import {ElIcon} from "element-plus-secondary";
 import {roleListApi, userListApi} from "@/api/user";
-import { getDashboardsByUserId } from "@/api/auth";
+import {getDashboardsByUserId} from "@/api/auth";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
+
 const { t } = useI18n()
 const activeTab = ref('user')
 const activeResourceTab = ref('resourceTab')
@@ -19,7 +20,6 @@ const filterResource = ref('');
 const activeMenuIndex = ref('1');
 const activeRoleMenuIndex = ref("1");
 const activeResourceIndex = ref('1');
-const resourceTable = ref(null);
 const appearanceStore = useAppearanceStoreWithOut()
 const tempColor = computed(() => {
   return {
@@ -42,18 +42,12 @@ const handleRoleMenuSelect = (index: string) => {
   console.log(roleId)
 };
 
-const treeProps = reactive({
-  checkStrictly: false,
-})
-
 const state = reactive({
   userTableData: [],
   roleTableData: [],
   dashboardsWithUserTableData: [],
   originalDashboards: [],
   expandedRowKeys: new Set<string>(),
-  highlightedRowKeys: new Set<string>(),
-  selectedRowKeys: new Set<string>(),
 })
 
 const getDashboardsWithUserTableData = () => {
@@ -154,8 +148,6 @@ const searchResource = () => {
   if (!filterResource.value) {
     state.dashboardsWithUserTableData = state.originalDashboards;
     state.expandedRowKeys.clear();
-    state.highlightedRowKeys.clear();
-    state.selectedRowKeys.clear();
     return;
   }
 
@@ -177,20 +169,19 @@ const searchResource = () => {
   searchTree(state.originalDashboards);
 
   if (searchResults.length > 0) {
-    const expandedResults = expandAndHighlightSearchResults(searchResults, searchTerm);
-    state.dashboardsWithUserTableData = expandedResults;
+    console.log(searchResults)
+    state.dashboardsWithUserTableData = expandSearchResults(searchResults, searchTerm);
   } else {
     state.dashboardsWithUserTableData = [];
   }
 
-  console.log(state.dashboardsWithUserTableData)
-  console.log('Expanded Row Keys:', Array.from(state.expandedRowKeys));
+  //console.log(state.dashboardsWithUserTableData)
+  //console.log('Expanded Row Keys:', Array.from(state.expandedRowKeys));
 };
 
-const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
+const expandSearchResults = (searchResults, searchTerm) => {
   const expandedResults = [];
   const addedNodeIds = new Set<string>();
-  const highlightedNodeIds = new Set<string>();
 
   const addChildren = (node, targetArray) => {
     if (addedNodeIds.has(node.id)) return;
@@ -203,8 +194,6 @@ const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
       }
     }
   };
-
-  let selectedRow = null;
 
   for (const path of searchResults) {
     let currentLevel = expandedResults;
@@ -225,30 +214,15 @@ const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
       }
       if (node.name.toLowerCase().includes(searchTerm)) {
         if (node.leaf) {
-          highlightedNodeIds.add(node.id);
           state.expandedRowKeys.add(node.id);
-          selectedRow = node;
           for (const parentNode of path) {
             state.expandedRowKeys.add(parentNode.id);
           }
-        } else {
-          highlightedNodeIds.add(node.id);
         }
-
-      }
-      // state.expandedRowKeys.add(node.id);
-
-      if (selectedRow) {
-        nextTick(() => {
-          if (resourceTable.value) {
-            resourceTable.value.setCurrentRow(selectedRow);
-          }
-        });
       }
     }
   }
 
-  state.highlightedRowKeys = highlightedNodeIds;
   return expandedResults;
 };
 
@@ -332,10 +306,6 @@ const expandAndHighlightSearchResults = (searchResults, searchTerm) => {
 
 watch(filterResource, debounce(searchResource, 300));
 
-const rowClassName = ({ row }) => {
-  return state.highlightedRowKeys.has(row.id) ? 'highlight-row' : '';
-};
-
 onMounted(() => {
   getUserTableData();
   getRoleTableData();
@@ -415,10 +385,7 @@ onMounted(() => {
                 class="resource-table"
                 row-key="id"
                 height="calc(100vh - 306px)"
-                :highlight-current-row="true"
                 :expand-row-keys="Array.from(state.expandedRowKeys)"
-                :row-class-name="rowClassName"
-                ref="resourceTable"
               >
                 <el-table-column prop="id" key="id" label="资源名称">
                   <template #default="scope">
@@ -472,11 +439,7 @@ onMounted(() => {
   </el-container>
 </template>
 
-<style lang="less" scoped>父节点匹配时：返回父节点及其所有子节点，但不展开父节点。
-子节点匹配时：返回匹配的子节点及其父节点，且展开父节点，并且不返回未匹配的兄弟节点。
-.highlight-row {
-  background-color: #ffffcc !important;
-}
+<style lang="less" scoped>
 .right-container :deep(.ed-tabs__active-bar) {
   width: 63px !important;
   left: 66% !important;
