@@ -6,7 +6,8 @@ import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
 import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
 import {ElIcon} from "element-plus-secondary";
 import {roleListApi, userListApi} from "@/api/user";
-import { getDashboardsByUserId, getDataViewByUserId } from "@/api/auth";
+import { getDashboardsByUserId, getDataViewByUserId, getDataSourceByUserId, getDataSetByUserId, getDashboardsByRoleId,
+  getDataViewByRoleId, getDataSourceByRoleId, getDataSetByRoleId } from "@/api/auth";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
 const { t } = useI18n()
@@ -59,24 +60,60 @@ const state = reactive({
 const getDashboardsWithUserTableData = () => {
   switch (activeResourceIndex.value) {
     case '1':
-      getDashboardsByUserId(activeMenuIndex.value).then(res => {
-        state.originalDashboards = res.data.map(transformItem);
-        state.dashboardsWithUserTableData = state.originalDashboards;
-      });
+      if (activeTab.value === 'user') {
+        getDashboardsByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDashboardsByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
       break;
     case '2':
-      getDataViewByUserId(activeMenuIndex.value).then(res => {
-        state.originalDashboards = res.data.map(transformItem);
-        state.dashboardsWithUserTableData = state.originalDashboards;
-      });
+      if (activeTab.value === 'user') {
+        getDataViewByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDataViewByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
+      break;
+    case '3':
+      if (activeTab.value === 'user') {
+        getDataSetByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDataSetByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
+      break;
+    case '4':
+      if (activeTab.value === 'user') {
+        getDataSourceByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDataSourceByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
       break;
     default:
       console.warn(`Unknown activeResourceIndex: ${activeResourceIndex.value}`);
   }
- /* getDashboardsByUserId(activeMenuIndex.value).then(res => {
-    state.originalDashboards = res.data.map(transformItem);
-    state.dashboardsWithUserTableData = state.originalDashboards;
-  });*/
 };
 
 const transformItem = (item) => {
@@ -162,6 +199,14 @@ const getRoleTableData = () => {
 const debouncedGetRoleTableData  = debounce(getRoleTableData, 300);
 
 watch(activeMenuIndex, () => {
+  getDashboardsWithUserTableData();
+});
+
+watch(activeRoleMenuIndex, () => {
+  getDashboardsWithUserTableData();
+});
+
+watch(activeTab, () => {
   getDashboardsWithUserTableData();
 });
 
@@ -263,11 +308,15 @@ const iconName = computed(() => {
       return 'icon_operation-analysis_outlined';
     case '3':
     case '4':
-      return 'dv-folder';
+      return 'icon_dataset';
     default:
       return 'dv-folder';
   }
 });
+
+const savaResource = () => {
+
+}
 
 onMounted(() => {
   getUserTableData();
@@ -404,7 +453,7 @@ onMounted(() => {
           </el-container>
         </el-tab-pane>
       </el-tabs>
-      <el-button type="info" class="save-button" plain>保存</el-button>
+      <el-button type="info" class="save-button" plain @click="savaResource">保存</el-button>
     </div>
   </el-container>
 </template>

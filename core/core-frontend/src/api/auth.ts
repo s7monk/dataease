@@ -14,6 +14,48 @@ export const getDataViewByUserId = (userId: string) => {
   });
 };
 
+export const getDataSourceByUserId = (userId: string) => {
+  return request.get({
+    url: '/auth/getDataSourceByUserId',
+    params: { userId }
+  });
+};
+
+export const getDataSetByUserId = (userId: string) => {
+  return request.get({
+    url: '/auth/getDataSetByUserId',
+    params: { userId }
+  });
+};
+
+export const getDashboardsByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDashboardsByRoleId',
+    params: { roleId }
+  });
+};
+
+export const getDataViewByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDataViewByRoleId',
+    params: { roleId }
+  });
+};
+
+export const getDataSourceByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDataSourceByRoleId',
+    params: { roleId }
+  });
+};
+
+export const getDataSetByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDataSetByRoleId',
+    params: { roleId }
+  });
+};
+
 export const queryUserApi = data => request.post({ url: '/user/byCurOrg', data })
 export const queryUserOptionsApi = () => request.get({ url: '/user/org/option' })
 export const queryRoleApi = data => request.post({ url: '/role/byCurOrg', data })

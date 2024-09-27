@@ -24,4 +24,6 @@ public class UserResource {
     private Integer isExport;
 
     private Integer isAuth;
+
+    private Integer resourceType;
 }

@@ -24,4 +24,6 @@ public class RoleResource {
     private Integer isExport;
 
     private Integer isAuth;
+
+    private Integer resourceType;
 }

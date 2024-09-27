@@ -17,17 +17,19 @@ public class RoleResourceServiceImpl extends ServiceImpl<RoleResourceMapper, Rol
     private RoleResourceMapper roleResourceMapper;
 
     @Override
-    public List<RoleResource> selectResourceByRoleId(Integer roleId) {
+    public List<RoleResource> selectResourceByRoleId(Integer roleId, Integer resourceType) {
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("role_id", roleId);
+        queryWrapper.eq("resource_type", resourceType);
         return roleResourceMapper.selectList(queryWrapper);
     }
 
     @Override
-    public List<RoleResource> selectAuthorizedResourceByRoleIds(List<Integer> roleIds) {
+    public List<RoleResource> selectAuthorizedResourceByRoleIds(List<Integer> roleIds, Integer resourceType) {
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("role_id", roleIds);
         queryWrapper.eq("is_auth", 1);
+        queryWrapper.eq("resource_type", resourceType);
         return roleResourceMapper.selectList(queryWrapper);
     }
 
