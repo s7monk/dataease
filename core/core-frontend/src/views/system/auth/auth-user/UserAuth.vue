@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import {computed, onMounted, reactive, ref, watch} from 'vue'
-import {useI18n} from '@/hooks/web/useI18n'
+import {ref, computed, reactive, watch, onMounted, nextTick} from 'vue'
+import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
-import {useAppearanceStoreWithOut} from '@/store/modules/appearance'
+import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
 import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
 import {ElIcon} from "element-plus-secondary";
 import {roleListApi, userListApi} from "@/api/user";
-import {getDashboardsByUserId} from "@/api/auth";
+import { getDashboardsByUserId, getDataViewByUserId, getDataSourceByUserId, getDataSetByUserId, getDashboardsByRoleId,
+  getDataViewByRoleId, getDataSourceByRoleId, getDataSetByRoleId } from "@/api/auth";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
-
 const { t } = useI18n()
 const activeTab = ref('user')
 const activeResourceTab = ref('resourceTab')
@@ -38,9 +38,16 @@ const handleUserMenuSelect = (index: string) => {
 };
 
 const handleRoleMenuSelect = (index: string) => {
-  const roleId = parseInt(index, 10);
-  console.log(roleId)
+  activeRoleMenuIndex.value = index
 };
+
+const handleResourceMenuSelect = (index: string) => {
+  activeResourceIndex.value = index
+}
+
+const treeProps = reactive({
+  checkStrictly: false,
+})
 
 const state = reactive({
   userTableData: [],
@@ -51,18 +58,63 @@ const state = reactive({
 })
 
 const getDashboardsWithUserTableData = () => {
-  getDashboardsByUserId(activeMenuIndex.value, '').then(res => {
-    //state.dashboardsWithUserTableData = res.data.map(item => transformItem(item));
-    state.originalDashboards = res.data.map(transformItem);
-    state.dashboardsWithUserTableData = state.originalDashboards;
-  });
+  switch (activeResourceIndex.value) {
+    case '1':
+      if (activeTab.value === 'user') {
+        getDashboardsByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDashboardsByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
+      break;
+    case '2':
+      if (activeTab.value === 'user') {
+        getDataViewByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDataViewByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
+      break;
+    case '3':
+      if (activeTab.value === 'user') {
+        getDataSetByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDataSetByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
+      break;
+    case '4':
+      if (activeTab.value === 'user') {
+        getDataSourceByUserId(activeMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      } else {
+        getDataSourceByRoleId(activeRoleMenuIndex.value).then(res => {
+          state.originalDashboards = res.data.map(transformItem);
+          state.dashboardsWithUserTableData = state.originalDashboards;
+        });
+      }
+      break;
+    default:
+      console.warn(`Unknown activeResourceIndex: ${activeResourceIndex.value}`);
+  }
 };
-
-const debouncedGetDashboardsWithUserTableData  = debounce(getDashboardsWithUserTableData, 300);
-
-/*watch(filterResource, () => {
-  debouncedGetDashboardsWithUserTableData();
-});*/
 
 const transformItem = (item) => {
   const { resourceId, resourceName, isSelect, isManage, isShare, isExport, isAuth, leaf, children } = item;
@@ -75,9 +127,20 @@ const transformItem = (item) => {
     export: isExport === 1,
     auth: isAuth === 1,
     leaf: leaf === 1,
+    searched: 0,
     children: children ? children.map(child => transformItem(child)) : [],
   };
 };
+
+const resetSearchedFlag = (nodes) => {
+  nodes.forEach(node => {
+    node.searched = 0;
+    if (node.children && node.children.length > 0) {
+      resetSearchedFlag(node.children);
+    }
+  });
+};
+
 
 const getUserTableData = () => {
   const params = {
@@ -139,6 +202,17 @@ watch(activeMenuIndex, () => {
   getDashboardsWithUserTableData();
 });
 
+watch(activeRoleMenuIndex, () => {
+  getDashboardsWithUserTableData();
+});
+
+watch(activeTab, () => {
+  getDashboardsWithUserTableData();
+});
+
+watch(activeResourceIndex, () => {
+  getDashboardsWithUserTableData();
+});
 
 watch(filterRole, () => {
   debouncedGetRoleTableData();
@@ -148,6 +222,7 @@ const searchResource = () => {
   if (!filterResource.value) {
     state.dashboardsWithUserTableData = state.originalDashboards;
     state.expandedRowKeys.clear();
+    resetSearchedFlag(state.originalDashboards);
     return;
   }
 
@@ -158,6 +233,7 @@ const searchResource = () => {
     for (const node of nodes) {
       const currentPath = [...parentPath, node];
       if (node.name.toLowerCase().includes(searchTerm)) {
+        node.searched = 1
         searchResults.push(currentPath);
       }
       if (node.children && node.children.length) {
@@ -169,14 +245,11 @@ const searchResource = () => {
   searchTree(state.originalDashboards);
 
   if (searchResults.length > 0) {
-    console.log(searchResults)
-    state.dashboardsWithUserTableData = expandSearchResults(searchResults, searchTerm);
+    const expandedResults = expandSearchResults(searchResults, searchTerm);
+    state.dashboardsWithUserTableData = expandedResults;
   } else {
     state.dashboardsWithUserTableData = [];
   }
-
-  //console.log(state.dashboardsWithUserTableData)
-  //console.log('Expanded Row Keys:', Array.from(state.expandedRowKeys));
 };
 
 const expandSearchResults = (searchResults, searchTerm) => {
@@ -203,7 +276,7 @@ const expandSearchResults = (searchResults, searchTerm) => {
         currentLevel.push(newNode);
         addedNodeIds.add(node.id);
         currentLevel = newNode.children;
-        if (node.children && node.children.length) {
+        if (node.children && node.children.length && node.searched === 1) {
           for (const child of node.children) {
             addChildren(child, newNode.children);
           }
@@ -222,89 +295,28 @@ const expandSearchResults = (searchResults, searchTerm) => {
       }
     }
   }
-
   return expandedResults;
 };
 
-/*const expandAndHighlightSearchResults = (searchResults) => {
-  const expandedResults = [];
-  const addedNodeIds = new Set<string>();
-  const highlightedNodeIds = new Set<string>();
-
-  const addNodeWithChildren = (node, targetArray) => {
-    if (addedNodeIds.has(node.id)) return;
-    const newNode = { ...node, children: [] };
-    targetArray.push(newNode);
-    addedNodeIds.add(node.id);
-    if (node.children && node.children.length) {
-      for (const child of node.children) {
-        addNodeWithChildren(child, newNode.children);
-      }
-    }
-  };
-
-  const addNodeWithoutSiblings = (node, targetArray) => {
-    if (addedNodeIds.has(node.id)) return;
-    const newNode = { ...node, children: [] };
-    targetArray.push(newNode);
-    addedNodeIds.add(node.id);
-    if (node.children && node.children.length) {
-      for (const child of node.children) {
-        addNodeWithoutSiblings(child, newNode.children);
-      }
-    }
-  };
-
-  let selectedRow = null;
-
-  for (const path of searchResults) {
-    let currentLevel = expandedResults;
-    const isParentMatch = path[path.length - 1].leaf === false; // 判断最后一个节点是否是父节点
-
-    for (let i = 0; i < path.length; i++) {
-      const node = path[i];
-      if (!addedNodeIds.has(node.id)) {
-        const newNode = { ...node, children: [] };
-        currentLevel.push(newNode);
-        addedNodeIds.add(node.id);
-        currentLevel = newNode.children;
-
-        if (isParentMatch && i === path.length - 1) {
-          // 如果是父节点匹配，添加父节点及其所有子节点
-          addNodeWithChildren(node, newNode.children);
-          highlightedNodeIds.add(node.id);
-        } else if (!isParentMatch && i === path.length - 1) {
-          // 如果是子节点匹配，添加子节点及其父节点，并展开父节点
-          highlightedNodeIds.add(node.id);
-          state.expandedRowKeys.add(node.id);
-          selectedRow = node;
-          for (const parentNode of path.slice(0, -1)) {
-            state.expandedRowKeys.add(parentNode.id);
-          }
-        } else if (!isParentMatch) {
-          // 如果是路径中的父节点，添加父节点但不包括兄弟节点
-          addNodeWithoutSiblings(node, newNode.children);
-        }
-      } else {
-        const existingNode = currentLevel.find(n => n.id === node.id);
-        currentLevel = existingNode.children;
-      }
-    }
-  }
-
-  if (selectedRow) {
-    nextTick(() => {
-      if (resourceTable.value) {
-        resourceTable.value.setCurrentRow(selectedRow);
-      }
-    });
-  }
-
-  state.highlightedRowKeys = highlightedNodeIds;
-  return expandedResults;
-};*/
-
 watch(filterResource, debounce(searchResource, 300));
+
+const iconName = computed(() => {
+  switch (activeResourceIndex.value) {
+    case '1':
+      return 'dv-dashboard-spine';
+    case '2':
+      return 'icon_operation-analysis_outlined';
+    case '3':
+    case '4':
+      return 'icon_dataset';
+    default:
+      return 'dv-folder';
+  }
+});
+
+const savaResource = () => {
+
+}
 
 onMounted(() => {
   getUserTableData();
@@ -362,7 +374,7 @@ onMounted(() => {
             <el-aside class="right-main-aside">
               <div class="right-main-aside-menu">
                 <el-scrollbar height="calc(100vh - 226px)">
-                  <el-menu class="right-menu" :style="tempColor"  :default-active="activeResourceIndex" @select="handleMenuSelect">
+                  <el-menu class="right-menu" :style="tempColor"  :default-active="activeResourceIndex" @select="handleResourceMenuSelect">
                     <el-menu-item index="1">数据看板</el-menu-item>
                     <el-menu-item index="2">数据大屏</el-menu-item>
                     <el-menu-item index="3">数据集</el-menu-item>
@@ -389,8 +401,15 @@ onMounted(() => {
               >
                 <el-table-column prop="id" key="id" label="资源名称">
                   <template #default="scope">
-                    <el-icon class="resource-tree-first-cell-icon" v-if="scope.row.leaf">
-                      <Icon name="dv-dashboard-spine"/>
+                    <el-icon
+                      class="resource-tree-first-cell-icon"
+                      v-if="scope.row.leaf"
+                      :class="{
+                        'color-dataV': activeResourceIndex === '2',
+                        'icon-screen-new': activeResourceIndex === '2'
+                      }"
+                    >
+                      <Icon :name="iconName"/>
                     </el-icon>
                     <el-icon class="resource-tree-first-cell-icon" v-else-if="!scope.row.leaf">
                       <Icon name="dv-folder" />
@@ -408,12 +427,12 @@ onMounted(() => {
                     <el-checkbox v-model="scope.row.manage"  size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column  width="80" prop="share" key="share" label="分享" align="center">
+                <el-table-column v-if="activeResourceIndex != '3' && activeResourceIndex != '4'"  width="80" prop="share" key="share" label="分享" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.share" size="default" />
                   </template>
                 </el-table-column>
-                <el-table-column width="80" prop="export" key="export" label="导出" align="center">
+                <el-table-column v-if="activeResourceIndex != '3' && activeResourceIndex != '4'" width="80" prop="export" key="export" label="导出" align="center">
                   <template #default="scope">
                     <el-checkbox v-model="scope.row.export" size="default" />
                   </template>
@@ -434,12 +453,18 @@ onMounted(() => {
           </el-container>
         </el-tab-pane>
       </el-tabs>
-      <el-button type="info" class="save-button" plain>保存</el-button>
+      <el-button type="info" class="save-button" plain @click="savaResource">保存</el-button>
     </div>
   </el-container>
 </template>
 
 <style lang="less" scoped>
+.icon-screen-new {
+  border-radius: 4px;
+  color: #fff;
+  padding: 3px;
+}
+
 .right-container :deep(.ed-tabs__active-bar) {
   width: 63px !important;
   left: 66% !important;
@@ -579,7 +604,7 @@ onMounted(() => {
       .resource-tree-first-cell-icon {
         font-size: 18px;
         position: relative;
-        top: 3.3px;
+        top: 4px;
       }
 
       .resource-tree-first-cell-span {

@@ -3,28 +3,28 @@ package io.dataease.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.dataease.data.model.DataVisualization;
+import io.dataease.data.model.DataSet;
 import io.dataease.data.model.RoleResource;
 import io.dataease.data.model.UserResource;
-import io.dataease.mapper.DataVisualizationMapper;
-import io.dataease.service.DataVisualizationService;
+import io.dataease.mapper.DataSetMapper;
+import io.dataease.service.DataSetService;
 import io.dataease.service.RoleResourceService;
 import io.dataease.service.SysRoleService;
 import io.dataease.service.UserResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @Service
-public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationMapper, DataVisualization> implements DataVisualizationService {
+public class DataSetServiceImpl extends ServiceImpl<DataSetMapper, DataSet> implements DataSetService {
 
     @Autowired
-    private DataVisualizationMapper dataVisualizationMapper;
+    private DataSetMapper dataSetMapper;
 
     @Autowired
     private UserResourceService userResourceService;
@@ -35,44 +35,40 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
     @Autowired
     private SysRoleService roleService;
 
-
     @Override
-    public List<DataVisualization> getDataVisualizations() {
+    public List<DataSet> getDataSets() {
         String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
         if (Objects.equals(userId, "1")) {
-            QueryWrapper<DataVisualization> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("delete_flag", 0);
-            return dataVisualizationMapper.selectList(queryWrapper);
+            QueryWrapper<DataSet> queryWrapper = new QueryWrapper<>();
+            return dataSetMapper.selectList(queryWrapper);
         } else {
-            return selectDataVisualizationByIds();
+            return selectDataSetByIds();
         }
     }
 
     @Override
-    public List<DataVisualization> selectDataVisualizationByIds() {
-        QueryWrapper<DataVisualization> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("delete_flag", 0);
+    public List<DataSet> selectDataSetByIds() {
+        QueryWrapper<DataSet> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", selectAuthorizedResourceIds());
-        return dataVisualizationMapper.selectList(queryWrapper);
+        return dataSetMapper.selectList(queryWrapper);
     }
 
     @Override
-    public List<DataVisualization> selectDataVisualizationByLoginId() {
+    public List<DataSet> selectDataSetByLoginId() {
         String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
-        QueryWrapper<DataVisualization> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<DataSet> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("create_by", userId);
-        queryWrapper.eq("delete_flag", 0);
         queryWrapper.orderByDesc("create_time");
-        return dataVisualizationMapper.selectList(queryWrapper);
+        return dataSetMapper.selectList(queryWrapper);
     }
 
     @Override
     public List<String> selectAuthorizedResourceIds() {
         int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
         List<Integer> roles = roleService.selectRoleListByUserId(userId);
-        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIds(roles, 1);
-        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUid(userId, 1);
-        List<DataVisualization> dataVisualizations = selectDataVisualizationByLoginId();
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIds(roles, 3);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUid(userId, 3);
+        List<DataSet> dataVisualizations = selectDataSetByLoginId();
 
         Set<String> resourceIds = roleResources.stream()
                 .map(RoleResource::getResourceId)
@@ -83,10 +79,9 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
                 .collect(Collectors.toSet()));
 
         resourceIds.addAll(dataVisualizations.stream()
-                .map(DataVisualization::getId)
+                .map(item -> String.valueOf(item.getId()))
                 .collect(Collectors.toSet()));
 
         return new ArrayList<>(resourceIds);
     }
-
 }

@@ -17,17 +17,19 @@ public class UserResourceServiceImpl extends ServiceImpl<UserResourceMapper, Use
     private UserResourceMapper userResourceMapper;
 
     @Override
-    public List<UserResource> selectResourceByUid(Integer userId) {
+    public List<UserResource> selectResourceByUid(Integer userId, Integer resourceType) {
         QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("resource_type", resourceType);
         return userResourceMapper.selectList(queryWrapper);
     }
 
     @Override
-    public List<UserResource> selectAuthorizedResourceByUid(Integer userId) {
+    public List<UserResource> selectAuthorizedResourceByUid(Integer userId, Integer resourceType) {
         QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("is_auth", 1);
+        queryWrapper.eq("resource_type", resourceType);
         return userResourceMapper.selectList(queryWrapper);
     }
 

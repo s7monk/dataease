@@ -1,9 +1,58 @@
 import request from '@/config/axios'
 
-export const getDashboardsByUserId = (userId: string, resourceName: string) => {
+export const getDashboardsByUserId = (userId: string) => {
   return request.get({
     url: '/auth/getDashboardsByUserId',
-    params: { userId, resourceName }
+    params: { userId }
+  });
+};
+
+export const getDataViewByUserId = (userId: string) => {
+  return request.get({
+    url: '/auth/getDataViewByUserId',
+    params: { userId }
+  });
+};
+
+export const getDataSourceByUserId = (userId: string) => {
+  return request.get({
+    url: '/auth/getDataSourceByUserId',
+    params: { userId }
+  });
+};
+
+export const getDataSetByUserId = (userId: string) => {
+  return request.get({
+    url: '/auth/getDataSetByUserId',
+    params: { userId }
+  });
+};
+
+export const getDashboardsByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDashboardsByRoleId',
+    params: { roleId }
+  });
+};
+
+export const getDataViewByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDataViewByRoleId',
+    params: { roleId }
+  });
+};
+
+export const getDataSourceByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDataSourceByRoleId',
+    params: { roleId }
+  });
+};
+
+export const getDataSetByRoleId = (roleId: string) => {
+  return request.get({
+    url: '/auth/getDataSetByRoleId',
+    params: { roleId }
   });
 };
 
