@@ -256,8 +256,9 @@ export function getCustomTheme(chart: Chart): S2Theme {
       if (tableHeader.showHorizonBorder === false) {
         const tmpTheme = {
           splitLine: {
-            horizontalBorderColor: tableHeaderBgColor,
-            horizontalBorderWidth: 0
+            horizontalBorderColor: '#0528FF',
+            horizontalBorderWidth: 0.4,
+            horizontalBorderColorOpacity: 1
           },
           colCell: {
             cell: {
