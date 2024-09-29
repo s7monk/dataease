@@ -329,8 +329,8 @@ export function getCustomTheme(chart: Chart): S2Theme {
         },
         dataCell: {
           cell: {
-            crossBackgroundColor: enableTableCrossBG ? tableItemSubBgColor : tableItemBgColor,
-            backgroundColor: tableItemBgColor
+            crossBackgroundColor: tableItemBgColor,
+            backgroundColor: enableTableCrossBG ? tableItemSubBgColor : tableItemBgColor,
           },
           bolderText: {
             fill: tableFontColor,
