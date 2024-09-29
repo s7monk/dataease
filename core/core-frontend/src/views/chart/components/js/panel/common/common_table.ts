@@ -298,6 +298,7 @@ export function getCustomTheme(chart: Chart): S2Theme {
       const fontStyle = tableCell.isItalic ? 'italic' : 'normal'
       const fontWeight = tableCell.isBolder === false ? 'normal' : 'bold'
       const { tableItemAlign, tableItemFontSize, enableTableCrossBG } = tableCell
+
       const tmpTheme: S2Theme = {
         rowCell: {
           cell: {
@@ -328,8 +329,8 @@ export function getCustomTheme(chart: Chart): S2Theme {
         },
         dataCell: {
           cell: {
-            crossBackgroundColor: enableTableCrossBG ? tableItemSubBgColor : tableItemBgColor,
-            backgroundColor: tableItemBgColor
+            crossBackgroundColor: tableItemBgColor,
+            backgroundColor: enableTableCrossBG ? tableItemSubBgColor : tableItemBgColor,
           },
           bolderText: {
             fill: tableFontColor,
@@ -362,6 +363,7 @@ export function getCustomTheme(chart: Chart): S2Theme {
         }
       }
       merge(theme, tmpTheme)
+
       if (tableCell.showHorizonBorder === false) {
         const tmpTheme: S2Theme = {
           dataCell: {
