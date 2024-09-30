@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RoleResource {
 
+    private Integer id;
+
     private Integer RoleId;
 
     private String resourceId;

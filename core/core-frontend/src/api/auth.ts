@@ -56,6 +56,12 @@ export const getDataSetByRoleId = (roleId: string) => {
   });
 };
 
+export const saveResourceWithUserId = (data) =>
+  request.post({ url: '/auth/saveResourceWithUserId', data });
+
+export const saveResourceWithRoleId = (data) =>
+  request.post({ url: '/auth/saveResourceWithRoleId', data });
+
 export const queryUserApi = data => request.post({ url: '/user/byCurOrg', data })
 export const queryUserOptionsApi = () => request.get({ url: '/user/org/option' })
 export const queryRoleApi = data => request.post({ url: '/role/byCurOrg', data })

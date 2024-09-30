@@ -4,10 +4,10 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {Icon} from "@/components/icon-custom";
 import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
 import EmptyBackground from "@/components/empty-background/src/EmptyBackground.vue";
-import {ElIcon} from "element-plus-secondary";
+import {ElIcon, ElMessage} from "element-plus-secondary";
 import {roleListApi, userListApi} from "@/api/user";
 import { getDashboardsByUserId, getDataViewByUserId, getDataSourceByUserId, getDataSetByUserId, getDashboardsByRoleId,
-  getDataViewByRoleId, getDataSourceByRoleId, getDataSetByRoleId } from "@/api/auth";
+  getDataViewByRoleId, getDataSourceByRoleId, getDataSetByRoleId, saveResourceWithUserId, saveResourceWithRoleId } from "@/api/auth";
 import dayjs from "dayjs";
 import {debounce} from "lodash";
 const { t } = useI18n()
@@ -315,7 +315,58 @@ const iconName = computed(() => {
 });
 
 const savaResource = () => {
+  const dataToSend = [];
 
+  const traverseTree = (nodes) => {
+    nodes.forEach(node => {
+      dataToSend.push({
+        userId: activeTab.value === 'user' ? Number(activeMenuIndex.value) : null,
+        roleId: activeTab.value === 'role' ? Number(activeRoleMenuIndex.value) : null,
+        resourceId: node.id,
+        isSelect: node.select ? 1 : 0,
+        isManage: node.manage ? 1 : 0,
+        isShare: node.share ? 1 : 0,
+        isExport: node.export ? 1 : 0,
+        isAuth: node.auth ? 1 : 0,
+        resourceType: activeResourceIndex.value === '1' || activeResourceIndex.value === '2' ? 1
+          : activeResourceIndex.value === '3' ? 2
+            : 3
+      });
+
+      if (node.children && node.children.length > 0) {
+        traverseTree(node.children);
+      }
+    });
+  };
+
+  traverseTree(state.dashboardsWithUserTableData);
+
+  if (dataToSend.length === 0) {
+    return;
+  }
+
+  if ( activeTab.value === 'user') {
+    console.log(dataToSend)
+    saveResourceWithUserId(dataToSend)
+      .then(() => {
+        ElMessage.success('资源授权成功');
+      })
+      .catch(error => {
+        ElMessage.error('保存资源时出现错误');
+        console.error('保存资源时出现错误:', error);
+      });
+  } else {
+    saveResourceWithRoleId(dataToSend)
+      .then(() => {
+        ElMessage.success('资源授权成功');
+      })
+      .catch(error => {
+        ElMessage.error('保存资源时出现错误');
+        console.error('保存资源时出现错误:', error);
+      });
+  }
+
+  console.log(state.dashboardsWithUserTableData)
 }
 
 onMounted(() => {

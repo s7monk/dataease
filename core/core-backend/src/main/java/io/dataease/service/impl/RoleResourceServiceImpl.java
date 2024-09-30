@@ -3,10 +3,12 @@ package io.dataease.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.dataease.data.model.RoleResource;
+import io.dataease.data.model.UserResource;
 import io.dataease.mapper.RoleResourceMapper;
 import io.dataease.service.RoleResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,5 +40,23 @@ public class RoleResourceServiceImpl extends ServiceImpl<RoleResourceMapper, Rol
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);
         return roleResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    @Transactional
+    public void saveRoleResource(List<RoleResource> roleResources) {
+        for (RoleResource roleResource : roleResources) {
+            QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("role_id", roleResource.getRoleId())
+                    .eq("resource_id", roleResource.getResourceId())
+                    .eq("resource_type", roleResource.getResourceType());
+
+            RoleResource existingResource = this.getOne(queryWrapper);
+
+            if (existingResource != null) {
+                roleResource.setId(existingResource.getId());
+            }
+        }
+        this.saveOrUpdateBatch(roleResources);
     }
 }

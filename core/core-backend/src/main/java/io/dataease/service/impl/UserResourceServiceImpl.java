@@ -7,7 +7,9 @@ import io.dataease.mapper.UserResourceMapper;
 import io.dataease.service.UserResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,5 +40,23 @@ public class UserResourceServiceImpl extends ServiceImpl<UserResourceMapper, Use
         QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);
         return userResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    @Transactional
+    public void saveUserResource(List<UserResource> userResources) {
+        for (UserResource userResource : userResources) {
+            QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("user_id", userResource.getUserId())
+                    .eq("resource_id", userResource.getResourceId())
+                    .eq("resource_type", userResource.getResourceType());
+
+            UserResource existingResource = this.getOne(queryWrapper);
+
+            if (existingResource != null) {
+                userResource.setId(existingResource.getId());
+            }
+        }
+        this.saveOrUpdateBatch(userResources);
     }
 }

@@ -1,5 +1,6 @@
 package io.dataease.controller;
 
+import io.dataease.data.dto.ResourceDTO;
 import io.dataease.data.model.DataSet;
 import io.dataease.data.model.DataSource;
 import io.dataease.data.model.DataVisualization;
@@ -14,6 +15,7 @@ import io.dataease.service.UserResourceService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,6 +46,18 @@ public class AuthController {
 
     @Autowired
     private DataSetService dataSetService;
+
+    @PostMapping("/saveResourceWithUserId")
+    public void saveResourceWithUserId(List<ResourceDTO> resourceDTOS) {
+        List<UserResource> userResourceList = toUserResourceList(resourceDTOS);
+        userResourceService.saveUserResource(userResourceList);
+    }
+
+    @PostMapping("/saveResourceWithRoleId")
+    public void saveResourceWithRoleId(List<ResourceDTO> resourceDTOS) {
+        List<RoleResource> roleResourceList = toRoleResourceList(resourceDTOS);
+        roleResourceService.saveRoleResource(roleResourceList);
+    }
 
     @GetMapping("/getDashboardsByUserId")
     public List<ResourceVO> getDashboardsByUserId(String userId) {
@@ -564,5 +578,39 @@ public class AuthController {
                 .leaf("folder".equals(dataSet.getNodeType()) ? 0 : 1)
                 .children(new ArrayList<>())
                 .build();
+    }
+
+    private List<UserResource> toUserResourceList(List<ResourceDTO> resourceDTOS) {
+        List<UserResource> userResourceList = new ArrayList<>();
+        for (ResourceDTO resourceDTO : resourceDTOS) {
+            UserResource userResource = new UserResource();
+            userResource.setUserId(resourceDTO.getUserId());
+            userResource.setResourceId(resourceDTO.getResourceId());
+            userResource.setIsSelect(resourceDTO.getIsSelect());
+            userResource.setIsManage(resourceDTO.getIsManage());
+            userResource.setIsExport(resourceDTO.getIsExport());
+            userResource.setIsShare(resourceDTO.getIsShare());
+            userResource.setIsAuth(resourceDTO.getIsAuth());
+            userResource.setResourceType(resourceDTO.getResourceType());
+            userResourceList.add(userResource);
+        }
+        return userResourceList;
+    }
+
+    private List<RoleResource> toRoleResourceList(List<ResourceDTO> resourceDTOS) {
+        List<RoleResource> roleResourceList = new ArrayList<>();
+        for (ResourceDTO resourceDTO : resourceDTOS) {
+            RoleResource roleResource = new RoleResource();
+            roleResource.setRoleId(resourceDTO.getUserId());
+            roleResource.setResourceId(resourceDTO.getResourceId());
+            roleResource.setIsSelect(resourceDTO.getIsSelect());
+            roleResource.setIsManage(resourceDTO.getIsManage());
+            roleResource.setIsExport(resourceDTO.getIsExport());
+            roleResource.setIsShare(resourceDTO.getIsShare());
+            roleResource.setIsAuth(resourceDTO.getIsAuth());
+            roleResource.setResourceType(resourceDTO.getResourceType());
+            roleResourceList.add(roleResource);
+        }
+        return roleResourceList;
     }
 }
