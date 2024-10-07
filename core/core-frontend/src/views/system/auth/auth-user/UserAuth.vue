@@ -345,8 +345,7 @@ const savaResource = () => {
     return;
   }
 
-  if ( activeTab.value === 'user') {
-    console.log(dataToSend)
+  if (activeTab.value === 'user') {
     saveResourceWithUserId(dataToSend)
       .then(() => {
         ElMessage.success('资源授权成功');
@@ -356,6 +355,8 @@ const savaResource = () => {
         console.error('保存资源时出现错误:', error);
       });
   } else {
+    console.log(dataToSend)
+
     saveResourceWithRoleId(dataToSend)
       .then(() => {
         ElMessage.success('资源授权成功');
@@ -365,8 +366,6 @@ const savaResource = () => {
         console.error('保存资源时出现错误:', error);
       });
   }
-
-  console.log(state.dashboardsWithUserTableData)
 }
 
 onMounted(() => {

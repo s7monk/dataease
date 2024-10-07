@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,13 +49,13 @@ public class AuthController {
     private DataSetService dataSetService;
 
     @PostMapping("/saveResourceWithUserId")
-    public void saveResourceWithUserId(List<ResourceDTO> resourceDTOS) {
+    public void saveResourceWithUserId(@RequestBody List<ResourceDTO> resourceDTOS) {
         List<UserResource> userResourceList = toUserResourceList(resourceDTOS);
         userResourceService.saveUserResource(userResourceList);
     }
 
     @PostMapping("/saveResourceWithRoleId")
-    public void saveResourceWithRoleId(List<ResourceDTO> resourceDTOS) {
+    public void saveResourceWithRoleId(@RequestBody List<ResourceDTO> resourceDTOS) {
         List<RoleResource> roleResourceList = toRoleResourceList(resourceDTOS);
         roleResourceService.saveRoleResource(roleResourceList);
     }
@@ -601,7 +602,7 @@ public class AuthController {
         List<RoleResource> roleResourceList = new ArrayList<>();
         for (ResourceDTO resourceDTO : resourceDTOS) {
             RoleResource roleResource = new RoleResource();
-            roleResource.setRoleId(resourceDTO.getUserId());
+            roleResource.setRoleId(resourceDTO.getRoleId());
             roleResource.setResourceId(resourceDTO.getResourceId());
             roleResource.setIsSelect(resourceDTO.getIsSelect());
             roleResource.setIsManage(resourceDTO.getIsManage());
