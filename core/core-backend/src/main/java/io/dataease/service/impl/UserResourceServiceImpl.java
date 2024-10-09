@@ -36,6 +36,42 @@ public class UserResourceServiceImpl extends ServiceImpl<UserResourceMapper, Use
     }
 
     @Override
+    public List<UserResource> selectAuthorizedResourceByUidWithSelect(Integer userId, Integer resourceType) {
+        QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("is_select", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return userResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<UserResource> selectAuthorizedResourceByUidWithShare(Integer userId, Integer resourceType) {
+        QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("is_share", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return userResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<UserResource> selectAuthorizedResourceByUidWithManage(Integer userId, Integer resourceType) {
+        QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("is_manage", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return userResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<UserResource> selectAuthorizedResourceByUidWithExport(Integer userId, Integer resourceType) {
+        QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        queryWrapper.eq("is_export", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return userResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
     public List<UserResource> selectResourceByResourceId(String resourceId) {
         QueryWrapper<UserResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);

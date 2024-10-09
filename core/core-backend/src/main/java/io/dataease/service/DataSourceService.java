@@ -14,4 +14,6 @@ public interface DataSourceService extends IService<DataSource> {
     List<DataSource> selectDataSourceByLoginId();
 
     List<String> selectAuthorizedResourceIds();
+
+    List<String> selectAuthorizedResourceIdsWithSelect();
 }

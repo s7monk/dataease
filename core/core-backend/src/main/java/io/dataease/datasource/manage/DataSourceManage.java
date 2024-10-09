@@ -18,6 +18,7 @@ import io.dataease.license.config.XpackInteract;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
 import io.dataease.operation.manage.CoreOptRecentManage;
+import io.dataease.service.DataSourceService;
 import io.dataease.utils.AuthUtils;
 import io.dataease.utils.BeanUtils;
 import io.dataease.utils.TreeUtils;
@@ -25,6 +26,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -43,6 +45,9 @@ public class DataSourceManage {
 
     @Resource
     private CoreOptRecentManage coreOptRecentManage;
+
+    @Autowired
+    private DataSourceService dataSourceService;
 
     private DatasourceNodeBO rootNode() {
         return new DatasourceNodeBO(0L, "root", false, 7, -1L, 0, "mysql");
@@ -67,7 +72,7 @@ public class DataSourceManage {
         }
         queryWrapper.orderByDesc("create_time");
         if (!Objects.equals(userId, "1")) {
-            queryWrapper.eq("create_by", userId);
+            queryWrapper.in("id", dataSourceService.selectAuthorizedResourceIdsWithSelect());
         }
         List<DatasourceNodeBO> nodes = new ArrayList<>();
         List<DataSourceNodePO> pos = dataSourceExtMapper.selectList(queryWrapper);

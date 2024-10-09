@@ -11,6 +11,14 @@ public interface RoleResourceService extends IService<RoleResource> {
 
     List<RoleResource> selectAuthorizedResourceByRoleIds(List<Integer> roleIds, Integer resourceType);
 
+    List<RoleResource> selectAuthorizedResourceByRoleIdsWithSelect(List<Integer> roleIds, Integer resourceType);
+
+    List<RoleResource> selectAuthorizedResourceByRoleIdsWithShare(List<Integer> roleIds, Integer resourceType);
+
+    List<RoleResource> selectAuthorizedResourceByRoleIdsWithManage(List<Integer> roleIds, Integer resourceType);
+
+    List<RoleResource> selectAuthorizedResourceByRoleIdsWithExport(List<Integer> roleIds, Integer resourceType);
+
     List<RoleResource> selectResourceByResourceId(String resourceId);
 
     void saveRoleResource(List<RoleResource> roleResources);

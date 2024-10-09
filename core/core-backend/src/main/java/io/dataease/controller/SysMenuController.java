@@ -145,6 +145,7 @@ public class SysMenuController {
 
     public List<SysMenu> coreMenus() {
         QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
+        wrapper.ne("type", 3);
         wrapper.orderByAsc("menu_sort");
         return sysMenuMapper.selectList(wrapper);
     }

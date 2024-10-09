@@ -66,8 +66,31 @@ public class DataSetServiceImpl extends ServiceImpl<DataSetMapper, DataSet> impl
     public List<String> selectAuthorizedResourceIds() {
         int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
         List<Integer> roles = roleService.selectRoleListByUserId(userId);
-        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIds(roles, 3);
-        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUid(userId, 3);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIds(roles, 2);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUid(userId, 2);
+        List<DataSet> dataVisualizations = selectDataSetByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(item -> String.valueOf(item.getId()))
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
+
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithSelect() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithSelect(roles, 2);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithSelect(userId, 2);
         List<DataSet> dataVisualizations = selectDataSetByLoginId();
 
         Set<String> resourceIds = roleResources.stream()

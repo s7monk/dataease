@@ -2473,5 +2473,18 @@ export default {
     auth: '权限管理',
     project: '项目管理',
     timezone: '时区管理',
+    toolbox: '工具箱',
+    'template-setting': '模版管理',
+    user_select: '查看用户',
+    user_add: '添加用户',
+    user_update: '更新用户',
+    user_delete: '删除用户',
+    user_change_password: '修改密码',
+    role_select: '查看角色',
+    role_add: '添加角色',
+    role_update: '更新角色',
+    role_delete: '删除角色',
+    auth_select: '查看权限',
+    auth_add: '添加权限',
   }
 }

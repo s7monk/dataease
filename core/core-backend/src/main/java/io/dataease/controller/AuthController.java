@@ -1,5 +1,6 @@
 package io.dataease.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import io.dataease.data.dto.ResourceDTO;
 import io.dataease.data.model.DataSet;
 import io.dataease.data.model.DataSource;
@@ -48,18 +49,21 @@ public class AuthController {
     @Autowired
     private DataSetService dataSetService;
 
+    @SaCheckPermission("system:auth:add")
     @PostMapping("/saveResourceWithUserId")
     public void saveResourceWithUserId(@RequestBody List<ResourceDTO> resourceDTOS) {
         List<UserResource> userResourceList = toUserResourceList(resourceDTOS);
         userResourceService.saveUserResource(userResourceList);
     }
 
+    @SaCheckPermission("system:auth:add")
     @PostMapping("/saveResourceWithRoleId")
     public void saveResourceWithRoleId(@RequestBody List<ResourceDTO> resourceDTOS) {
         List<RoleResource> roleResourceList = toRoleResourceList(resourceDTOS);
         roleResourceService.saveRoleResource(roleResourceList);
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDashboardsByUserId")
     public List<ResourceVO> getDashboardsByUserId(String userId) {
         List<DataVisualization> dataVisualizations = dataVisualizationService.getDataVisualizations();
@@ -123,6 +127,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDashboardsByRoleId")
     public List<ResourceVO> getDashboardsByRoleId(String roleId) {
         List<DataVisualization> dataVisualizations = dataVisualizationService.getDataVisualizations();
@@ -180,6 +185,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDataViewByUserId")
     public List<ResourceVO> getDataViewByUserId(String userId) {
         List<DataVisualization> dataVisualizations = dataVisualizationService.getDataVisualizations();
@@ -243,6 +249,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDataViewByRoleId")
     public List<ResourceVO> getDataViewByRoleId(String roleId) {
         List<DataVisualization> dataVisualizations = dataVisualizationService.getDataVisualizations();
@@ -300,6 +307,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDataSourceByUserId")
     public List<ResourceVO> getDataSourceByUserId(String userId) {
         List<DataSource> dataSources = dataSourceService.getDataSources();
@@ -312,7 +320,7 @@ public class AuthController {
                 resourceMap.put(String.valueOf(dataSource.getId()), resourceVO);
             }
         } else {
-            List<UserResource> userResources = userResourceService.selectResourceByUid(Integer.valueOf(userId), 2);
+            List<UserResource> userResources = userResourceService.selectResourceByUid(Integer.valueOf(userId), 3);
 
             List<DataSource> userCreatedDashboards = dataSources.stream()
                     .filter(dashboard -> dashboard.getCreateBy().equals(userId))
@@ -362,6 +370,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDataSourceByRoleId")
     public List<ResourceVO> getDataSourceByRoleId(String roleId) {
         List<DataSource> dataSources = dataSourceService.getDataSources();
@@ -374,7 +383,7 @@ public class AuthController {
                 resourceMap.put(String.valueOf(dataSource.getId()), resourceVO);
             }
         } else {
-            List<RoleResource> roleResources = roleResourceService.selectResourceByRoleId(Integer.valueOf(roleId), 2);
+            List<RoleResource> roleResources = roleResourceService.selectResourceByRoleId(Integer.valueOf(roleId), 3);
 
             Set<String> authorizedResourceIds = roleResources.stream()
                     .map(RoleResource::getResourceId)
@@ -418,6 +427,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDataSetByUserId")
     public List<ResourceVO> getDataSetByUserId(String userId) {
         List<DataSet> dataSets = dataSetService.getDataSets();
@@ -430,7 +440,7 @@ public class AuthController {
                 resourceMap.put(String.valueOf(dataset.getId()), resourceVO);
             }
         } else {
-            List<UserResource> userResources = userResourceService.selectResourceByUid(Integer.valueOf(userId), 3);
+            List<UserResource> userResources = userResourceService.selectResourceByUid(Integer.valueOf(userId), 2);
 
             List<DataSet> userCreatedDashboards = dataSets.stream()
                     .filter(dashboard -> dashboard.getCreateBy().equals(userId))
@@ -480,6 +490,7 @@ public class AuthController {
         return resourceList;
     }
 
+    @SaCheckPermission("system:auth:list")
     @GetMapping("/getDataSetByRoleId")
     public List<ResourceVO> getDataSetByRoleId(String roleId) {
         List<DataSet> dataSets = dataSetService.getDataSets();
@@ -492,7 +503,7 @@ public class AuthController {
                 resourceMap.put(String.valueOf(dataset.getId()), resourceVO);
             }
         } else {
-            List<RoleResource> roleResources = roleResourceService.selectResourceByRoleId(Integer.valueOf(roleId), 3);
+            List<RoleResource> roleResources = roleResourceService.selectResourceByRoleId(Integer.valueOf(roleId), 2);
 
             Set<String> authorizedResourceIds = roleResources.stream()
                     .map(RoleResource::getResourceId)

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, toRefs, watch, nextTick, computed } from 'vue'
 import { copyResource, deleteLogic, ResourceOrFolder } from '@/api/visualization/dataVisualization'
+import { authorizedResourceIdsWithManage } from '@/api/dataView'
 import { ElIcon, ElMessage, ElMessageBox, ElScrollbar } from 'element-plus-secondary'
 import { Icon } from '@/components/icon-custom'
 import { useEmitt } from '@/hooks/web/useEmitt'
@@ -450,10 +451,30 @@ const sortTypeTip = computed(() => {
   return sortList.find(ele => ele.value === state.curSortType).name
 })
 
-const sortTypeChange = sortType => {
-  state.resourceTree = treeSort(state.originResourceTree, sortType)
-  state.curSortType = sortType
-  wsCache.set('TreeSort-' + curCanvasType.value, state.curSortType)
+const updateIsManage = (tree: BusiTreeNode[], authorizedIds: (string | number)[]) => {
+  tree.forEach(node => {
+    node.isManage = authorizedIds.includes(node.id)
+
+    if (node.children && node.children.length > 0) {
+      updateIsManage(node.children, authorizedIds)
+    }
+  })
+}
+
+const sortTypeChange = async (sortType: string) => {
+  try {
+    const response = await authorizedResourceIdsWithManage()
+    const authorizedIds = response.data || []
+
+    state.resourceTree = treeSort(state.originResourceTree, sortType)
+    state.curSortType = sortType
+
+    updateIsManage(state.resourceTree, authorizedIds)
+
+    wsCache.set('TreeSort-' + curCanvasType.value, state.curSortType)
+  } catch (error) {
+    console.error('Failed to fetch authorized resource IDs or update tree:', error)
+  }
 }
 
 watch(filterText, val => {
@@ -612,7 +633,7 @@ defineExpose({
             >
               <el-icon
                 v-on:click.stop
-                v-if="data.leaf"
+                v-if="data.leaf && data.isManage"
                 class="hover-icon"
                 @click="resourceEdit(data.id)"
               >
@@ -625,7 +646,7 @@ defineExpose({
                 :menu-list="resourceTypeList"
                 icon-name="icon_add_outlined"
                 placement="bottom-start"
-                v-if="!data.leaf"
+                v-if="!data.leaf && data.isManage"
               ></handle-more>
               <dv-handle-more
                 @handle-command="cmd => operation(cmd, data, data.leaf ? 'leaf' : 'folder')"

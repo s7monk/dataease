@@ -16,6 +16,7 @@ import io.dataease.license.config.XpackInteract;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
 import io.dataease.operation.manage.CoreOptRecentManage;
+import io.dataease.service.DataVisualizationService;
 import io.dataease.service.UserService;
 import io.dataease.utils.*;
 import io.dataease.visualization.dao.auto.entity.DataVisualizationInfo;
@@ -55,6 +56,10 @@ public class CoreVisualizationManage {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private DataVisualizationService dataVisualizationService;
+
+
     @XpackInteract(value = "visualizationResourceTree", replace = true)
     public List<BusiNodeVO> tree(BusiNodeRequest request) {
         List<VisualizationNodeBO> nodes = new ArrayList<>();
@@ -67,7 +72,7 @@ public class CoreVisualizationManage {
         queryWrapper.eq(ObjectUtils.isNotEmpty(request.getLeaf()), "node_type", ObjectUtils.isNotEmpty(request.getLeaf()) && request.getLeaf() ? "leaf" : "folder");
         queryWrapper.eq("type", request.getBusiFlag());
         if (StpUtil.isLogin() && !Objects.equals(StpUtil.getLoginIdAsString(), "1")) {
-            queryWrapper.eq("create_by", StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1");
+            queryWrapper.in("id", dataVisualizationService.selectAuthorizedResourceIdsWithSelect());
         }
         queryWrapper.orderByDesc("create_time");
         List<VisualizationNodePO> pos = extMapper.queryNodes(queryWrapper);

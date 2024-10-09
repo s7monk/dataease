@@ -31,6 +31,7 @@ import io.dataease.license.utils.LicenseUtil;
 import io.dataease.model.BusiNodeRequest;
 import io.dataease.model.BusiNodeVO;
 import io.dataease.operation.manage.CoreOptRecentManage;
+import io.dataease.service.DataSetService;
 import io.dataease.service.UserService;
 import io.dataease.system.manage.CoreUserManage;
 import io.dataease.utils.*;
@@ -85,6 +86,9 @@ public class DatasetGroupManage {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DataSetService dataSetService;
 
 
     @Transactional
@@ -221,7 +225,7 @@ public class DatasetGroupManage {
 
         queryWrapper.orderByDesc("create_time");
         if (!Objects.equals(userId, "1")) {
-            queryWrapper.eq("create_by", userId);
+            queryWrapper.in("id", dataSetService.selectAuthorizedResourceIdsWithSelect());
         }
         queryWrapper.orderByDesc("create_time");
         List<DataSetNodePO> pos = coreDataSetExtMapper.query(queryWrapper);

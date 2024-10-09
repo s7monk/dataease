@@ -89,4 +89,96 @@ public class DataVisualizationServiceImpl extends ServiceImpl<DataVisualizationM
         return new ArrayList<>(resourceIds);
     }
 
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithSelect() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithSelect(roles, 1);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithSelect(userId, 1);
+        List<DataVisualization> dataVisualizations = selectDataVisualizationByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(DataVisualization::getId)
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
+
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithShare() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithShare(roles, 1);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithShare(userId, 1);
+        List<DataVisualization> dataVisualizations = selectDataVisualizationByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(DataVisualization::getId)
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
+
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithManage() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithManage(roles, 1);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithManage(userId, 1);
+        List<DataVisualization> dataVisualizations = selectDataVisualizationByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(DataVisualization::getId)
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
+
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithExport() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithExport(roles, 1);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithExport(userId, 1);
+        List<DataVisualization> dataVisualizations = selectDataVisualizationByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(DataVisualization::getId)
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
+
 }

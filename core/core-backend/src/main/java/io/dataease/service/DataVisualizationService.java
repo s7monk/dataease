@@ -14,4 +14,12 @@ public interface DataVisualizationService extends IService<DataVisualization> {
     List<DataVisualization> selectDataVisualizationByLoginId();
 
     List<String> selectAuthorizedResourceIds();
+
+    List<String> selectAuthorizedResourceIdsWithSelect();
+
+    List<String> selectAuthorizedResourceIdsWithShare();
+
+    List<String> selectAuthorizedResourceIdsWithManage();
+
+    List<String> selectAuthorizedResourceIdsWithExport();
 }

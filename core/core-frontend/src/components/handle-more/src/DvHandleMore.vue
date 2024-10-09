@@ -2,7 +2,7 @@
 import { Icon } from '@/components/icon-custom'
 import { propTypes } from '@/utils/propTypes'
 import type { Placement } from 'element-plus-secondary'
-import { ref, PropType } from 'vue'
+import { ref, PropType, watch } from 'vue'
 import ShareHandler from '@/views/share/share/ShareHandler.vue'
 export interface Menu {
   svgName?: string
@@ -34,14 +34,20 @@ const props = defineProps({
 })
 
 const shareComponent = ref(null)
-const menus = ref([
-  ...props.menuList.map(item => {
-    if (!props.anyManage && (item.command === 'copy' || item.command === 'move')) {
-      item.hidden = true
-    }
+
+const menus = ref<Menu[]>([])
+const updateMenus = () => {
+  menus.value = JSON.parse(JSON.stringify(props.menuList)).map((item: Menu) => {
+    item.hidden = (!props.node || props.node.isManage === false) &&
+      ['copy', 'move', 'rename', 'delete'].includes(item.command);
     return item
   })
-])
+}
+
+watch(() => props.node, () => {
+  updateMenus()
+}, { deep: true, immediate: true })
+
 const handleCommand = (command: string | number | object) => {
   if (command === 'share') {
     // shareComponent.value.invokeMethod({ methodName: 'execute' })

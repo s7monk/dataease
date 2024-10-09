@@ -194,7 +194,7 @@ const getMenuTreeselect = () => {
 
   roleMenuApi(params).then(response => {
     const filteredMenuOptions = response.data.data.filter(item => {
-      return !['dataset-form', 'datasource-form', 'sys-setting'].includes(item.label);
+      return !['dataset-form', 'datasource-form', 'sys-setting', 'template-market'].includes(item.label);
     });
     menuOptions.value = filteredMenuOptions;
   });
@@ -247,7 +247,6 @@ const handleSubmit = async () => {
 
         let response;
         if (isEditMode.value) {
-          // 这里应该调用更新角色的API
           response = await roleUpdateApi(form);
         } else {
           response = await roleCreateApi(form);
@@ -272,24 +271,40 @@ const handleSubmit = async () => {
   }
 };
 
-async function getDetail(role) {
-  const res = await getPermissionByRoleId(role.id)
-  const { checkedKeys } = res.data.data
-  form.id = role.id;
-  form.roleName = role.roleName;
-  form.roleKey = role.roleKey;
-  form.enabled = role.enabled;
-  form.remark = role.remark;
-  form.menuIds = checkedKeys;
+function getDetail(role) {
+  getPermissionByRoleId(role.id).then(res => {
+    const { checkedKeys } = res.data.data
+    form.id = role.id;
+    form.roleName = role.roleName;
+    form.roleKey = role.roleKey;
+    form.enabled = role.enabled;
+    form.remark = role.remark;
+    form.menuIds = checkedKeys;
+  })
 }
 
-const openEditDialog =async (role) => {
-  isEditMode.value = true;
-  await getDetail(role)
-  if (menuTreeRef.value) {
-    menuTreeRef.value.setCheckedKeys(form.menuIds);
-  }
-  dialogFormVisible.value = true;
+const openEditDialog = (role) => {
+  nextTick(() => {
+    isEditMode.value = true;
+    form.id = role.id;
+    form.roleName = role.roleName;
+    form.roleKey = role.roleKey;
+    form.enabled = role.enabled;
+    form.remark = role.remark;
+    getPermissionByRoleId(role.id).then(res => {
+      const { checkedKeys } = res.data.data
+      console.log(checkedKeys)
+      nextTick(() => {
+        if (menuTreeRef.value) {
+          checkedKeys.map((v) => {
+            console.log(v)
+            menuTreeRef.value.setChecked(v,true,false);
+          })
+        }
+      });
+    })
+    dialogFormVisible.value = true;
+  })
 }
 
 const confirmDeleteRole = (roleId) => {
@@ -439,7 +454,7 @@ onMounted(() => {
       </grid-table>
     </div>
     <el-dialog
-      title="添加角色"
+      :title="isEditMode ? '修改角色' : '添加角色'"
       v-model="dialogFormVisible"
       width="560px"
     >

@@ -36,6 +36,42 @@ public class RoleResourceServiceImpl extends ServiceImpl<RoleResourceMapper, Rol
     }
 
     @Override
+    public List<RoleResource> selectAuthorizedResourceByRoleIdsWithSelect(List<Integer> roleIds, Integer resourceType) {
+        QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("role_id", roleIds);
+        queryWrapper.eq("is_select", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return roleResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<RoleResource> selectAuthorizedResourceByRoleIdsWithShare(List<Integer> roleIds, Integer resourceType) {
+        QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("role_id", roleIds);
+        queryWrapper.eq("is_share", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return roleResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<RoleResource> selectAuthorizedResourceByRoleIdsWithManage(List<Integer> roleIds, Integer resourceType) {
+        QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("role_id", roleIds);
+        queryWrapper.eq("is_manage", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return roleResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<RoleResource> selectAuthorizedResourceByRoleIdsWithExport(List<Integer> roleIds, Integer resourceType) {
+        QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("role_id", roleIds);
+        queryWrapper.eq("is_export", 1);
+        queryWrapper.eq("resource_type", resourceType);
+        return roleResourceMapper.selectList(queryWrapper);
+    }
+
+    @Override
     public List<RoleResource> selectResourceByResourceId(String resourceId) {
         QueryWrapper<RoleResource> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("resource_id", resourceId);

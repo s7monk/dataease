@@ -6,6 +6,9 @@ export interface BusiTreeNode {
   weight: number
   extraFlag: number
   children?: BusiTreeNode[]
+  isManage?: boolean
+  isShare?: boolean
+  isExport?: boolean
 }
 
 export interface BusiTreeRequest {
