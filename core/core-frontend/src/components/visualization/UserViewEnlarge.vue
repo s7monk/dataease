@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import ComponentWrapper from '@/components/data-visualization/canvas/ComponentWrapper.vue'
-import { computed, h, nextTick, ref } from 'vue'
+import { computed, h, nextTick, ref, watch } from 'vue'
 import { toPng } from 'html-to-image'
 import { useI18n } from '@/hooks/web/useI18n'
 import { deepCopy } from '@/utils/utils'
@@ -128,6 +128,7 @@ import { assign } from 'lodash-es'
 import { useEmitt } from '@/hooks/web/useEmitt'
 import { ElMessage, ElButton } from 'element-plus-secondary'
 import { exportPivotExcel } from '@/views/chart/components/js/panel/common/common_table'
+import {authorizedResourceIdsWithExport} from "@/api/dataView";
 const downLoading = ref(false)
 const dvMainStore = dvMainStoreWithOut()
 const dialogShow = ref(false)
@@ -178,7 +179,19 @@ const DETAIL_TABLE_ATTR: DeepPartial<ChartObj> = {
   }
 }
 
-const authShow = computed(() => editMode.value === 'edit' || dvInfo.value.weight > 3)
+//const authShow = computed(() => editMode.value === 'edit' || dvInfo.value.weight > 3)
+const authShow = ref(false)
+const exportedIds = async () => {
+  const response = await authorizedResourceIdsWithExport()
+  const exportedIdsList = response.data || []
+  console.log(dvInfo.value.id)
+  if (exportedIdsList.includes(dvInfo.value.id))
+    authShow.value = true
+}
+
+watch(() => dvInfo.value.id, () => {
+  exportedIds()
+}, { deep: true, immediate: true })
 
 const customExport = computed(() => {
   if (downLoading.value) {

@@ -38,8 +38,11 @@ const shareComponent = ref(null)
 const menus = ref<Menu[]>([])
 const updateMenus = () => {
   menus.value = JSON.parse(JSON.stringify(props.menuList)).map((item: Menu) => {
-    item.hidden = (!props.node || props.node.isManage === false) &&
-      ['copy', 'move', 'rename', 'delete'].includes(item.command);
+    if (((!props.node || props.node.isManage === false) &&
+      ['copy', 'move', 'rename', 'delete'].includes(item.command))
+      || ((!props.node || props.node.isShare === false) && item.command === 'share')) {
+      item.hidden = true
+    }
     return item
   })
 }
@@ -99,6 +102,7 @@ const emit = defineEmits(['handleCommand'])
     :resource-type="props.resourceType"
     :weight="node.weight"
     @loaded="callBack"
+    :isShare="node.isShare"
   />
 </template>
 

@@ -186,4 +186,5 @@ export interface Node {
   paramsConfiguration?: ApiConfiguration[]
   weight?: number
   lastSyncTime?: number | string
+  isManage?: boolean
 }

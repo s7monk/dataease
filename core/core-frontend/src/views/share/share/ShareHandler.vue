@@ -158,7 +158,8 @@ const props = defineProps({
   resourceId: propTypes.string.def(''),
   resourceType: propTypes.string.def(''),
   weight: propTypes.number.def(0),
-  isButton: propTypes.bool.def(false)
+  isButton: propTypes.bool.def(false),
+  isShare: propTypes.bool.def(false)
 })
 const pwdRef = ref(null)
 const loadingInstance = ref<any>(null)
@@ -489,7 +490,7 @@ defineExpose({
 })
 
 onMounted(() => {
-  if (!props.inGrid && props.weight >= 7) {
+  if (!props.inGrid && props.weight >= 7 && props.isShare) {
     const commandInfo = {
       label: '分享',
       command: 'share',

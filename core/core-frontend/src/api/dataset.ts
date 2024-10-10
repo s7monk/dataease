@@ -67,6 +67,9 @@ export interface Table {
   type: string
   unableCheck?: boolean
 }
+
+export const authorizedDataSetIdsWithManage = () => request.get({ url: `/dataSet/manage` })
+
 // 获取权限路
 // edit
 export const saveDatasetTree = async (data: DatasetOrFolder): Promise<IResponse> => {

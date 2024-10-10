@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, toRefs, watch, nextTick, computed } from 'vue'
 import { copyResource, deleteLogic, ResourceOrFolder } from '@/api/visualization/dataVisualization'
-import { authorizedResourceIdsWithManage } from '@/api/dataView'
+import { authorizedResourceIdsWithManage, authorizedResourceIdsWithShare } from '@/api/dataView'
 import { ElIcon, ElMessage, ElMessageBox, ElScrollbar } from 'element-plus-secondary'
 import { Icon } from '@/components/icon-custom'
 import { useEmitt } from '@/hooks/web/useEmitt'
@@ -451,12 +451,13 @@ const sortTypeTip = computed(() => {
   return sortList.find(ele => ele.value === state.curSortType).name
 })
 
-const updateIsManage = (tree: BusiTreeNode[], authorizedIds: (string | number)[]) => {
+const updateIsManage = (tree: BusiTreeNode[], authorizedIds: (string | number)[], authorizedShareIds: (string | number)[]) => {
   tree.forEach(node => {
     node.isManage = authorizedIds.includes(node.id)
+    node.isShare = authorizedShareIds.includes(node.id)
 
     if (node.children && node.children.length > 0) {
-      updateIsManage(node.children, authorizedIds)
+      updateIsManage(node.children, authorizedIds, authorizedShareIds)
     }
   })
 }
@@ -466,10 +467,13 @@ const sortTypeChange = async (sortType: string) => {
     const response = await authorizedResourceIdsWithManage()
     const authorizedIds = response.data || []
 
+    const responseShare = await authorizedResourceIdsWithShare()
+    const authorizedShareIds = responseShare.data || []
+
     state.resourceTree = treeSort(state.originResourceTree, sortType)
     state.curSortType = sortType
 
-    updateIsManage(state.resourceTree, authorizedIds)
+    updateIsManage(state.resourceTree, authorizedIds, authorizedShareIds)
 
     wsCache.set('TreeSort-' + curCanvasType.value, state.curSortType)
   } catch (error) {
@@ -654,6 +658,7 @@ defineExpose({
                 :any-manage="anyManage"
                 :resource-type="curCanvasType"
                 :menu-list="data.leaf ? menuList : state.folderMenuList"
+                v-if="(data.leaf && (data.isManage || data.isShare)) || (!data.leaf && data.isManage)"
               ></dv-handle-more>
             </div>
           </span>

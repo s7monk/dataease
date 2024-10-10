@@ -186,11 +186,12 @@ import { RefreshLeft } from '@element-plus/icons-vue'
 import { ElMessage, ElTooltip, ElButton } from 'element-plus-secondary'
 import CustomTabsSort from '@/custom-component/de-tabs/CustomTabsSort.vue'
 import { exportPivotExcel } from '@/views/chart/components/js/panel/common/common_table'
+import {authorizedResourceIdsWithExport} from '@/api/dataView'
 const dvMainStore = dvMainStoreWithOut()
 const snapshotStore = snapshotStoreWithOut()
 const copyStore = copyStoreWithOut()
 const customTabsSortRef = ref(null)
-const authShow = computed(() => !dvInfo.value.weight || dvInfo.value.weight > 3)
+
 const emits = defineEmits([
   'userViewEnlargeOpen',
   'closePreview',
@@ -290,6 +291,19 @@ const {
   mobileInPc,
   dvInfo
 } = storeToRefs(dvMainStore)
+
+const authShow = ref(false)
+const exportedIds = async () => {
+  const response = await authorizedResourceIdsWithExport()
+  const exportedIdsList = response.data || []
+  console.log(dvInfo.value.id)
+  if (exportedIdsList.includes(dvInfo.value.id))
+    authShow.value = true
+}
+
+watch(() => dvInfo.value.id, () => {
+  exportedIds()
+}, { deep: true, immediate: true })
 
 const state = reactive({
   systemOS: 'Mac',

@@ -107,4 +107,27 @@ public class DataSetServiceImpl extends ServiceImpl<DataSetMapper, DataSet> impl
 
         return new ArrayList<>(resourceIds);
     }
+
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithManage() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithManage(roles, 2);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithManage(userId, 2);
+        List<DataSet> dataVisualizations = selectDataSetByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(item -> String.valueOf(item.getId()))
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
 }

@@ -17,4 +17,6 @@ public interface DataSetService extends IService<DataSet> {
     List<String> selectAuthorizedResourceIds();
 
     List<String> selectAuthorizedResourceIdsWithSelect();
+
+    List<String> selectAuthorizedResourceIdsWithManage();
 }

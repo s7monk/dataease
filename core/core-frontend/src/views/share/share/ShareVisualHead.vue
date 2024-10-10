@@ -143,6 +143,7 @@ import { ElMessage, ElLoading } from 'element-plus-secondary'
 import useClipboard from 'vue-clipboard3'
 import ShareTicket from './ShareTicket.vue'
 import { useEmbedded } from '@/store/modules/embedded'
+import {authorizedResourceIdsWithShare} from "@/api/dataView";
 const embeddedStore = useEmbedded()
 const { toClipboard } = useClipboard()
 const { t } = useI18n()
@@ -196,7 +197,14 @@ const clickOutPopover = e => {
   }
   hideShare()
 }
-const openPopover = () => {
+const openPopover = async () => {
+  const response = await authorizedResourceIdsWithShare()
+  const authorizedIds = response.data || []
+  if (!authorizedIds.includes(props.resourceId)) {
+    ElMessage.warning('当前用户暂无分享权限，请联系管理员授权');
+    return;
+  }
+
   if (!popoverVisible.value) {
     showTicket.value = false
     popoverVisible.value = true

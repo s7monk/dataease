@@ -4,6 +4,7 @@ import { dsTypes } from '@/views/visualized/data/datasource/form/option'
 import type { TabPaneName, ElMessageBoxOptions } from 'element-plus-secondary'
 import { ElIcon, ElMessageBox, ElMessage, ElScrollbar, ElAside } from 'element-plus-secondary'
 import GridTable from '@/components/grid-table/src/GridTable.vue'
+import { authorizedDataSourceIdsWithManage } from '@/api/datasource'
 import ArrowSide from '@/views/common/DeResourceArrow.vue'
 import { HandleMore } from '@/components/handle-more'
 import { Icon } from '@/components/icon-custom'
@@ -46,6 +47,7 @@ import treeSort from '@/utils/treeSortUtils'
 import { useCache } from '@/hooks/web/useCache'
 import { useEmbedded } from '@/store/modules/embedded'
 import { XpackComponent } from '@/components/plugin'
+import {authorizedDataSetIdsWithManage} from "@/api/dataset";
 const route = useRoute()
 const interactiveStore = interactiveStoreWithOut()
 interface Field {
@@ -169,11 +171,31 @@ const selectDataset = row => {
 
 let originResourceTree = []
 
-const sortTypeChange = sortType => {
-  state.datasourceTree = treeSort(originResourceTree, sortType)
-  state.curSortType = sortType
-  wsCache.set('TreeSort-datasource', state.curSortType)
+const updateIsManage = (tree: BusiTreeNode[], authorizedIds: (string | number)[]) => {
+  tree.forEach(node => {
+    node.isManage = authorizedIds.includes(node.id)
+
+    if (node.children && node.children.length > 0) {
+      updateIsManage(node.children, authorizedIds)
+    }
+  })
 }
+
+const sortTypeChange = async (sortType: string) => {
+  try {
+    const response = await authorizedDataSourceIdsWithManage()
+    const authorizedIds = response.data || []
+
+    state.datasourceTree = treeSort(originResourceTree, sortType)
+    state.curSortType = sortType
+
+    updateIsManage(state.datasourceTree, authorizedIds)
+    wsCache.set('TreeSort-datasource', state.curSortType)
+  } catch (error) {
+    console.error('Failed to fetch authorized resource IDs or update tree:', error)
+  }
+}
+
 const handleSizeChange = pageSize => {
   state.paginationConfig.currentPage = 1
   state.paginationConfig.pageSize = pageSize
@@ -366,7 +388,8 @@ const defaultInfo = {
   configuration: null,
   syncSetting: null,
   apiConfiguration: [],
-  weight: 0
+  weight: 0,
+  isManage: false,
 }
 const nodeInfo = reactive<Node>(cloneDeep(defaultInfo))
 const infoList = computed(() => {
@@ -533,6 +556,7 @@ const handleNodeClick = data => {
       weight: data.weight,
       lastSyncTime
     })
+    nodeInfo.isManage = data.isManage
     activeTab.value = ''
     activeName.value = 'config'
     nickName.value = ''
@@ -606,6 +630,10 @@ const filterNode = (value: string, data: BusiTreeNode) => {
 }
 
 const editDatasource = (editType?: number) => {
+  if (!nodeInfo.isManage) {
+    ElMessage.warning('当前用户暂无编辑权限，请联系管理员授权');
+    return;
+  }
   if (nodeInfo.type === 'Excel') {
     nodeInfo.editType = editType
   }
@@ -988,7 +1016,7 @@ const getMenuList = (val: boolean) => {
                   :class="data.type === 'Excel' && 'excel'"
                   >{{ node.label }}</span
                 >
-                <div class="icon-more" v-if="data.weight >= 7">
+                <div class="icon-more" v-if="data.weight >= 7 && data.isManage">
                   <handle-more
                     icon-size="24px"
                     @handle-command="cmd => handleDatasourceTree(cmd, data)"

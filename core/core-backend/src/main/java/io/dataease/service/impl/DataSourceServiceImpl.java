@@ -107,4 +107,27 @@ public class DataSourceServiceImpl extends ServiceImpl<DataSourceMapper, DataSou
 
         return new ArrayList<>(resourceIds);
     }
+
+    @Override
+    public List<String> selectAuthorizedResourceIdsWithManage() {
+        int userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : 1;
+        List<Integer> roles = roleService.selectRoleListByUserId(userId);
+        List<RoleResource> roleResources = roleResourceService.selectAuthorizedResourceByRoleIdsWithManage(roles, 3);
+        List<UserResource> userResources = userResourceService.selectAuthorizedResourceByUidWithManage(userId, 3);
+        List<DataSource> dataVisualizations = selectDataSourceByLoginId();
+
+        Set<String> resourceIds = roleResources.stream()
+                .map(RoleResource::getResourceId)
+                .collect(Collectors.toSet());
+
+        resourceIds.addAll(userResources.stream()
+                .map(UserResource::getResourceId)
+                .collect(Collectors.toSet()));
+
+        resourceIds.addAll(dataVisualizations.stream()
+                .map(item -> String.valueOf(item.getId()))
+                .collect(Collectors.toSet()));
+
+        return new ArrayList<>(resourceIds);
+    }
 }

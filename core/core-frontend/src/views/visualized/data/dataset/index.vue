@@ -1,6 +1,7 @@
 <script lang="tsx" setup>
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, shallowRef, computed, watch, onBeforeMount, nextTick, unref } from 'vue'
+import { authorizedDataSetIdsWithManage } from '@/api/dataset'
 import ArrowSide from '@/views/common/DeResourceArrow.vue'
 import { useEmbedded } from '@/store/modules/embedded'
 import { useEmitt } from '@/hooks/web/useEmitt'
@@ -38,6 +39,7 @@ import { timestampFormatDate } from './form/util'
 import { interactiveStoreWithOut } from '@/store/modules/interactive'
 import { XpackComponent } from '@/components/plugin'
 import { useCache } from '@/hooks/web/useCache'
+import {authorizedResourceIdsWithExport} from "@/api/dataView";
 const interactiveStore = interactiveStoreWithOut()
 const { wsCache } = useCache()
 interface Field {
@@ -56,6 +58,7 @@ interface Node {
   nodeType: string
   createTime: number
   weight: number
+  isManage: boolean
 }
 const appStore = useAppStoreWithOut()
 const rootManage = ref(false)
@@ -87,10 +90,29 @@ const resourceOptFinish = param => {
 
 let originResourceTree = []
 
-const sortTypeChange = sortType => {
-  state.datasetTree = treeSort(originResourceTree, sortType)
-  state.curSortType = sortType
-  wsCache.set('TreeSort-dataset', state.curSortType)
+const updateIsManage = (tree: BusiTreeNode[], authorizedIds: (string | number)[]) => {
+  tree.forEach(node => {
+    node.isManage = authorizedIds.includes(node.id)
+
+    if (node.children && node.children.length > 0) {
+      updateIsManage(node.children, authorizedIds)
+    }
+  })
+}
+
+const sortTypeChange = async (sortType: string) => {
+  try {
+    const response = await authorizedDataSetIdsWithManage()
+    const authorizedIds = response.data || []
+
+    state.datasetTree = treeSort(originResourceTree, sortType)
+    state.curSortType = sortType
+
+    updateIsManage(state.datasetTree, authorizedIds)
+    wsCache.set('TreeSort-dataset', state.curSortType)
+  } catch (error) {
+    console.error('Failed to fetch authorized resource IDs or update tree:', error)
+  }
 }
 
 const resourceCreate = (pid, name) => {
@@ -129,7 +151,8 @@ const defaultNode = {
   id: '',
   nodeType: '',
   createTime: 0,
-  weight: 0
+  weight: 0,
+  isManage: false,
 }
 
 const nodeInfo = reactive<Node>(cloneDeep(defaultNode))
@@ -276,6 +299,7 @@ const handleNodeClick = (data: BusiTreeNode) => {
     const nodeData = res as unknown as Node[]
     Object.assign(nodeInfo, nodeData)
     nodeInfo.weight = data.weight
+    nodeInfo.isManage = data.isManage
     columnsPreview = []
     dataPreview = []
     activeName.value = 'dataPreview'
@@ -284,6 +308,10 @@ const handleNodeClick = (data: BusiTreeNode) => {
 }
 
 const editorDataset = () => {
+  if (!nodeInfo.isManage) {
+    ElMessage.warning('当前用户暂无编辑权限，请联系管理员授权');
+    return;
+  }
   handleEdit(nodeInfo.id)
 }
 const embedded = useEmbedded()
@@ -662,7 +690,7 @@ const getMenuList = (val: boolean) => {
                   <Icon name="icon_dataset"></Icon>
                 </el-icon>
                 <span :title="node.label" class="label-tooltip ellipsis">{{ node.label }}</span>
-                <div class="icon-more" v-if="data.weight >= 7">
+                <div class="icon-more" v-if="data.weight >= 7 && data.isManage">
                   <handle-more
                     icon-size="24px"
                     @handle-command="cmd => handleDatasetTree(cmd, data)"

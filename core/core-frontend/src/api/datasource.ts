@@ -34,6 +34,8 @@ export interface Table {
   unableCheck?: boolean
 }
 
+export const authorizedDataSourceIdsWithManage = () => request.get({ url: `/dataSource/manage` })
+
 export const listDatasources = data => {
   return request
     .post({ url: '/datasource/tree', data: { ...data, ...{ busiFlag: 'datasource' } } })

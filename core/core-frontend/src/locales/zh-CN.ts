@@ -2486,5 +2486,9 @@ export default {
     role_delete: '删除角色',
     auth_select: '查看权限',
     auth_add: '添加权限',
+    panel_dir_create: '新建文件夹',
+    panel_create: '新建数据看板',
+    screen_dir_create: '新建文件夹',
+    screen_create: '新建数据大屏',
   }
 }

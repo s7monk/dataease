@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { dvMainStoreWithOut } from '@/store/modules/data-visualization/dvMain'
-import { storeToRefs } from 'pinia'
-import { useI18n } from '@/hooks/web/useI18n'
-import { useAppStoreWithOut } from '@/store/modules/app'
+import {dvMainStoreWithOut} from '@/store/modules/data-visualization/dvMain'
+import {storeToRefs} from 'pinia'
+import {useI18n} from '@/hooks/web/useI18n'
+import {useAppStoreWithOut} from '@/store/modules/app'
 import DvDetailInfo from '@/views/common/DvDetailInfo.vue'
-import { useEmbedded } from '@/store/modules/embedded'
-import { storeApi, storeStatusApi } from '@/api/visualization/dataVisualization'
-import { ref, watch, computed } from 'vue'
+import {useEmbedded} from '@/store/modules/embedded'
+import {storeApi, storeStatusApi} from '@/api/visualization/dataVisualization'
+import {computed, ref, watch} from 'vue'
 import ShareVisualHead from '@/views/share/share/ShareVisualHead.vue'
-import { XpackComponent } from '@/components/plugin'
-import { useEmitt } from '@/hooks/web/useEmitt'
+import {XpackComponent} from '@/components/plugin'
+import {useEmitt} from '@/hooks/web/useEmitt'
 import DeFullscreen from '@/components/visualization/common/DeFullscreen.vue'
+import {authorizedResourceIdsWithExport, authorizedResourceIdsWithManage} from '@/api/dataView'
+import {ElMessage} from "element-plus-secondary";
+
 const dvMainStore = dvMainStoreWithOut()
 const appStore = useAppStoreWithOut()
 const { dvInfo } = storeToRefs(dvMainStore)
@@ -40,7 +43,24 @@ const downloadAsAppTemplate = downloadType => {
   emit('downloadAsAppTemplate', downloadType)
 }
 
-const dvEdit = () => {
+const exportedIdsList = ref([]);
+const exportedIds = async () => {
+  const response = await authorizedResourceIdsWithExport()
+  exportedIdsList.value = response.data || []
+}
+
+watch(() => dvInfo.value.id, () => {
+  exportedIds()
+}, { deep: true, immediate: true })
+
+const dvEdit = async () => {
+  const response = await authorizedResourceIdsWithManage()
+  const authorizedIds = response.data || []
+  if (!authorizedIds.includes(dvInfo.value.id)) {
+    ElMessage.warning('当前用户暂无编辑权限，请联系管理员授权');
+    return;
+  }
+
   if (isDataEaseBi.value || isIframe.value) {
     embeddedStore.clearState()
     if (dvInfo.value.type === 'dataV') {
@@ -188,7 +208,7 @@ const timeZones = ref([
               style="width: 100%"
               trigger="hover"
               placement="left-start"
-              v-if="dvInfo.weight > 3"
+              v-if="dvInfo.weight > 3 && exportedIdsList.includes(dvInfo.id)"
             >
               <div class="ed-dropdown-menu__item flex-align-center icon">
                 <el-icon><Download /></el-icon>
