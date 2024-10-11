@@ -17,7 +17,9 @@ import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus-secondary'
 import { personInfoApi } from '@/api/user'
 import AppExportForm from '@/components/de-app/AppExportForm.vue'
+import { useUserStoreWithOut } from '@/store/modules/user'
 const appExportFormRef = ref(null)
+const userStore = useUserStoreWithOut()
 
 const dvMainStore = dvMainStoreWithOut()
 const previewCanvasContainer = ref(null)
@@ -71,6 +73,10 @@ const mounted = computed(() => {
 })
 
 function createNew() {
+  if (!userStore.getPerms.includes('panel:create')) {
+    ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
+    return;
+  }
   resourceTreeRef.value?.createNewObject()
 }
 

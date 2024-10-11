@@ -29,6 +29,7 @@ import { cloneDeep } from 'lodash-es'
 import { fieldType } from '@/utils/attr'
 import { useAppStoreWithOut } from '@/store/modules/app'
 import treeSort from '@/utils/treeSortUtils'
+import { useUserStoreWithOut } from '@/store/modules/user'
 
 import {
   DEFAULT_CANVAS_STYLE_DATA_LIGHT,
@@ -41,6 +42,7 @@ import { XpackComponent } from '@/components/plugin'
 import { useCache } from '@/hooks/web/useCache'
 import {authorizedResourceIdsWithExport} from "@/api/dataView";
 const interactiveStore = interactiveStoreWithOut()
+const userStore = useUserStoreWithOut()
 const { wsCache } = useCache()
 interface Field {
   fieldShortName: string
@@ -78,6 +80,14 @@ const mounted = ref(false)
 const isDataEaseBi = computed(() => appStore.getIsDataEaseBi)
 const isIframe = computed(() => appStore.getIsIframe)
 const createPanel = path => {
+  if (path === 'dashboard' && !userStore.getPerms.includes('panel:create')) {
+    ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
+    return;
+  } else if (path === 'dvCanvas' && !userStore.getPerms.includes('screen:create')) {
+    ElMessage.warning('当前用户暂无创建数据大屏权限，请联系管理员授权');
+    return;
+  }
+
   const baseUrl = `#/${path}?opt=create&id=${nodeInfo.id}`
   window.open(baseUrl, '_blank')
 }
@@ -332,6 +342,10 @@ const handleEdit = id => {
 }
 
 const createDataset = (data?: BusiTreeNode) => {
+  if (!userStore.getPerms.includes('dataset:create')) {
+    ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
+    return;
+  }
   if (isDataEaseBi.value) {
     embedded.clearState()
     embedded.setdatasetPid(data?.id as string)
@@ -428,9 +442,17 @@ const operation = (cmd: string, data: BusiTreeNode, nodeType: string) => {
 
 const handleDatasetTree = (cmd: string, data?: BusiTreeNode) => {
   if (cmd === 'dataset') {
+    if (!userStore.getPerms.includes('dataset:create')) {
+      ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
+      return;
+    }
     createDataset(data)
   }
   if (cmd === 'folder') {
+    if (!userStore.getPerms.includes('dataset:dir:create')) {
+      ElMessage.warning('当前用户暂无创建文件夹权限，请联系管理员授权');
+      return;
+    }
     creatDsFolder.value.createInit(cmd, data || {})
   }
 }

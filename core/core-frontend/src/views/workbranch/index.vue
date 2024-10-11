@@ -180,21 +180,37 @@ const quickCreate = (flag: number, hasAuth: boolean) => {
   }
 }
 const createPanel = () => {
+  if (!userStore.getPerms.includes('panel:create')) {
+    ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
+    return;
+  }
   const baseUrl = '#/dashboard?opt=create'
   window.open(baseUrl, '_blank')
 }
 
 const createScreen = () => {
+  if (!userStore.getPerms.includes('screen:create')) {
+    ElMessage.warning('当前用户暂无创建数据大屏权限，请联系管理员授权');
+    return;
+  }
   const baseUrl = '#/dvCanvas?opt=create'
   window.open(baseUrl, '_blank')
 }
 const createDataset = () => {
+  if (!userStore.getPerms.includes('dataset:create')) {
+    ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
+    return;
+  }
   let routeData = router.resolve({
     path: '/dataset-form'
   })
   window.open(routeData.href, '_blank')
 }
 const createDatasource = () => {
+  if (!userStore.getPerms.includes('datasource:create')) {
+    ElMessage.warning('当前用户暂无创建数据源权限，请联系管理员授权');
+    return;
+  }
   const baseUrl = '#/data/datasource?opt=create'
   window.open(baseUrl, '_blank')
 }

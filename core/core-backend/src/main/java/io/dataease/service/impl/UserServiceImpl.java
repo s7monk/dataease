@@ -150,17 +150,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userInfoVo.setRoleList(sysRoles);
         // get menu list
         List<SysMenu> sysMenus = new ArrayList<>();
-        userRoleList.forEach(
-                userRole -> {
-                    roleMenuService
-                            .list(
-                                    new LambdaQueryWrapper<RoleMenu>()
-                                            .eq(RoleMenu::getRoleId, userRole.getRoleId()))
-                            .forEach(
-                                    roleMenu -> {
-                                        sysMenus.add(sysMenuService.getById(roleMenu.getMenuId()));
-                                    });
-                });
+        if (user.getId() == 1) {
+            List<SysMenu> list = sysMenuService.list();
+            sysMenus.addAll(list);
+        } else {
+            userRoleList.forEach(
+                    userRole -> {
+                        roleMenuService
+                                .list(
+                                        new LambdaQueryWrapper<RoleMenu>()
+                                                .eq(RoleMenu::getRoleId, userRole.getRoleId()))
+                                .forEach(
+                                        roleMenu -> {
+                                            sysMenus.add(sysMenuService.getById(roleMenu.getMenuId()));
+                                        });
+                    });
+        }
         userInfoVo.setSysMenuList(sysMenus);
 
         userInfoVo.setCurrentTenant(tenantService.getById(1));

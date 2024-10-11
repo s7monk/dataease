@@ -18,6 +18,7 @@ import DvPreview from '@/views/data-visualization/DvPreview.vue'
 import AppExportForm from '@/components/de-app/AppExportForm.vue'
 import { personInfoApi } from '@/api/user'
 import { ElMessage } from 'element-plus-secondary'
+import { useUserStoreWithOut } from '@/store/modules/user'
 
 const dvMainStore = dvMainStoreWithOut()
 const { dvInfo, canvasViewDataInfo } = storeToRefs(dvMainStore)
@@ -30,6 +31,7 @@ const dataInitState = ref(true)
 const downloadStatus = ref(false)
 const { width, node } = useMoveLine('DASHBOARD')
 const appExportFormRef = ref(null)
+const userStore = useUserStoreWithOut()
 const props = defineProps({
   showPosition: {
     required: false,
@@ -61,6 +63,10 @@ const appStore = useAppStoreWithOut()
 const isDataEaseBi = computed(() => appStore.getIsDataEaseBi)
 
 function createNew() {
+  if (!userStore.getPerms.includes('screen:create')) {
+    ElMessage.warning('当前用户暂无创建数据大屏权限，请联系管理员授权');
+    return;
+  }
   resourceTreeRef.value?.createNewObject()
 }
 

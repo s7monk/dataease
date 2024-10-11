@@ -79,6 +79,9 @@ const handleLogin = () => {
       loginApi(param)
         .then(res => {
           const { tokenValue, tokenTimeout } = res.data.data.saTokenInfo
+          const menuList = res.data.data.sysMenuList
+          const allPerms = menuList.map(menu => menu.perms).filter(perm => perm);
+          userStore.setPerms(allPerms);
           userStore.setToken(tokenValue)
           userStore.setExp(tokenTimeout)
           const { id, username, nickname, admin } = res.data.data.user

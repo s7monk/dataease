@@ -48,7 +48,9 @@ import { useCache } from '@/hooks/web/useCache'
 import { useEmbedded } from '@/store/modules/embedded'
 import { XpackComponent } from '@/components/plugin'
 import {authorizedDataSetIdsWithManage} from "@/api/dataset";
+import { useUserStoreWithOut } from '@/store/modules/user'
 const route = useRoute()
+const userStore = useUserStoreWithOut()
 const interactiveStore = interactiveStoreWithOut()
 interface Field {
   fieldShortName: string
@@ -84,6 +86,10 @@ const isDataEaseBi = computed(() => appStore.getIsDataEaseBi)
 const isIframe = computed(() => appStore.getIsIframe)
 const embedded = useEmbedded()
 const createDataset = (tableName?: string) => {
+  if (!userStore.getPerms.includes('dataset:create')) {
+    ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
+    return;
+  }
   if (isDataEaseBi.value) {
     embedded.clearState()
     embedded.setDatasourceId(nodeInfo.id as string)
@@ -565,6 +571,10 @@ const handleNodeClick = data => {
   })
 }
 const createDatasource = (data?: Tree) => {
+  if (!userStore.getPerms.includes('datasource:create')) {
+    ElMessage.warning('当前用户暂无创建数据源权限，请联系管理员授权');
+    return;
+  }
   datasourceEditor.value.init(null, data?.id)
 }
 const showRecord = ref(false)
@@ -755,9 +765,17 @@ const handleCopy = async data => {
 
 const handleDatasourceTree = (cmd: string, data?: Tree) => {
   if (cmd === 'datasource') {
+    if (!userStore.getPerms.includes('datasource:create')) {
+      ElMessage.warning('当前用户暂无创建数据源权限，请联系管理员授权');
+      return;
+    }
     createDatasource(data)
   }
   if (cmd === 'folder') {
+    if (!userStore.getPerms.includes('datasource:dir:create')) {
+      ElMessage.warning('当前用户暂无创建文件夹权限，请联系管理员授权');
+      return;
+    }
     creatDsFolder.value.createInit(cmd, data || {})
   }
 }

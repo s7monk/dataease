@@ -12,6 +12,7 @@ interface UserState {
   oid: string
   language: string
   exp: number
+  perms: string[]
 }
 
 export const userStore = defineStore('user', {
@@ -23,7 +24,8 @@ export const userStore = defineStore('user', {
       nickname: null,
       oid: null,
       language: 'zh-CN',
-      exp: null
+      exp: null,
+      perms: []
     }
   },
   getters: {
@@ -47,6 +49,9 @@ export const userStore = defineStore('user', {
     },
     getExp(): number {
       return this.exp
+    },
+    getPerms(): string[] {
+      return this.perms
     }
   },
   actions: {
@@ -106,6 +111,9 @@ export const userStore = defineStore('user', {
       wsCache.set('user.language', language)
       this.language = language
       locale.setLang(language)
+    },
+    setPerms(perms: string[]) {
+      this.perms = perms
     },
     clear() {
       const keys: string[] = ['token', 'uid', 'name',  'nickname','oid', 'language', 'exp']
