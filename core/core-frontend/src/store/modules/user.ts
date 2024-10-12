@@ -113,10 +113,11 @@ export const userStore = defineStore('user', {
       locale.setLang(language)
     },
     setPerms(perms: string[]) {
+      wsCache.set('user.perms', perms)
       this.perms = perms
     },
     clear() {
-      const keys: string[] = ['token', 'uid', 'name',  'nickname','oid', 'language', 'exp']
+      const keys: string[] = ['token', 'uid', 'name',  'nickname','oid', 'language', 'exp', 'perms']
       keys.forEach(key => wsCache.delete('user.' + key))
     }
   }

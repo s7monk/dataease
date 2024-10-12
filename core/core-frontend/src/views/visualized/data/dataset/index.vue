@@ -80,10 +80,10 @@ const mounted = ref(false)
 const isDataEaseBi = computed(() => appStore.getIsDataEaseBi)
 const isIframe = computed(() => appStore.getIsIframe)
 const createPanel = path => {
-  if (path === 'dashboard' && !userStore.getPerms.includes('panel:create')) {
+  if (path === 'dashboard' && !wsCache.get('user.perms').includes('panel:create')) {
     ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
     return;
-  } else if (path === 'dvCanvas' && !userStore.getPerms.includes('screen:create')) {
+  } else if (path === 'dvCanvas' && !wsCache.get('user.perms').includes('screen:create')) {
     ElMessage.warning('当前用户暂无创建数据大屏权限，请联系管理员授权');
     return;
   }
@@ -342,7 +342,7 @@ const handleEdit = id => {
 }
 
 const createDataset = (data?: BusiTreeNode) => {
-  if (!userStore.getPerms.includes('dataset:create')) {
+  if (!wsCache.get('user.perms').includes('dataset:create')) {
     ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
     return;
   }
@@ -442,14 +442,14 @@ const operation = (cmd: string, data: BusiTreeNode, nodeType: string) => {
 
 const handleDatasetTree = (cmd: string, data?: BusiTreeNode) => {
   if (cmd === 'dataset') {
-    if (!userStore.getPerms.includes('dataset:create')) {
+    if (!wsCache.get('user.perms').includes('dataset:create')) {
       ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
       return;
     }
     createDataset(data)
   }
   if (cmd === 'folder') {
-    if (!userStore.getPerms.includes('dataset:dir:create')) {
+    if (!wsCache.get('user.perms').includes('dataset:dir:create')) {
       ElMessage.warning('当前用户暂无创建文件夹权限，请联系管理员授权');
       return;
     }

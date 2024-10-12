@@ -150,6 +150,7 @@ import { ElMessage, ElLoading } from 'element-plus-secondary'
 import useClipboard from 'vue-clipboard3'
 import ShareTicket from './ShareTicket.vue'
 import { useEmbedded } from '@/store/modules/embedded'
+import { authorizedResourceIdsWithManage, authorizedResourceIdsWithShare } from '@/api/dataView'
 const embeddedStore = useEmbedded()
 const { toClipboard } = useClipboard()
 const { t } = useI18n()
@@ -270,7 +271,13 @@ const closeLoading = () => {
   loadingInstance.value?.close()
 }
 
-const share = () => {
+const share = async () => {
+  const response = await authorizedResourceIdsWithShare()
+  const authorizedIds = response.data || []
+  if (!authorizedIds.includes(props.resourceId)) {
+    ElMessage.warning('当前用户暂无分享权限，请联系管理员授权');
+    return;
+  }
   dialogVisible.value = true
   loadShareInfo()
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DeResourceTree from '@/views/common/DeResourceTree.vue'
 import { dvMainStoreWithOut } from '@/store/modules/data-visualization/dvMain'
-import { reactive, nextTick, ref, toRefs, onBeforeMount, computed } from 'vue'
+import {reactive, nextTick, ref, toRefs, onBeforeMount, computed, onMounted} from 'vue'
 import DePreview from '@/components/data-visualization/canvas/DePreview.vue'
 import PreviewHead from '@/views/data-visualization/PreviewHead.vue'
 import EmptyBackground from '@/components/empty-background/src/EmptyBackground.vue'
@@ -16,10 +16,12 @@ import { download2AppTemplate, downloadCanvas2 } from '@/utils/imgUtils'
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus-secondary'
 import { personInfoApi } from '@/api/user'
+import { useCache } from '@/hooks/web/useCache'
 import AppExportForm from '@/components/de-app/AppExportForm.vue'
 import { useUserStoreWithOut } from '@/store/modules/user'
 const appExportFormRef = ref(null)
 const userStore = useUserStoreWithOut()
+const { wsCache } = useCache()
 
 const dvMainStore = dvMainStoreWithOut()
 const previewCanvasContainer = ref(null)
@@ -73,7 +75,7 @@ const mounted = computed(() => {
 })
 
 function createNew() {
-  if (!userStore.getPerms.includes('panel:create')) {
+  if (!wsCache.get('user.perms').includes('panel:create')) {
     ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
     return;
   }

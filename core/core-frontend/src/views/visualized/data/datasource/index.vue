@@ -86,7 +86,7 @@ const isDataEaseBi = computed(() => appStore.getIsDataEaseBi)
 const isIframe = computed(() => appStore.getIsIframe)
 const embedded = useEmbedded()
 const createDataset = (tableName?: string) => {
-  if (!userStore.getPerms.includes('dataset:create')) {
+  if (!wsCache.get('user.perms').includes('dataset:create')) {
     ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
     return;
   }
@@ -571,7 +571,7 @@ const handleNodeClick = data => {
   })
 }
 const createDatasource = (data?: Tree) => {
-  if (!userStore.getPerms.includes('datasource:create')) {
+  if (!wsCache.get('user.perms').includes('datasource:create')) {
     ElMessage.warning('当前用户暂无创建数据源权限，请联系管理员授权');
     return;
   }
@@ -765,14 +765,14 @@ const handleCopy = async data => {
 
 const handleDatasourceTree = (cmd: string, data?: Tree) => {
   if (cmd === 'datasource') {
-    if (!userStore.getPerms.includes('datasource:create')) {
+    if (!wsCache.get('user.perms').includes('datasource:create')) {
       ElMessage.warning('当前用户暂无创建数据源权限，请联系管理员授权');
       return;
     }
     createDatasource(data)
   }
   if (cmd === 'folder') {
-    if (!userStore.getPerms.includes('datasource:dir:create')) {
+    if (!wsCache.get('user.perms').includes('datasource:dir:create')) {
       ElMessage.warning('当前用户暂无创建文件夹权限，请联系管理员授权');
       return;
     }

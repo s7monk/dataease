@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, shallowRef, computed, reactive, watch } from 'vue'
+import {ref, shallowRef, computed, reactive, watch, onMounted} from 'vue'
 
 import { usePermissionStoreWithOut } from '@/store/modules/permission'
 import { useRequestStoreWithOut } from '@/store/modules/request'
@@ -180,7 +180,7 @@ const quickCreate = (flag: number, hasAuth: boolean) => {
   }
 }
 const createPanel = () => {
-  if (!userStore.getPerms.includes('panel:create')) {
+  if (!wsCache.get('user.perms').includes('panel:create')) {
     ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
     return;
   }
@@ -189,7 +189,7 @@ const createPanel = () => {
 }
 
 const createScreen = () => {
-  if (!userStore.getPerms.includes('screen:create')) {
+  if (!wsCache.get('user.perms').includes('screen:create')) {
     ElMessage.warning('当前用户暂无创建数据大屏权限，请联系管理员授权');
     return;
   }
@@ -197,7 +197,7 @@ const createScreen = () => {
   window.open(baseUrl, '_blank')
 }
 const createDataset = () => {
-  if (!userStore.getPerms.includes('dataset:create')) {
+  if (!wsCache.get('user.perms').includes('dataset:create')) {
     ElMessage.warning('当前用户暂无创建数据集权限，请联系管理员授权');
     return;
   }
@@ -207,7 +207,7 @@ const createDataset = () => {
   window.open(routeData.href, '_blank')
 }
 const createDatasource = () => {
-  if (!userStore.getPerms.includes('datasource:create')) {
+  if (!wsCache.get('user.perms').includes('datasource:create')) {
     ElMessage.warning('当前用户暂无创建数据源权限，请联系管理员授权');
     return;
   }
@@ -216,11 +216,19 @@ const createDatasource = () => {
 }
 
 const templatePreview = previewId => {
+  if (!wsCache.get('user.perms').includes('template:preview')) {
+    ElMessage.warning('当前用户暂无模版预览权限，请联系管理员授权');
+    return;
+  }
   wsCache.set(`template-preview-id`, previewId)
   toTemplateMarket()
 }
 
 const templateApply = template => {
+  if (!wsCache.get('user.perms').includes('template:use')) {
+    ElMessage.warning('当前用户暂无模版应用权限，请联系管理员授权');
+    return;
+  }
   state.dvCreateForm.name = template.title
   state.dvCreateForm.nodeType = template.templateType
   if (template.source === 'market') {
@@ -276,10 +284,18 @@ const initOpenHandler = newWindow => {
 }
 
 const toTemplateMarket = () => {
+  if (!wsCache.get('user.perms').includes('template:select')) {
+    ElMessage.warning('当前用户暂无此查看权限，请联系管理员授权');
+    return;
+  }
   push('/template-market/index')
 }
 
 const toTemplateMarketAdd = () => {
+  if (!wsCache.get('user.perms').includes('template:select')) {
+    ElMessage.warning('当前用户暂无此操作权限，请联系管理员授权');
+    return;
+  }
   if (havePanelAuth.value || haveScreenAuth.value) {
     const params = {
       curPosition: 'branchCreate',
@@ -288,9 +304,9 @@ const toTemplateMarketAdd = () => {
     resourceCreateOpt.value.optInit(params)
   }
 }
-console.log(userStore.getName)
 fillCardInfo()
 initMarketTemplate()
+
 </script>
 
 <template>

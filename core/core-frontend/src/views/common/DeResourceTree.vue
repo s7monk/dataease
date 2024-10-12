@@ -311,16 +311,16 @@ const addOperation = (
   nodeType?: string,
   parentSelect?: boolean
 ) => {
-  if (nodeType === 'folder' && curCanvasType.value === 'dashboard' && !userStore.getPerms.includes('panel:dir:create')) {
+  if (nodeType === 'folder' && curCanvasType.value === 'dashboard' && !wsCache.get('user.perms').includes('panel:dir:create')) {
     ElMessage.warning('当前用户暂无创建文件夹权限，请联系管理员授权');
     return;
-  } else if (nodeType === 'folder' && curCanvasType.value === 'dataV' && !userStore.getPerms.includes('screen:dir:create')) {
+  } else if (nodeType === 'folder' && curCanvasType.value === 'dataV' && !wsCache.get('user.perms').includes('screen:dir:create')) {
     ElMessage.warning('当前用户暂无创建文件夹权限，请联系管理员授权');
     return;
-  } else if (nodeType === 'leaf' && curCanvasType.value === 'dashboard' && !userStore.getPerms.includes('panel:create')) {
+  } else if (nodeType === 'leaf' && curCanvasType.value === 'dashboard' && !wsCache.get('user.perms').includes('panel:create')) {
     ElMessage.warning('当前用户暂无创建数据看板权限，请联系管理员授权');
     return;
-  } else if (nodeType === 'leaf' && curCanvasType.value === 'dataV' && !userStore.getPerms.includes('screen:create')) {
+  } else if (nodeType === 'leaf' && curCanvasType.value === 'dataV' && !wsCache.get('user.perms').includes('screen:create')) {
     ElMessage.warning('当前用户暂无创建数据大屏权限，请联系管理员授权');
     return;
   }

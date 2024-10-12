@@ -25,7 +25,12 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { computed } from 'vue'
 import { imgUrlTrans } from '@/utils/imgUtils'
+import { useUserStoreWithOut } from '@/store/modules/user'
+import { useCache } from '@/hooks/web/useCache'
+import {ElMessage} from "element-plus-secondary";
 const { t } = useI18n()
+const { wsCache } = useCache()
+const userStore = useUserStoreWithOut()
 
 const emits = defineEmits(['templateApply', 'templatePreview'])
 
@@ -79,10 +84,18 @@ const thumbnailUrl = computed(() => {
 })
 
 const apply = () => {
+  if (!wsCache.get('user.perms').includes('template:use')) {
+    ElMessage.warning('当前用户暂无模版应用权限，请联系管理员授权');
+    return;
+  }
   emits('templateApply', props.template)
 }
 
 const templateInnerPreview = () => {
+  if (!wsCache.get('user.perms').includes('template:preview')) {
+    ElMessage.warning('当前用户暂无模版预览权限，请联系管理员授权');
+    return;
+  }
   emits('templatePreview', props.template.id)
 }
 </script>

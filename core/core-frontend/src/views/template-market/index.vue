@@ -183,11 +183,13 @@ import CategoryTemplateV2 from '@/views/template-market/component/CategoryTempla
 import { interactiveStoreWithOut } from '@/store/modules/interactive'
 import { XpackComponent } from '@/components/plugin'
 import { useEmitt } from '@/hooks/web/useEmitt'
+import { useUserStoreWithOut } from '@/store/modules/user'
 import { Base64 } from 'js-base64'
 const { t } = useI18n()
 const { wsCache } = useCache()
 const embeddedStore = useEmbedded()
 const appStore = useAppStoreWithOut()
+const userStore = useUserStoreWithOut()
 const interactiveStore = interactiveStoreWithOut()
 
 // full 正常展示 marketPreview 模板中心预览 createPreview 创建界面预览
@@ -435,6 +437,10 @@ const nextOne = () => {
 }
 
 const templateApply = template => {
+  if (!wsCache.get('user.perms').includes('template:use')) {
+    ElMessage.warning('当前用户暂无模版应用权限，请联系管理员授权');
+    return;
+  }
   state.curApplyTemplate = template
   state.dvCreateForm.name = template.title
   state.dvCreateForm.nodeType = template.templateType
@@ -546,6 +552,10 @@ const templateShow = templateItem => {
 }
 
 const templatePreview = previewId => {
+  if (!wsCache.get('user.perms').includes('template:preview')) {
+    ElMessage.warning('当前用户暂无模版预览权限，请联系管理员授权');
+    return;
+  }
   if (state.curPosition === 'branch') {
     // 模板中心模式
     state.templatePreviewId = previewId

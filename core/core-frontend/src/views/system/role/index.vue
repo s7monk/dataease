@@ -194,7 +194,7 @@ const getMenuTreeselect = () => {
 
   roleMenuApi(params).then(response => {
     const filteredMenuOptions = response.data.data.filter(item => {
-      return !['dataset-form', 'datasource-form', 'sys-setting', 'template-market'].includes(item.label);
+      return !['dataset-form', 'datasource-form', 'sys-setting'].includes(item.label);
     });
     menuOptions.value = filteredMenuOptions;
   });
