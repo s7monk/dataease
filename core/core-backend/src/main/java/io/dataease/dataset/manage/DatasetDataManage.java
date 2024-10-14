@@ -109,7 +109,8 @@ public class DatasetDataManage {
                 // parser sql params and replace default value
                 String originSql = SqlparserUtils.handleVariableDefaultValue(new String(Base64.getDecoder().decode(tableInfoDTO.getSql())), datasetTableDTO.getSqlVariableDetails(), false, false, null, false, datasourceRequest.getDsList(), pluginManage);
                 // add sql table schema
-
+                String replacement = "username = " + "'" + "admin" + "'";
+                originSql = replaceWithGn(originSql, replacement);
                 sql = SQLUtils.buildOriginPreviewSql(SqlPlaceholderConstants.TABLE_PLACEHOLDER, 0, 0);
                 sql = provider.transSqlDialect(sql, datasourceRequest.getDsList());
                 // replace placeholder
@@ -165,6 +166,8 @@ public class DatasetDataManage {
     public Map<String, Object> previewDataWithLimit(DatasetGroupInfoDTO datasetGroupInfoDTO, Integer start, Integer count, boolean checkPermission) throws Exception {
         Map<String, Object> sqlMap = datasetSQLManage.getUnionSQLForEdit(datasetGroupInfoDTO, null);
         String sql = (String) sqlMap.get("sql");
+        String replacement = "username = " + "'" + "admin" + "'";
+        sql = replaceWithGn(sql, replacement);
 
         // 获取allFields
         List<DatasetTableFieldDTO> fields = datasetGroupInfoDTO.getAllFields();
@@ -342,7 +345,8 @@ public class DatasetDataManage {
 
         // parser sql params and replace default value
         String originSql = SqlparserUtils.handleVariableDefaultValue(datasetSQLManage.subPrefixSuffixChar(new String(Base64.getDecoder().decode(dto.getSql()))), dto.getSqlVariableDetails(), true, true, null, false, dsMap, pluginManage);
-
+        String replacement = "username = " + "'" + "admin" + "'";
+        originSql = replaceWithGn(originSql, replacement);
         // sql 作为临时表，外层加上limit
         String sql;
         Provider provider = ProviderFactory.getProvider(datasourceSchemaDTO.getType());
@@ -379,6 +383,10 @@ public class DatasetDataManage {
         map.put("data", previewData);
         map.put("sql", Base64.getEncoder().encodeToString(sql.getBytes()));
         return map;
+    }
+
+    public static String replaceWithGn(String sql, String replacement) {
+        return sql.replaceAll("\\bwithGn\\b", replacement);
     }
 
     public Map<String, Object> buildPreviewData(Map<String, Object> data, List<DatasetTableFieldDTO> fields, Map<String, ColumnPermissionItem> desensitizationList) {

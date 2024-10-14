@@ -1049,6 +1049,7 @@ const datasetSave = () => {
     return
   }
   let union = []
+  console.log(datasetDrag.value.getNodeList())
   dfsNodeList(union, datasetDrag.value.getNodeList())
   const pid = appStore.getIsDataEaseBi ? embeddedStore.datasetPid : route.query.pid || nodeInfo.pid
   if (!union.length) {
@@ -1058,7 +1059,7 @@ const datasetSave = () => {
   if (nodeInfo.pid && !nodeInfo.id) {
     union = resetAllfieldsUnionId(union, resetAllfieldsId(union))
   }
-
+  console.log(union)
   creatDsFolder.value.createInit(
     'dataset',
     { id: pid || '0', union, allfields: allfields.value },
