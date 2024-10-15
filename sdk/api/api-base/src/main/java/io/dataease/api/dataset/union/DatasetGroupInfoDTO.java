@@ -28,4 +28,6 @@ public class DatasetGroupInfoDTO extends DatasetNodeDTO {
     private String creator;
 
     private String updater;
+
+    private String gn;
 }

@@ -189,7 +189,7 @@ onMounted(() => {
               v-for="project in projects"
               :key="project.id"
               @click="handleSelectGn(project.name)"
-              :style="{ backgroundColor: selectedProject === project ? '#EAF0FF' : '', cursor: 'pointer' }"
+              :style="{ backgroundColor: selectedProject === project.name ? '#EAF0FF' : '', cursor: 'pointer' }"
             >
               {{ project.name }}
             </el-dropdown-item>

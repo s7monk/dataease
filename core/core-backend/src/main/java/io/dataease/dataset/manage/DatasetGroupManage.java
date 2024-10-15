@@ -110,7 +110,7 @@ public class DatasetGroupManage {
     public DatasetGroupInfoDTO save(DatasetGroupInfoDTO datasetGroupInfoDTO, boolean rename) throws Exception {
         lock.lock();
         try {
-            String replacement = "username = " + "'" + "admin" + "'";
+           /* String replacement = "username = " + "'" + "admin" + "'";
             List<UnionDTO> union = new ArrayList<>();
             for (UnionDTO unionDTO : datasetGroupInfoDTO.getUnion()) {
                 DatasetTableDTO currentDs = unionDTO.getCurrentDs();
@@ -119,7 +119,7 @@ public class DatasetGroupManage {
                 unionDTO.setCurrentDs(currentDs);
                 union.add(unionDTO);
             }
-            datasetGroupInfoDTO.setUnion(union);
+            datasetGroupInfoDTO.setUnion(union);*/
             String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
             boolean isCreate;
             // 用于重命名获取pid
@@ -137,7 +137,7 @@ public class DatasetGroupManage {
                 Map<String, Object> sqlMap = datasetSQLManage.getUnionSQLForEdit(datasetGroupInfoDTO, null);
                 if (ObjectUtils.isNotEmpty(sqlMap)) {
                     String sql = (String) sqlMap.get("sql");
-                    sql = DataSetUtil.replaceWithGn(sql, replacement);
+                    // sql = DataSetUtil.replaceWithGn(sql, replacement);
                     datasetGroupInfoDTO.setUnionSql(sql);
                     String info = Objects.requireNonNull(JsonUtil.toJSONString(datasetGroupInfoDTO.getUnion())).toString();
                     datasetGroupInfoDTO.setInfo(info);

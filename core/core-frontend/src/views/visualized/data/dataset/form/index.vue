@@ -44,6 +44,8 @@ import type { Table } from '@/api/dataset'
 import DatasetUnion from './DatasetUnion.vue'
 import { cloneDeep, debounce } from 'lodash-es'
 import { XpackComponent } from '@/components/plugin'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 interface DragEvent extends MouseEvent {
   dataTransfer: DataTransfer
 }
@@ -1073,13 +1075,13 @@ const datasetSaveAndBack = () => {
 }
 
 const datasetPreviewLoading = ref(false)
-
+const gn = computed(() => gnStore.getGn);
 const datasetPreview = () => {
   if (datasetPreviewLoading.value) return
   const arr = []
   dfsNodeList(arr, datasetDrag.value.getNodeList())
   datasetPreviewLoading.value = true
-  getPreviewData({ union: arr, allFields: allfields.value })
+  getPreviewData({ union: arr, allFields: allfields.value, gn: gn.value })
     .then(res => {
       columns.value = generateColumns((res.data.fields as Field[]) || [])
       tableData.value = (res.data.data as Array<{}>) || []

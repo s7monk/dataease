@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import { ref, reactive, onMounted, PropType, toRefs, watch, onBeforeUnmount, shallowRef } from 'vue'
+import { ref, reactive, onMounted, PropType, toRefs, watch, onBeforeUnmount, shallowRef, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Base64 } from 'js-base64'
 import FixedSizeList from 'element-plus-secondary/es/components/virtual-list/src/components/fixed-size-list.mjs'
@@ -15,6 +15,7 @@ import GridTable from '@/components/grid-table/src/GridTable.vue'
 import { EmptyBackground } from '@/components/empty-background'
 import { timestampFormatDate, defaultValueScopeList, fieldOptions } from './util'
 import { fieldType } from '@/utils/attr'
+import { useGnStoreWithOut } from "@/store/modules/gn";
 export interface SqlNode {
   sql: string
   tableName: string
@@ -36,6 +37,7 @@ const props = defineProps({
   }
 })
 
+const gnStore = useGnStoreWithOut()
 const { sqlNode } = toRefs(props)
 const { toClipboard } = useClipboard()
 const { t } = useI18n()
@@ -280,13 +282,16 @@ const handleClose = () => {
 }
 
 const dataPreviewLoading = ref(false)
+const gn = computed(() => gnStore.getGn);
+
 const getSQLPreview = () => {
   parseVariable()
   dataPreviewLoading.value = true
   getPreviewSql({
     sql: Base64.encode(codeCom.value.state.doc.toString()),
     datasourceId: sqlNode.value.datasourceId,
-    sqlVariableDetails: JSON.stringify(state.variables)
+    sqlVariableDetails: JSON.stringify(state.variables),
+    gn: gn.value
   })
     .then(res => {
       state.plxTableData = res.data.data

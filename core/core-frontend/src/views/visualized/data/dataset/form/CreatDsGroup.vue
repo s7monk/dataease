@@ -137,7 +137,6 @@ const formatRootMiss = (id: string | number, treeData: Tree[]) => {
   return id
 }
 const createInit = (type, data: Tree, exec, name: string) => {
-  console.log('开始执行createInit')
   pid.value = ''
   id.value = ''
   cmd.value = ''
@@ -229,7 +228,6 @@ const checkPid = pid => {
   return true
 }
 const saveDataset = () => {
-  console.log('开始执行saveDataset')
   dataset.value.validate(result => {
     if (result) {
       const params: DatasetOrFolder = {

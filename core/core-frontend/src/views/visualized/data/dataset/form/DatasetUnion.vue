@@ -14,7 +14,9 @@ import type { SqlNode } from './AddSql.vue'
 import { cloneDeep } from 'lodash-es'
 import type { Table } from '@/api/dataset'
 import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
+import { useGnStoreWithOut } from "@/store/modules/gn";
 const appearanceStore = useAppearanceStoreWithOut()
+const gnStore = useGnStoreWithOut()
 const state = reactive({
   nodeList: [],
   visualNode: null,
@@ -189,6 +191,7 @@ const delNodeFake = (id, arr) => {
 
 const changeSqlId = ref([])
 const changedNodeId = ref([])
+const gn = computed(() => gnStore.getGn);
 const saveSqlNode = (val: SqlNode, cb) => {
   const { tableName, id, sql, datasourceId, sqlVariableDetails = null, changeFlag = false } = val
   if (changeFlag) {
@@ -216,7 +219,8 @@ const saveSqlNode = (val: SqlNode, cb) => {
         id: id,
         info: state.visualNode.info,
         tableName,
-        type: 'sql'
+        type: 'sql',
+        gn: gn.value
       }).then(res => {
         nodeField.value = res as unknown as Field[]
         nodeField.value.forEach(ele => {
@@ -252,7 +256,8 @@ const closeSqlNode = () => {
       id,
       info,
       tableName,
-      type: 'sql'
+      type: 'sql',
+      gn: gn.value
     }).then(res => {
       const idOriginNameMap = allfields.value.reduce((pre, next) => {
         pre[`${next.datasetTableId}${next.originName}`] = next.id
@@ -888,7 +893,7 @@ const drop_handler = ev => {
     })
 
     currentNode.value = state.nodeList[0]
-
+    console.log('我来了啊啊啊啊')
     getTableField({
       datasourceId,
       id: currentNode.value.id,
