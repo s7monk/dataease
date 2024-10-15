@@ -3,6 +3,7 @@ package io.dataease.dataset.manage;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dataease.api.dataset.union.DatasetGroupInfoDTO;
 import io.dataease.api.dataset.union.UnionDTO;
 import io.dataease.api.dataset.vo.DataSetBarVO;
@@ -91,10 +92,34 @@ public class DatasetGroupManage {
     private DataSetService dataSetService;
 
 
+    public static String processInfo(String info, String replacement) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> infoMap = objectMapper.readValue(info, Map.class);
+
+        String encodedSql = (String) infoMap.get("sql");
+        String decodedSql = new String(Base64.getDecoder().decode(encodedSql));
+
+        String replacedSql = DataSetUtil.replaceWithGn(decodedSql, replacement);
+
+        String encodedReplacedSql = Base64.getEncoder().encodeToString(replacedSql.getBytes());
+        infoMap.put("sql", encodedReplacedSql);
+        return objectMapper.writeValueAsString(infoMap);
+    }
+
     @Transactional
     public DatasetGroupInfoDTO save(DatasetGroupInfoDTO datasetGroupInfoDTO, boolean rename) throws Exception {
         lock.lock();
         try {
+            String replacement = "username = " + "'" + "admin" + "'";
+            List<UnionDTO> union = new ArrayList<>();
+            for (UnionDTO unionDTO : datasetGroupInfoDTO.getUnion()) {
+                DatasetTableDTO currentDs = unionDTO.getCurrentDs();
+                String info = currentDs.getInfo();
+                currentDs.setInfo(processInfo(info, replacement));
+                unionDTO.setCurrentDs(currentDs);
+                union.add(unionDTO);
+            }
+            datasetGroupInfoDTO.setUnion(union);
             String userId = StpUtil.isLogin() ? StpUtil.getLoginIdAsString() : "1";
             boolean isCreate;
             // 用于重命名获取pid
@@ -112,8 +137,10 @@ public class DatasetGroupManage {
                 Map<String, Object> sqlMap = datasetSQLManage.getUnionSQLForEdit(datasetGroupInfoDTO, null);
                 if (ObjectUtils.isNotEmpty(sqlMap)) {
                     String sql = (String) sqlMap.get("sql");
+                    sql = DataSetUtil.replaceWithGn(sql, replacement);
                     datasetGroupInfoDTO.setUnionSql(sql);
-                    datasetGroupInfoDTO.setInfo(Objects.requireNonNull(JsonUtil.toJSONString(datasetGroupInfoDTO.getUnion())).toString());
+                    String info = Objects.requireNonNull(JsonUtil.toJSONString(datasetGroupInfoDTO.getUnion())).toString();
+                    datasetGroupInfoDTO.setInfo(info);
                 }
             }
             // save dataset/group

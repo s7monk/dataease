@@ -10,17 +10,17 @@ import { ElHeader, ElMenu } from 'element-plus-secondary'
 import SystemCfg from './SystemCfg.vue'
 import ToolboxCfg from './ToolboxCfg.vue'
 import { useRouter, useRoute } from 'vue-router'
-import TopDoc from '@/layout/components/TopDoc.vue'
 import AccountOperator from '@/layout/components/AccountOperator.vue'
 import { isDesktop } from '@/utils/ModelUtil'
-import { XpackComponent } from '@/components/plugin'
 import { useAppearanceStoreWithOut } from '@/store/modules/appearance'
 import AiComponent from '@/layout/components/AiComponent.vue'
 import { findBaseParams } from '@/api/aiComponent'
 import ExportExcel from '@/views/visualized/data/dataset/ExportExcel.vue'
-import AiTips from '@/layout/components/AiTips.vue'
 import Copilot from '@/layout/components/Copilot.vue'
+import { getActiveProjects } from '@/api/project'
+import { useGnStoreWithOut } from '@/store/modules/gn'
 
+const gnStore = useGnStoreWithOut()
 const appearanceStore = useAppearanceStoreWithOut()
 const { push } = useRouter()
 const route = useRoute()
@@ -43,14 +43,41 @@ const activeIndex = computed(() => {
   }
   return route.path
 })
-
 const permissionStore = usePermissionStore()
 const ExportExcelRef = ref()
-const selectedProject = ref('MG项目')
-const projectNames = ref(['MG项目', 'DBZ项目', 'MTD项目', 'CS项目', 'SG3项目', 'HMTSG3项目']);
+const selectedProject = ref('')
+const defaultProject  = ref(null);
+const projects = ref([])
 const handleSelectGn = (projectName) => {
-  selectedProject.value = projectName;
+  const selected = projects.value.find(project => project.name === projectName)
+  if (selected) {
+    selectedProject.value = selected.name
+    gnStore.setGn(selected.gn)
+  }
 };
+
+const getActiveProject = async () => {
+  try {
+    const response = await getActiveProjects()
+    projects.value = response.data || []
+
+    // 查找默认选中的项目
+    const defaultSelectedProject = projects.value.find(project => project.default_selected === 1)
+
+    if (defaultSelectedProject) {
+      selectedProject.value = defaultSelectedProject.name
+      defaultProject.value = defaultSelectedProject
+      // 存入 gnStore
+      gnStore.setGn(defaultSelectedProject.gn)
+    } else if (projects.value.length > 0) {
+      selectedProject.value = projects.value[0].name
+      defaultProject.value = projects.value[0]
+      gnStore.setGn(projects.value[0].gn)
+    }
+  } catch (error) {
+    console.error('获取项目列表失败', error)
+  }
+}
 
 const downloadClick = params => {
   ExportExcelRef.value.init(params)
@@ -118,6 +145,7 @@ onMounted(() => {
   initShowToolbox()
   initAiBase()
   initCopilotBase()
+  getActiveProject()
   useEmitt({
     name: 'data-export-center',
     callback: function (params) {
@@ -158,12 +186,12 @@ onMounted(() => {
         <template #dropdown>
           <el-dropdown-menu >
             <el-dropdown-item
-              v-for="project in projectNames"
-              :key="project"
-              @click="handleSelectGn(project)"
+              v-for="project in projects"
+              :key="project.id"
+              @click="handleSelectGn(project.name)"
               :style="{ backgroundColor: selectedProject === project ? '#EAF0FF' : '', cursor: 'pointer' }"
             >
-              {{ project }}
+              {{ project.name }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
