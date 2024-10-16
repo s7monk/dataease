@@ -35,4 +35,5 @@ public class ChartViewDTO extends ChartViewBaseDTO {
      */
     @JsonSerialize(using = ToStringSerializer.class)
     private Long sourceTableId;
+    private String gn;
 }

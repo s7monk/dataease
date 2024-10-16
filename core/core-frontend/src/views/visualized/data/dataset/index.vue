@@ -40,6 +40,8 @@ import { timestampFormatDate } from './form/util'
 import { interactiveStoreWithOut } from '@/store/modules/interactive'
 import { XpackComponent } from '@/components/plugin'
 import { useCache } from '@/hooks/web/useCache'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 import {authorizedResourceIdsWithExport} from "@/api/dataView";
 const interactiveStore = interactiveStoreWithOut()
 const userStore = useUserStoreWithOut()
@@ -359,8 +361,9 @@ const createDataset = (data?: BusiTreeNode) => {
     }
   })
 }
-
+const gn = computed(() => gnStore.getGn);
 const handleClick = (tabName: TabPaneName) => {
+  console.log(gn.value)
   switch (tabName) {
     case 'dataPreview':
       if (columnsPreview.length) {
@@ -369,7 +372,7 @@ const handleClick = (tabName: TabPaneName) => {
         break
       }
       dataPreviewLoading.value = true
-      getDatasetPreview(nodeInfo.id)
+      getDatasetPreview(nodeInfo.id, gn.value)
         .then(res => {
           allFields = (res?.allFields as unknown as Field[]) || []
           columnsPreview = generateColumns((res?.data?.fields as Field[]) || [])

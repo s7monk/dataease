@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -74,8 +75,8 @@ public interface DatasetTreeApi {
     DataSetBarVO barInfo(@PathVariable("id") Long id);
 
     @Operation(summary = "查询数据集")
-    @PostMapping("get/{id}")
-    DatasetGroupInfoDTO get(@PathVariable("id") Long id) throws Exception;
+    @PostMapping("get/{id}/{gn}")
+    DatasetGroupInfoDTO get(@PathVariable("id") Long id, @PathVariable("gn") String gn) throws Exception;
 
     @Operation(summary = "获取数据集详情")
     @PostMapping("details/{id}")

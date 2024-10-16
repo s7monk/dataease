@@ -9,6 +9,7 @@ export interface DatasetOrFolder {
   nodeType: 'folder' | 'dataset'
   union?: Array<{}>
   allFields?: Array<{}>
+  gn: string
 }
 
 export interface EnumValue {
@@ -147,11 +148,14 @@ export const getPreviewData = async (data): Promise<IResponse> => {
   })
 }
 
-export const getDatasetPreview = async (id): Promise<FieldData> => {
-  return request.post({ url: `/datasetTree/get/${id}`, data: {} }).then(res => {
-    return res?.data
-  })
-}
+export const getDatasetPreview = async (id: number, gn: string): Promise<FieldData> => {
+  return request.post({
+    url: `/datasetTree/get/${id}/${gn}`,
+    data: {}
+  }).then(res => {
+    return res?.data;
+  });
+};
 
 export const getDatasetDetails = async (id): Promise<Dataset> => {
   return request.post({ url: `/datasetTree/details/${id}`, data: {} }).then(res => {

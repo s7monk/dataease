@@ -6,6 +6,7 @@ import io.dataease.api.permissions.dataset.dto.DataSetRowPermissionsTreeDTO;
 import io.dataease.chart.charts.ChartHandlerManager;
 import io.dataease.chart.constant.ChartConstants;
 import io.dataease.constant.AuthEnum;
+import io.dataease.dataset.manage.DataSetUtil;
 import io.dataease.dataset.manage.DatasetGroupManage;
 import io.dataease.dataset.manage.DatasetSQLManage;
 import io.dataease.dataset.manage.DatasetTableFieldManage;
@@ -324,6 +325,10 @@ public class ChartDataManage {
         // 获取dsMap,union sql
         Map<String, Object> sqlMap = datasetSQLManage.getUnionSQLForEdit(table, chartExtRequest);
         String sql = (String) sqlMap.get("sql");
+        if (StringUtils.isNotBlank(view.getGn())) {
+            String replacement = "gn = " + "'" + view.getGn() + "'";
+            sql = DataSetUtil.replaceWithGn(sql, replacement);
+        }
         Map<Long, DatasourceSchemaDTO> dsMap = (Map<Long, DatasourceSchemaDTO>) sqlMap.get("dsMap");
         boolean crossDs = Utils.isCrossDs(dsMap);
         if (!crossDs) {
@@ -609,7 +614,7 @@ public class ChartDataManage {
         List<ChartViewFieldDTO> drill = new ArrayList<>(view.getDrillFields());
 
         // 获取数据集,需校验权限
-        DatasetGroupInfoDTO table = datasetGroupManage.get(view.getTableId(), null);
+        DatasetGroupInfoDTO table = datasetGroupManage.get(view.getTableId(), null, null);
         Map<String, ColumnPermissionItem> desensitizationList = new HashMap<>();
         List<DataSetRowPermissionsTreeDTO> rowPermissionsTree = permissionManage.getRowPermissionsTree(table.getId(), view.getChartExtRequest().getUser());
 

@@ -13,6 +13,8 @@ import {useEmitt} from '@/hooks/web/useEmitt'
 import DeFullscreen from '@/components/visualization/common/DeFullscreen.vue'
 import {authorizedResourceIdsWithExport, authorizedResourceIdsWithManage} from '@/api/dataView'
 import {ElMessage} from "element-plus-secondary";
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 
 const dvMainStore = dvMainStoreWithOut()
 const appStore = useAppStoreWithOut()
@@ -32,9 +34,16 @@ const preview = () => {
 const isDataEaseBi = computed(() => appStore.getIsDataEaseBi)
 const isIframe = computed(() => appStore.getIsIframe)
 
+const gn = computed(() => gnStore.getGn);
 const reload = () => {
   emit('reload', dvInfo.value.id)
 }
+
+watch(gn, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    reload();
+  }
+});
 
 const download = type => {
   emit('download', type)

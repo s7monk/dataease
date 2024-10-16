@@ -422,7 +422,7 @@ public class DatasetGroupManage {
     }
 
     public DatasetGroupInfoDTO getDatasetGroupInfoDTO(Long id, String type) throws Exception {
-        return get(id, type);
+        return get(id, type, null);
     }
 
     public DatasetGroupInfoDTO getDetail(Long id) throws Exception {
@@ -463,12 +463,13 @@ public class DatasetGroupManage {
         return dto;
     }
 
-    public DatasetGroupInfoDTO get(Long id, String type) throws Exception {
+    public DatasetGroupInfoDTO get(Long id, String type, String gn) throws Exception {
         CoreDatasetGroup coreDatasetGroup = coreDatasetGroupMapper.selectById(id);
         if (coreDatasetGroup == null) {
             return null;
         }
         DatasetGroupInfoDTO dto = new DatasetGroupInfoDTO();
+        dto.setGn(gn);
         BeanUtils.copyBean(dto, coreDatasetGroup);
         // get creator
         UserVO user = userService.getUserById(Integer.valueOf(dto.getCreateBy()));
@@ -504,6 +505,10 @@ public class DatasetGroupManage {
                 // 获取data,sql
                 Map<String, List> data = (Map<String, List>) map.get("data");
                 String sql = (String) map.get("sql");
+                if (StringUtils.isNotBlank(gn)) {
+                    String replacement = "gn = " + "'" + gn + "'";
+                    sql = DataSetUtil.replaceWithGn(sql, replacement);
+                }
                 Long total = (Long) map.get("total");
                 dto.setData(data);
                 dto.setSql(Base64.getEncoder().encodeToString(sql.getBytes()));

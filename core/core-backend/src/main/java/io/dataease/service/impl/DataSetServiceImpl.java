@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -82,6 +83,10 @@ public class DataSetServiceImpl extends ServiceImpl<DataSetMapper, DataSet> impl
                 .map(item -> String.valueOf(item.getId()))
                 .collect(Collectors.toSet()));
 
+        if (resourceIds.isEmpty()) {
+            return Collections.singletonList("0");
+        }
+
         return new ArrayList<>(resourceIds);
     }
 
@@ -104,6 +109,10 @@ public class DataSetServiceImpl extends ServiceImpl<DataSetMapper, DataSet> impl
         resourceIds.addAll(dataVisualizations.stream()
                 .map(item -> String.valueOf(item.getId()))
                 .collect(Collectors.toSet()));
+
+        if (resourceIds.isEmpty()) {
+            return Collections.singletonList("0");
+        }
 
         return new ArrayList<>(resourceIds);
     }

@@ -14,6 +14,8 @@ import {
 import { valueFormatter } from '@/views/chart/components/js/formatter'
 import { hexColorToRGBA } from '@/views/chart/components/js/util'
 import { storeToRefs } from 'pinia'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 
 const props = defineProps({
   view: {
@@ -347,11 +349,13 @@ const renderChart = async view => {
   }
 }
 
+const gn = computed(() => gnStore.getGn);
 const calcData = (view, callback) => {
   if (view.tableId || view['dataFrom'] === 'template') {
     state.loading = true
     isError.value = false
     const v = JSON.parse(JSON.stringify(view))
+    v.gn = gn.value
     getData(v)
       .then(res => {
         if (res.code && res.code !== 0) {

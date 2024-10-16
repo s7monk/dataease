@@ -27,6 +27,8 @@ import { deepCopy } from '@/utils/utils'
 import { trackBarStyleCheck } from '@/utils/canvasUtils'
 import { useEmitt } from '@/hooks/web/useEmitt'
 import { L7ChartView } from '@/views/chart/components/js/panel/types/impl/l7'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 
 const dvMainStore = dvMainStoreWithOut()
 const { nowPanelTrackInfo, nowPanelJumpInfo, mobileInPc, embeddedCallBack, inMobile } =
@@ -157,10 +159,12 @@ const checkSelected = param => {
   }
 }
 
+const gn = computed(() => gnStore.getGn);
 const calcData = async (view, callback) => {
   if (view.tableId || view['dataFrom'] === 'template') {
     isError.value = false
     const v = JSON.parse(JSON.stringify(view))
+    v.gn = gn.value
     getData(v)
       .then(async res => {
         if (res.code && res.code !== 0) {

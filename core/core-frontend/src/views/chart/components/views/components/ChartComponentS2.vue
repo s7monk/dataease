@@ -29,6 +29,8 @@ import { deepCopy } from '@/utils/utils'
 import { useEmitt } from '@/hooks/web/useEmitt'
 import { trackBarStyleCheck } from '@/utils/canvasUtils'
 import { type SpreadSheet } from '@antv/s2'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 
 const dvMainStore = dvMainStoreWithOut()
 const {
@@ -117,6 +119,7 @@ let chartData = shallowRef<Partial<Chart['data']>>({
 const containerId = 'container-' + showPosition.value + '-' + view.value.id
 const viewTrack = ref(null)
 
+const gn = computed(() => gnStore.getGn);
 const calcData = (view: Chart, callback, resetPageInfo = true) => {
   if (view.customAttr.basicStyle.tablePageStyle === 'general') {
     if (state.currentPageSize !== 0) {
@@ -128,6 +131,7 @@ const calcData = (view: Chart, callback, resetPageInfo = true) => {
   if (view.tableId || view['dataFrom'] === 'template') {
     isError.value = false
     const v = JSON.parse(JSON.stringify(view))
+    v.gn = gn.value;
     getData(v)
       .then(res => {
         if (res.code && res.code !== 0) {

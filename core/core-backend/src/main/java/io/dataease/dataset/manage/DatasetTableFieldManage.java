@@ -206,7 +206,7 @@ public class DatasetTableFieldManage {
     }
 
     public Map<String, List<DatasetTableFieldDTO>> copilotFields(Long id) throws Exception {
-        DatasetGroupInfoDTO datasetGroupInfoDTO = datasetGroupManage.get(id, null);
+        DatasetGroupInfoDTO datasetGroupInfoDTO = datasetGroupManage.get(id, null, null);
         Map<String, Object> sqlMap = datasetSQLManage.getUnionSQLForEdit(datasetGroupInfoDTO, null);
         Map<Long, DatasourceSchemaDTO> dsMap = (Map<Long, DatasourceSchemaDTO>) sqlMap.get("dsMap");
         boolean crossDs = Utils.isCrossDs(dsMap);

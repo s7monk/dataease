@@ -61,6 +61,8 @@ import { useEmitt } from '@/hooks/web/useEmitt'
 import { valueFormatter } from '@/views/chart/components/js/formatter'
 import { parseJson } from '@/views/chart/components/js/util'
 import { mappingColor } from '@/views/chart/components/js/panel/common/common_table'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 const snapshotStore = snapshotStoreWithOut()
 const errMsg = ref('')
 const dvMainStore = dvMainStoreWithOut()
@@ -361,10 +363,12 @@ const editCursor = () => {
   }, 100)
 }
 
+const gn = computed(() => gnStore.getGn);
 const calcData = (view: Chart, callback) => {
   isError.value = false
   if (view.tableId || view['dataFrom'] === 'template') {
     const v = JSON.parse(JSON.stringify(view))
+    v.gn = gn.value
     getData(v)
       .then(res => {
         if (res.code && res.code !== 0) {

@@ -12,6 +12,8 @@ import {
 import type { DatasetOrFolder } from '@/api/dataset'
 import nothingTree from '@/assets/img/nothing-tree.png'
 import { BusiTreeRequest } from '@/models/tree/TreeNode'
+import {useGnStoreWithOut} from "@/store/modules/gn";
+const gnStore = useGnStoreWithOut()
 export interface Tree {
   name: string
   value?: string | number
@@ -227,12 +229,15 @@ const checkPid = pid => {
   }
   return true
 }
+
+const gn = computed(() => gnStore.getGn);
 const saveDataset = () => {
   dataset.value.validate(result => {
     if (result) {
       const params: DatasetOrFolder = {
         nodeType: nodeType.value as 'folder' | 'dataset',
-        name: datasetForm.name
+        name: datasetForm.name,
+        gn: gn.value
       }
 
       switch (cmd.value) {
