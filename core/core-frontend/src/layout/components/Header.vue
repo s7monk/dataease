@@ -82,7 +82,19 @@ const getActiveProject = async () => {
 const downloadClick = params => {
   ExportExcelRef.value.init(params)
 }
-const routers: any[] = formatRoute(permissionStore.getRoutersNotHidden as AppCustomRouteRecordRaw[])
+const routers = ref<any[]>(formatRoute(permissionStore.getRoutersNotHidden as any[]))
+
+const filterRoutes = (routes: any[]): any[] => {
+  return routes
+    .filter(route => route.path !== '/data') // 过滤掉 path 为 '/data' 的父级菜单
+    .map(route => {
+      if (route.children && route.children.length > 0) {
+        route.children = filterRoutes(route.children) // 递归过滤子路由
+      }
+      return route
+    })
+}
+
 const showSystem = ref(true)
 const showToolbox = ref(true)
 const showOverlay = ref(false)
@@ -96,10 +108,10 @@ const handleSelect = (index: string) => {
   }
 }
 const initShowSystem = () => {
-  showSystem.value = permissionStore.getRouters.some(route => route.path === '/system')
+  showSystem.value =  wsCache.get('user.perms').includes('system')
 }
 const initShowToolbox = () => {
-  showToolbox.value = permissionStore.getRouters.some(route => route.path === '/toolbox')
+  showToolbox.value = wsCache.get('user.perms').includes('toolbox')
 }
 const navigateBg = computed(() => appearanceStore.getNavigateBg)
 const navigate = computed(() => appearanceStore.getNavigate)
@@ -146,6 +158,10 @@ onMounted(() => {
   initAiBase()
   initCopilotBase()
   getActiveProject()
+  const userPerms = wsCache.get('user.perms')
+  if (!userPerms.includes('data')) {
+    routers.value = filterRoutes(routers.value)
+  }
   useEmitt({
     name: 'data-export-center',
     callback: function (params) {
@@ -206,6 +222,7 @@ onMounted(() => {
         <el-icon
           class="preview-download_icon"
           :class="navigateBg === 'light' && 'is-light-setting'"
+          :style="{ marginRight: (!showSystem && !showToolbox) ? '5px' : '0px' }"
         >
           <Icon name="dv-preview-download" @click="downloadClick" />
         </el-icon>

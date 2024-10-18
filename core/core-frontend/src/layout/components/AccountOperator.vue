@@ -24,12 +24,13 @@ interface LinkItem {
   link?: string
   method?: string
 }
-const linkList = ref(
-  [
-    { id: 5, label: t('common.about'), method: 'toAbout' },
-    { id: 2, link: '/modify-pwd/index', label: t('user.change_password')}
-  ] as LinkItem[]
-)
+const userPerms = wsCache.get('user.perms');
+const linkList = ref<LinkItem[]>([
+  { id: 5, label: t('common.about'), method: 'toAbout' },
+  ...(userPerms.includes('system:user:change:password')
+    ? [{ id: 2, link: '/modify-pwd/index', label: t('user.change_password') }]
+    : [])
+]);
 if (!appearanceStore.getShowAbout) {
   linkList.value.splice(0, 1)
 }
