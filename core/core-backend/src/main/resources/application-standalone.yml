@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://47.94.247.86:3306/dataease?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://172.16.15.246:3306/dataease?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: paimon123456!
+    password: "BabelTimet89t#data"
   messages:
     basename: i18n/lic,i18n/core,i18n/permissions,i18n/xpack
   flyway:
