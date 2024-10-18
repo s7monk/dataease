@@ -34,7 +34,7 @@ public class SaTokenConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
+        registry.addInterceptor(new CorsInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns(excludePathPatterns);
     }
